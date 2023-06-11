@@ -1,0 +1,32 @@
+                ANGLOR for backbone dihedral angle prediction
+                         version 1.0 written by Sitao Wu
+
+
+INSTALL THE SOFTWARE:
+1. uncompress ANGLOR_source.tar.bz2 to a directory like xxxx/ANGLOR_source.
+2. change path settings of xxxx/ANGLOR_source/library/bin/psipred24/runpsipred:
+      dbname=xxxx/ANGLOR_source/library/data/nr/nr.filter
+      ncbiname=xxxx/ANGLOR_source/library/bin/blast/bin
+      execname=xxxx/ANGLOR_source/library/bin/psipred24/bin
+      dataname=xxxx/ANGLOR_source/library/bin/psipred24/data
+3. change the setting of xxxx/ANGLOR_source/ANGLOR/ANGLOR.pl:
+      
+      $datadir="xxxx/ANGLOR_source/example/$pdb"; #Phi and Psi prediction are saved in 
+	                                          # "xxxx/ANGLOR_source/example/$pdb"
+      $libdir="xxxx/ANGLOR_source/library"; #ANGLOR libary
+      $bindir="xxxx/ANGLOR_source/library/bin"; # Directory of ANGLOR executalbe files
+      $user="username"; # Your user name
+    
+HOW TO RUN THE SOFTWARE:
+Suppose the sequence file is saved in xxxx/ANGLOR_source/example/e01/seq.txt. First Change   current directory to xxxx/ANGLOR_source/ANGLOR. Then type:
+"./ANGLOR.pl e01".
+After the prediction is finished, the phi and psi angle predictions are saved in
+"xxxx/ANGLOR_source/example/$pdb/phi.txt" and "xxxx/ANGLOR_source/example/$pdb/psi.txt" respectively.
+
+
+All questions to stwu@ku.edu
+02/03/2008
+
+
+     
+
