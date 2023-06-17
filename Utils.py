@@ -4,6 +4,8 @@ import requests
 import os
 from Bio import SeqIO
 from Bio.PDB import *
+
+import Global_Value
 from Error import error_obj
 from Classes import *
 from bin.rdkit_2023_3_1.rdkit_compute import Compute_Pharmacophore_with_Rdkit
@@ -928,4 +930,5 @@ def Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path
 
 def Clean_with_Error(docker_container_name):
     Clean_Main_Directory()
-    Docker_Remove_Container(docker_container_name)
+    if Global_Value.D_or_S=='D':
+        Docker_Remove_Container(docker_container_name)

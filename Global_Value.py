@@ -5,6 +5,10 @@ Is_Use_Reverse_Data=True
 
 Psi_Threads_Num=4
 
+Singularity_Container_Path='./src/Prof_Source/myprof.sif'
+
+D_or_S='D'
+
 Docker_Container_Name='myprof'
 Docker_Image_ID='7d9fe6723898'
 

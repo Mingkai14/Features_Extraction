@@ -19,6 +19,7 @@ if __name__ == '__main__':
     parser.add_argument('--db_name', type=str, default='')
     parser.add_argument('--if_reversed_data', type=int, default=1)
     parser.add_argument('--psiblast_threads_num', type=int, default=4)
+    parser.add_argument('--container_type', type=str, default='D')
 
     args = parser.parse_args()
     if args.raw_dataset_path=='' or args.db_folder_path=='' or args.db_name=='' or args.if_reversed_data not in [0,1] or args.psiblast_threads_num<1 or args.psiblast_threads_num>30:
@@ -27,14 +28,20 @@ if __name__ == '__main__':
     if str(args.raw_dataset_path).split('.')[len(str(args.raw_dataset_path).split('.'))-1]!='xls':
         error_obj.Something_Wrong(__name__)
         exit(1)
+    if str(args.container_type) not in ['D','S']:
+        error_obj.Something_Wrong(__name__)
+        exit(1)
 
     Global_Value.Raw_Dataset_file=args.raw_dataset_path
     Global_Value.MSA_DB_Path=args.db_folder_path
     Global_Value.MSA_DB_Name=args.db_name
     Global_Value.Is_Use_Reverse_Data=args.if_reversed_data
     Global_Value.Psi_Threads_Num=args.psiblast_threads_num
+    Global_Value.D_or_S = args.container_type
 
-    Docker_Init_Container(Docker_Container_Name,Docker_Image_ID)
+    if Global_Value.D_or_S=='D':
+        Docker_Init_Container(Docker_Container_Name,Docker_Image_ID)
+
     try:
         Init()
 
@@ -62,8 +69,8 @@ if __name__ == '__main__':
     except:
         Clean_with_Error(Docker_Container_Name)
         exit(1)
-
-    Docker_Remove_Container(Docker_Container_Name)
+    if Global_Value.D_or_S=='D':
+        Docker_Remove_Container(Docker_Container_Name)
     exit(0)
 
 
