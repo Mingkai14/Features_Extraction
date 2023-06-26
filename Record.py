@@ -21,7 +21,8 @@ pass_list=['WT_Structure','MUT_Structure','WT_Amino_Acid_short','MUT_Amino_Acid_
            'WT_Num_Pharmacophore_Categories_Layer1','MUT_Num_Pharmacophore_Categories_Layer1',
            'WT_Num_Pharmacophore_Categories_Layer2','MUT_Num_Pharmacophore_Categories_Layer2',
            'WT_Num_Pharmacophore_Categories_Layer3','MUT_Num_Pharmacophore_Categories_Layer3',
-           'WT_Psipred_List','MUT_Psipred_List'
+           'WT_Psipred_List','MUT_Psipred_List','WT_BLASTP_Path','MUT_BLASTP_Path',
+           'Is_Mut_Co_Evo','Co_Evo_AA_Type','Is_Group_Co_Evo','Co_Evo_Group_Num'
            ]
 
 expand_dict={'WT_FoldX_Energy_Term_Dict':'wt_foldx_',

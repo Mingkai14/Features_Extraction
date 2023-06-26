@@ -5,8 +5,9 @@ wt_pdb_path<-arg[1]
 mut_pdb_path<-arg[2]
 loc<-arg[3]
 path<-arg[4]
+outpath<-arg[5]
 
-if (is.na(wt_pdb_path)|is.na(mut_pdb_path)|is.na(loc)|is.na(path))
+if (is.na(wt_pdb_path)|is.na(mut_pdb_path)|is.na(loc)|is.na(path)|is.na(outpath))
 {
    print('Error!')
    quit()
@@ -46,13 +47,14 @@ if (is.na(wt_pdb_path)|is.na(mut_pdb_path)|is.na(loc)|is.na(path))
 wt_pdb<-read.pdb(wt_pdb_path)
 mut_pdb<-read.pdb(mut_pdb_path)
 l<-list(wt_pdb,mut_pdb)
-pdbs <- pdbaln(l,exefile= paste(path, "muscle", sep=""))
+pdbs <- pdbaln(l,exefile= paste(path, "muscle", sep=""),outfile=paste(outpath,"aln.fa",sep=""))
 modes <- nma(pdbs, rm.gaps=TRUE)
 loc_<-as.numeric(loc)
 f_wt_loc<-as.double(modes$fluctuations[,loc_][1])
 f_mut_loc<-as.double(modes$fluctuations[,loc_][2])
 rmsip<-as.double(modes$rmsip[,1][2])
-cat(f_wt_loc,f_mut_loc,rmsip,file='./r_output.txt')
+path="r_output.txt"
+cat(f_wt_loc,f_mut_loc,rmsip,file=paste(outpath,path,sep=""))
 
 
 

@@ -84,6 +84,8 @@ class Feature_Object:
         self.WT_PSI_BLAST_Path=''
         self.MUT_PSSM_Path = ''
         self.MUT_PSI_BLAST_Path = ''
+        self.WT_BLASTP_Path=''
+        self.MUT_BLASTP_Path=''
 
         # RMSD of alignment, by pymol
         self.RMSD_WT_MUT = -99.99
@@ -109,7 +111,10 @@ class Feature_Object:
         self.Dssp_List = []
         self.WT_Psipred_List = []
         self.MUT_Psipred_List = []
-        self.Overall_Pct_Secondary_Structure = {'H': -99.99, 'E': -99.99, 'C': -99.99}
+        # self.Overall_Pct_Secondary_Structure = {'H': -99.99, 'E': -99.99, 'C': -99.99}
+
+        self.Overall_Pct_Secondary_Structure = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99,
+                                                'T': -99.99, 'S': -99.99, '-': -99.99}
 
         # Coils, Rem465, and Hotloop Information, by disEMBL
         self.COILS_line = ''
@@ -304,12 +309,20 @@ class Feature_Object:
         self.SIFT_Score=0
 
         #Backbone_Torsional_Angle, by ANGLOR
-        self.WT_Psi_ANGLOR = -99.99
-        self.WT_Phi_ANGLOR = -99.99
-        self.MUT_Psi_ANGLOR = -99.99
-        self.MUT_Phi_ANGLOR = -99.99
-        self.Diff_Psi_ANGLOR = -99.99
-        self.Diff_Phi_ANGLOR = -99.99
+        # self.WT_Psi_ANGLOR = -99.99
+        # self.WT_Phi_ANGLOR = -99.99
+        # self.MUT_Psi_ANGLOR = -99.99
+        # self.MUT_Phi_ANGLOR = -99.99
+        # self.Diff_Psi_ANGLOR = -99.99
+        # self.Diff_Phi_ANGLOR = -99.99
+
+        # Backbone_Torsional_Angle, by DSSP
+        self.WT_Psi = -99.99
+        self.WT_Phi = -99.99
+        self.MUT_Psi = -99.99
+        self.MUT_Phi = -99.99
+        self.Diff_Psi = -99.99
+        self.Diff_Phi = -99.99
 
 
 

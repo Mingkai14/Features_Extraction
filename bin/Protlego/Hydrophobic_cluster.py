@@ -37,6 +37,14 @@ from Classes import *
 from .views import get_structures
 
 def Run_HD_Cluser(pdb,main_loc):
+    '''
+    :purpose: According to pdb to compute cluster info
+    :param pdb: Input a PDB file path
+    :param main_loc: Input main location
+    :return: list of all cluster obj in protein
+    :process: Call get_structures from Protlego to receive a pdb file then get a list of all cluster info.
+              Fill a new list of all cluster obj
+    '''
     clusters_list = []
     res_list=get_structures(pdb.replace('./',main_loc))
     for cluster in res_list:
@@ -63,6 +71,12 @@ def Devide_Res_of_HD_Cluster_by_Layers(hd_cluster_list:list[Protlego_Hydrophobic
     return count
 
 def Get_Max_Area(hd_cluster_list:list[Protlego_Hydrophobic_Cluster],layer_aa_list:list[Researched_Amino_Acid]):
+    '''
+    :purpose: Filter the max area value of cluster from provided AA list
+    :param hd_cluster_list: Input a list of all hd cluster obj
+    :param layer_aa_list: Input a list of AA obj
+    :return: The max area value
+    '''
     aa_list=[]
     for aa in layer_aa_list:
         aa_list.append(aa.Num)
@@ -80,6 +94,12 @@ def Get_Max_Area(hd_cluster_list:list[Protlego_Hydrophobic_Cluster],layer_aa_lis
 
 
 def Judge_If_in_Cluster(aa:Researched_Amino_Acid,cluster_list:list[Protlego_Hydrophobic_Cluster]):
+    '''
+    :purpose: Judge if input AA in cluster list, if this AA in more than one cluster, choose one with max area
+    :param aa: Input an AA obj
+    :param cluster_list: Input a cluster list
+    :return: Return a list including is_in_Cluster and its area value
+    '''
     is_in_Cluster=0
     max=0
     for cluster in cluster_list:

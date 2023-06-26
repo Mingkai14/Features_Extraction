@@ -4,7 +4,18 @@ from Classes import Ring_Bond
 from Utils import amino_acid_map,Researched_Amino_Acid
 import shutil
 
-def Run_Ring(pdb_path,ring_bin_path,bond_list:list):
+def Run_Ring(pdb_path,ring_bin_path,bond_list:list,temp_path,o_folder_name):
+    '''
+    :purpose: Compute different bonds number by Ring3
+    :param pdb_path: Input a PDB file path
+    :param ring_bin_path: Input location of executable file of Ring3
+    :param bond_list: Input an output list to save ring bond obj
+    :param temp_path: Input TMP path as saving path
+    :param o_folder_name: should include unique id and WT/MUT info, like ring3_res_ID_WT
+    :return: Bond Number counting dict/False
+    :outpath:temp_path/o_folder_name/
+    :process: Make saving path in TMP, call ring3 to run and read results to return
+    '''
     if not os.path.exists(pdb_path):
         error_obj.Is_Not_Existed(Run_Ring.__name__,pdb_path)
         return False
@@ -12,14 +23,13 @@ def Run_Ring(pdb_path,ring_bin_path,bond_list:list):
     if not os.path.exists(ring_bin_path+'ring'):
         error_obj.Is_Not_Existed(Run_Ring.__name__,ring_bin_path+'ring')
         return False
-    if os.path.exists(ring_bin_path+'res/'):
-        error_obj.Something_Wrong(Run_Ring.__name__,'res_existed')
-        return False
-    os.mkdir(ring_bin_path+'res/')
-    os.system(ring_bin_path+'ring -i '+pdb_path+' --out_dir '+ring_bin_path+'res/')
+    if os.path.exists(temp_path+o_folder_name+'/'):
+        shutil.rmtree(temp_path+o_folder_name+'/')
+    os.mkdir(temp_path+o_folder_name+'/')
+    os.system(ring_bin_path+'ring -i '+pdb_path+' --out_dir '+temp_path+o_folder_name+'/')
     count_dict = {'HBOND': 0, 'SSBOND': 0, 'IONIC': 0, 'VDW': 0, 'PICATION': 0, 'PIPISTACK': 0}
     try:
-        with open(ring_bin_path+'res/'+str(pdb_path).split('/')[len(str(pdb_path).split('/'))-1]+'_ringEdges','r') as edges:
+        with open(temp_path+o_folder_name+'/'+str(pdb_path).split('/')[len(str(pdb_path).split('/'))-1]+'_ringEdges','r') as edges:
             lines=edges.readlines()
             for line in lines[1:]:
                 l=line.replace('\n','').split('\t')
@@ -57,7 +67,8 @@ def Run_Ring(pdb_path,ring_bin_path,bond_list:list):
         error_obj.Something_Wrong(Run_Ring.__name__, 'open_edges')
         return False
 
-    shutil.rmtree(ring_bin_path+'res/')
+    # shutil.rmtree(ring_bin_path+'res/')
+    # shutil.rmtree(temp_path+o_folder_name+'/')
 
     return count_dict
 
@@ -75,6 +86,13 @@ def Devide_Res_of_Ring_by_Layers(ring_bond_list:list[Ring_Bond],layer_aa_list:li
     return count_dict
 
 def Judge_Bond_of_Ring(ring_bond_list:list[Ring_Bond],aa:Researched_Amino_Acid):
+    '''
+    :purpose: Judge input AA obj belongs to which bonds
+    :param ring_bond_list: Input a ring3 bond list
+    :param aa: Input a Researched AA obj
+    :return: A dict record bool value to represent bond situation of input AA
+    :process: Read ring bond list to match input AA and return bond info
+    '''
     judge_dict={'HBOND': 0, 'SSBOND': 0, 'IONIC': 0, 'VDW': 0, 'PICATION': 0, 'PIPISTACK': 0, 'IAC': 0}
     for bond in ring_bond_list:
         if bond.AA_1_Num==aa.Num or bond.AA_2_Num==aa.Num:

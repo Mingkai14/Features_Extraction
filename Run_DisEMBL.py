@@ -1,15 +1,35 @@
 from bin.DisEMBL_1_4.DisEMBL import runDisEMBLpipeline
-from Utils import Clean_Main_Directory
+# from Utils import Clean_Main_Directory
 from Error import error_obj
 from Classes import Researched_Amino_Acid
 
-def Run_DisEMBL(seq_dict:dict,chain_id_mut,name,path):
+def Run_DisEMBL(seq_dict:dict,chain_id_mut,name,path,temp_path,o_folder_name):
+    '''
+    :purpose: Call DisEMBL to compute COILS, REM465 and  HOTLOOPS info
+    :param seq_dict: Input sequence dict
+    :param chain_id_mut: Input chain id
+    :param name: name
+    :param path:Input path of DisEMBL
+    :param temp_path: TMP Path
+    :param o_folder_name: output folder name
+    :outpath: like TMP/disembl_res_ID
+    :return: A list of info/False
+    :process: 1. make outpath
+              2. make fasta file
+              3. Run DisEMBL and output in outpath
+              4. Read result in outpath
+    '''
+    outpath=temp_path+o_folder_name+'/'
+    import os,shutil
+    if os.path.exists(outpath):
+        shutil.rmtree(outpath)
+    os.mkdir(outpath)
     try:
-        with open('./temp.fasta','w') as temp:
+        with open(f'{outpath}/temp.fasta','w') as temp:
             temp.write(f'>{name}_{chain_id_mut}\n')
             temp.write(seq_dict[chain_id_mut])
-        runDisEMBLpipeline(8, 8, 4, 1.2, 1.4, 1.2, './temp.fasta', path)
-        with open('./out.txt','r') as out:
+        runDisEMBLpipeline(8, 8, 4, 1.2, 1.4, 1.2, f'{outpath}/temp.fasta', path,outpath)
+        with open(f'{outpath}/out.txt','r') as out:
             lines=out.readlines()
             count=0
             COILS_line=''
@@ -28,11 +48,11 @@ def Run_DisEMBL(seq_dict:dict,chain_id_mut,name,path):
             if count!=3 or COILS_line=='' or REM465_line=='' or HOTLOOPS_line=='':
                 error_obj.Something_Wrong(Run_DisEMBL.__name__)
                 return False
-            Clean_Main_Directory()
+            # Clean_Main_Directory()
             return [COILS_line,REM465_line,HOTLOOPS_line]
     except:
         error_obj.Something_Wrong(Run_DisEMBL.__name__)
-        Clean_Main_Directory()
+        # Clean_Main_Directory()
         return False
 
 

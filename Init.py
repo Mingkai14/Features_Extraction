@@ -9,6 +9,7 @@ def Init():
     Init_for_Psipred()
     Init_for_ANGLOR()
     Amino_Acid_Encode()
+    Init_for_FoldX()
     SS_Encode()
     AAindex.Init_AAindex(AAIndex1_Path,AAIndex2_Path,AAIndex3_Path)
 
@@ -117,7 +118,10 @@ def Init_for_ANGLOR():
 
 
 
-
+def Init_for_FoldX():
+    if not os.path.exists('./molecules/'):
+        import shutil
+        shutil.copytree(f'{FoldX_Path}molecules/','./molecules/')
 
 
 

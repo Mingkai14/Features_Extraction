@@ -130,7 +130,7 @@ def reportSlicesTXT(slices, sequence):
 
 
 
-def runDisEMBLpipeline(smooth_frame:int,peak_frame:int,join_frame:int,fold_coils:float,fold_hotloops:float,fold_rem465:float,file:str,path,mode='default'):
+def runDisEMBLpipeline(smooth_frame:int,peak_frame:int,join_frame:int,fold_coils:float,fold_hotloops:float,fold_rem465:float,file:str,path,outpath,mode='default'):
     # try:
     #     smooth_frame = int(sys.argv[1])
     #     peak_frame = int(sys.argv[2])
@@ -153,7 +153,7 @@ def runDisEMBLpipeline(smooth_frame:int,peak_frame:int,join_frame:int,fold_coils
     NN_bin=path+'disembl'
     SG_bin=path+'sav_gol'
     old_stdout=sys.stdout
-    sys.stdout = open('./out.txt', 'w')
+    sys.stdout = open(f'{outpath}/out.txt', 'w')
     with open(file,'r') as db:
         print(' ____  _     _____ __  __ ____  _       _  _  _')
         print('|  _ \(_)___| ____|  \/  | __ )| |     / || || |')

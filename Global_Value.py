@@ -5,9 +5,13 @@ Is_Use_Reverse_Data=True
 
 Psi_Threads_Num=4
 
+Process_Num=1
+
 Singularity_Container_Path='./src/Prof_Source/myprof.sif'
 
 D_or_S='D'
+
+Mode=''
 
 Docker_Container_Name='myprof'
 Docker_Image_ID='7d9fe6723898'
@@ -24,6 +28,10 @@ WT_PSSM_Data_Path='./src/PSSM_Data/WT/'
 MUT_PSSM_Data_Path='./src/PSSM_Data/MUT/'
 WT_PSI_BLAST_Data_Path='./src/PSI_BLAST_Data/WT/'
 MUT_PSI_BLAST_Data_Path='./src/PSI_BLAST_Data/MUT/'
+WT_BLASTP_Data_Path='./src/BLASTP_Data/WT/'
+MUT_BLASTP_Data_Path='./src/BLASTP_Data/MUT/'
+
+TMP_Path='./src/TMP/'
 
 Table_Path='./src/Data_Table/'
 Res_Table_Name='data_table.txt'
@@ -48,10 +56,11 @@ MSA_DB_Path=''
 MSA_DB_Name=''
 
 
-Prof_Path='./bin/Prof/'
-Prof_Temp_Path='./bin/Prof/Middle_Files/'
+
+Prof_Temp_Path='./src/Prof/'
 
 Main_Location=os.path.dirname(os.path.abspath(__file__))+'/'
+Home_Location=os.path.expandvars('$HOME')
 
 R_NMA_Path='./bin/R_NMA/'
 R_NMA_App_Name='NMA.R'
@@ -61,7 +70,8 @@ DisEMBL_Path='./bin/DisEMBL_1_4/'
 BLAST_Path='./bin/ncbi_blast_2_13_0+/bin/'
 Caps_Path='./bin/caps_2_0/'
 
-WT_MSA_Path='./src/WT_MSA/'
+# WT_MSA_Path='./src/WT_MSA/'
+WT_MSA_Path=''
 SIFT_Path='./bin/sift6_2_1/'
 
 Psipred_Path='./bin/psipred_v4/'

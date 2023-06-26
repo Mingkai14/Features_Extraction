@@ -7,7 +7,7 @@ def Docker_Init_Container(container_name,image_id):
 def Docker_Make_Dir(container_name,path):
     os.system(f'docker exec {container_name} mkdir {path}')
 
-def Docer_Delete_Dir(container_name,path):
+def Docker_Delete_Dir(container_name,path):
     os.system(f'docker exec {container_name} rm -rf {path}')
 
 def Docker_Import_File(container_name,src_path,out_path):

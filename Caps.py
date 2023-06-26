@@ -1,7 +1,7 @@
 from MSA import run_blastp_2_13_0
 import os
 from Utils import Clean_Main_Directory,amino_acid_num_map,Fetch_Single_Chain_Loc
-from Run_Sift import Share_Aligned_File
+# from Run_Sift import Share_Aligned_File
 def Trans_blast_2_fasta(blast_file,output_file,line_limit:int):
     count = 0
     with open(blast_file) as ori_blast:
@@ -115,12 +115,12 @@ def Read_Caps_2(path):
     group_res=group_list
     overlap_res=overlap_list
 
-def Compute_Co_Evo(blast_path,seq_dict:dict,chain_id,name,db_path,db_name,caps_path,loc:int,seq_num:int):
-    with open('./temp.fasta','w') as fasta:
-        fasta.write(f'>{name}_{chain_id}\n')
-        fasta.write(seq_dict[chain_id])
-    run_blastp_2_13_0(blast_path,'./temp.fasta','./blast_out.blast',db_path,db_name,'6 sseqid sseq')
-    Trans_blast_2_fasta('./blast_out.blast','./blast_out.fasta',seq_num)
+def Compute_Co_Evo(blastp_path,seq_dict:dict,chain_id,name,db_path,db_name,caps_path,loc:int,seq_num:int):
+    # with open('./temp.fasta','w') as fasta:
+    #     fasta.write(f'>{name}_{chain_id}\n')
+    #     fasta.write(seq_dict[chain_id])
+    # run_blastp_2_13_0(blast_path,'./temp.fasta','./blast_out.blast',db_path,db_name,'6 sseqid sseq')
+    Trans_blast_2_fasta(blastp_path,'./blast_out.fasta',seq_num)
     #Run_Muscle(caps_path,'./blast_out.fasta','./blast_out.aln.fasta')
     #Run_Caps_2(caps_path,'./blast_out.aln.fasta')
     Identify_Blast_Out(name,seq_dict,chain_id,'./blast_out.fasta','./blast_out.aln.fasta')
@@ -166,6 +166,7 @@ def Compute_Co_Evo(blast_path,seq_dict:dict,chain_id,name,db_path,db_name,caps_p
         for group in temp_ll:
             if len(group)>max_len:
                 max_len=len(group)
+    from Run_Sift import Share_Aligned_File
     Share_Aligned_File(name,seq_dict,chain_id,'./blast_out.fasta')
     Clean_Main_Directory()
     res_l=[]

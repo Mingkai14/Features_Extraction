@@ -2,12 +2,18 @@ import os
 from Error import error_obj
 
 
-def Run_Score_JD2(rostta_bin_path,rosetta_db_path,pdb_path,rosetta_terms_dict:dict):
-    from Utils import Clean_Main_Directory
-    Clean_Main_Directory()
-    os.system(f'{rostta_bin_path}score_jd2.static.linuxgccrelease -database {rosetta_db_path} -in:file:s {pdb_path} -ignore_unrecognized_res')
+def Run_Score_JD2(rostta_bin_path,rosetta_db_path,pdb_path,rosetta_terms_dict:dict,temp_path,o_folder_name):
+
+    # from Utils import Clean_Main_Directory
+    # Clean_Main_Directory()
+    outpath=temp_path+o_folder_name+'/'
+    if os.path.exists(outpath):
+        import shutil
+        shutil.rmtree(outpath)
+    os.mkdir(outpath)
+    os.system(f'{rostta_bin_path}score_jd2.static.linuxgccrelease -database {rosetta_db_path} -in:file:s {pdb_path} -out:file:scorefile {outpath}/score.sc -ignore_unrecognized_res')
     score_dict={}
-    with open('./score.sc','r') as r:
+    with open(f'{outpath}/score.sc','r') as r:
         lines=r.readlines()
         for line in lines:
             line=line.replace('\n','')
@@ -23,9 +29,9 @@ def Run_Score_JD2(rostta_bin_path,rosetta_db_path,pdb_path,rosetta_terms_dict:di
             rosetta_terms_dict[key]=float(score_dict[key])
     except:
         error_obj.Something_Wrong(Run_Score_JD2.__name__)
-        Clean_Main_Directory()
+        # Clean_Main_Directory()
         return False
-    Clean_Main_Directory()
+    # Clean_Main_Directory()
     return True
 
 

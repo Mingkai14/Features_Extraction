@@ -36,7 +36,8 @@ heterocyclic_aa=['H','W']
 
 sulfur_containing_aa=['M','C']
 
-secondary_structure_map={'H':0,'E':1,'C':2}
+# secondary_structure_map={'H':0,'E':1,'C':2}
+secondary_structure_map={'-':0,'H':1,'B':2,'E':3,'G':4,'I':5,'T':6,'S':7}
 
 secondary_structure_encode={}
 
@@ -140,22 +141,24 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
     mut_pssm_path=''
     wt_psi_blast_path=''
     mut_psi_blast_path=''
+    wt_blastp_path=''
+    mut_blastp_path=''
     if not os.path.exists(table_path):
         os.mkdir(table_path)
     is_file_existed=os.path.exists(table_path+res_table_name)
     with open(table_path+res_table_name,'a') as table:
         if not is_file_existed:
-            table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,pH,temperature,ddg\n')
+            table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n')
         if is_file_existed:
             table.write('\n')
-        table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+str(pH)+','+str(temperature)+','+str(ddg))
+        table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(ddg))
     return True
 
 def Add_Reverse_Data(table_path,table_name):
     backup_lines = []
     with open(table_path+table_name,'r') as table:
         lines=table.readlines()
-        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,pH,temperature,ddg\n':
+        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n':
             error_obj.Something_Wrong(Add_Reverse_Data.__name__)
             exit(1)
         backup_lines.append(lines[0])
@@ -176,14 +179,16 @@ def Add_Reverse_Data(table_path,table_name):
             mut_pssm_path = item_list[12]
             wt_psi_blast_path = item_list[13]
             mut_psi_blast_path = item_list[14]
-            pH = item_list[15]
-            temperature = item_list[16]
-            ddg = item_list[17]
+            wt_blastp_path = item_list[15]
+            mut_blastp_path = item_list[16]
+            pH = item_list[17]
+            temperature = item_list[18]
+            ddg = item_list[19]
             if line.find('\n')==-1:
                 line=line+'\n'
             backup_lines.append(line)
             new_id=id.split('_')[0]+'_'+mut_aa_short+loc+wt_aa_short
-            l=f'{new_id},{mut_aa_short},{wt_aa_short},{loc},{t_loc},{mut_pdb_name},{mut_pdb_path},{wt_pdb_name},{wt_pdb_path},{mut_fasta_path},{wt_fasta_path},{mut_pssm_path},{wt_pssm_path},{mut_psi_blast_path},{wt_psi_blast_path},{pH},{temperature},{str(-float(ddg))}\n'
+            l=f'{new_id},{mut_aa_short},{wt_aa_short},{loc},{t_loc},{mut_pdb_name},{mut_pdb_path},{wt_pdb_name},{wt_pdb_path},{mut_fasta_path},{wt_fasta_path},{mut_pssm_path},{wt_pssm_path},{mut_psi_blast_path},{wt_psi_blast_path},{mut_blastp_path},{wt_blastp_path},{pH},{temperature},{str(-float(ddg))}\n'
             backup_lines.append(l)
     with open(table_path+table_name,'w') as w_table:
         for line in backup_lines:
@@ -242,6 +247,13 @@ def Read_Seq_from_Fasta(fasta_path):
     return seq_dict
 
 def Read_Seq_from_AA_List(seq_dict:dict,aa_list:list):
+    '''
+    :purpose: By list of all AA obj, to generate a dict of sequence, this dict is divided by chain ID
+    :param seq_dict: Input a output dict for receiving sequence info
+    :param aa_list: Input a list of all AA obj
+    :return: True/False
+    :process: Read aa_list, divided by chain ID to record sequence
+    '''
     try:
         for aa in aa_list:
             if aa.Chain_ID not in seq_dict.keys():
@@ -300,6 +312,16 @@ def Fetch_PDB(pdb_name, pdb_path):
 
 
 def Get_Reasearched_Amino_Acid(amino_acid:Researched_Amino_Acid, pdb_name,pdb_path,loc_mutation, amino_acid_short_for_test):
+    '''
+    :purpose: Obtain info of WT/MUT and other AA
+    :param amino_acid:Input a Researched_AA obj, which is waiting to assign value. This obj to record AA info
+    :param pdb_name: Input a PDB file name
+    :param pdb_path: Input a PDB file path
+    :param loc_mutation: Input true location (after clean, may not equal to location in raw data) of AA position
+    :param amino_acid_short_for_test: Input AA type for testing
+    :return: True/False
+    :process: By Biopthon PDBParser to fill AA info as well as central coordinate
+    '''
     pdb = PDBParser(QUIET=True)
     if not os.path.exists(pdb_path):
         error_obj.Is_Not_Existed(Get_Reasearched_Amino_Acid.__name__,pdb_path)
@@ -356,6 +378,14 @@ def Get_Reasearched_Amino_Acid(amino_acid:Researched_Amino_Acid, pdb_name,pdb_pa
 
 
 def Get_All_Amino_Acid(return_list:list,pdb_name,pdb_path):
+    '''
+    :purpose: Obtain info of all AA in protein, recorded into a list with Research_AA obj
+    :param return_list: Input a list to receive all AA obj
+    :param pdb_name: Input a PDB file name
+    :param pdb_path: Input a PDB file path
+    :return: True/False
+    :process: By biopython to get all AA basic info and call Get_Researched_AA function to generate each AA obj
+    '''
     pdb = PDBParser(QUIET=True)
     if not os.path.exists(pdb_path):
         error_obj.Is_Not_Existed(Get_All_Amino_Acid.__name__, pdb_path)
@@ -451,12 +481,26 @@ def Get_All_Amino_Acid(return_list:list,pdb_name,pdb_path):
 
 
 def Run_Prolego(pdb_path,hd_list:list,main_loc):
+    '''
+    :purpose: By Run_HD_Cluster function to compute HD Cluster info
+    :param pdb_path: Input a PDB file path
+    :param hd_list: Input an output list to save HD Cluster obj
+    :param main_loc: Input the main location to meet requirement of definite path
+    :return: number of HD Cluster in protein
+    '''
     l=Run_HD_Cluser(pdb_path,main_loc)
     for hd_cluster in l:
         hd_list.append(hd_cluster)
     return len(l)
 
 def Compute_AA_Categories(aa_list:list,pct_dict:dict,num_dict:dict):
+    '''
+    :purpose: Compute AA categories situation
+    :param aa_list: Input a list of all AA obj
+    :param pct_dict: Input an output dict of AA categories percentage from aa_list
+    :param num_dict: Input an output dict of AA categories number from aa_list
+    :return: None
+    '''
     count=0
     uncharged_polar=0
     positively_charged_polar=0
@@ -528,6 +572,14 @@ def Judge_AA_Categories(aa:Researched_Amino_Acid):
     return amino_acid_categories_map
 
 def Run_Dssp(pdb_name,pdb_path,seq_dict_for_test:dict):
+    '''
+    :purpose: By DSSP to get buried/exposed aa info and secondary structure percentage info
+    :param pdb_name: Input a name
+    :param pdb_path: Input a PDB file path
+    :param seq_dict_for_test: Input sequence for testing
+    :return: list of percentage of buried and exposed and a dict of each ss percentage from protein
+    :process: By biopython to call DSSP to compute, iterative count and compute info of percentage
+    '''
     seq=''
     for key in seq_dict_for_test.keys():
         seq+=seq_dict_for_test[key]
@@ -547,15 +599,26 @@ def Run_Dssp(pdb_name,pdb_path,seq_dict_for_test:dict):
     count=0
     buried=0
     exposed=0
+    ss_num_dict = {'H': 0, 'B': 0, 'E': 0, 'G': 0, 'I': 0, 'T': 0, 'S': 0, '-': 0}
+    pct_dict = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99, 'T': -99.99, 'S': -99.99, '-': -99.99}
     for key in dssp.keys():
         count+=1
         if dssp[key][3]>0.25:
             exposed+=1
         else:
             buried+=1
+        ss_num_dict[dssp[key][2]] += 1
     buried_pct=buried/count
     exposed_pct=exposed/count
-    return [buried_pct,exposed_pct]
+    pct_dict['H'] = ss_num_dict['H'] / count
+    pct_dict['B'] = ss_num_dict['B'] / count
+    pct_dict['E'] = ss_num_dict['E'] / count
+    pct_dict['G'] = ss_num_dict['G'] / count
+    pct_dict['I'] = ss_num_dict['I'] / count
+    pct_dict['T'] = ss_num_dict['T'] / count
+    pct_dict['S'] = ss_num_dict['S'] / count
+    pct_dict['-'] = ss_num_dict['-'] / count
+    return [buried_pct,exposed_pct,pct_dict]
 
 def Devide_Res_of_DSSP_by_Layers(dssp_list:list,aa_list:list[Researched_Amino_Acid],pct_dict:dict):
     aa_l=[]
@@ -589,8 +652,21 @@ def Devide_Res_of_DSSP_by_Layers(dssp_list:list,aa_list:list[Researched_Amino_Ac
     return [buried_pct, exposed_pct]
 
 def Get_Res_of_DSSP(pdb_name,pdb_path,seq_dict_for_test:dict,aa:Researched_Amino_Acid):
+    '''
+    :purpose: Targeting on one site, compute RSA, if_buried_or_exposed, ss, psi and phi info
+    :param pdb_name: Input a name
+    :param pdb_path: Input a PDB file path
+    :param seq_dict_for_test: Input sequence for testing
+    :param aa: Input an AA obj of this site
+    :return: Return a list including RSA, is_buried_or_exposed, ss info and psi/phi
+    :process: By biopython to call DSSP to get a dssp list, match corresponding AA to get info
+    '''
     rsa=0.0
     is_buried_or_exposed=0
+    ss=0
+    ss_char=''
+    psi=0.0
+    phi=0.0
     seq = ''
     for key in seq_dict_for_test.keys():
         seq += seq_dict_for_test[key]
@@ -612,30 +688,60 @@ def Get_Res_of_DSSP(pdb_name,pdb_path,seq_dict_for_test:dict,aa:Researched_Amino
             rsa=dssp[key][3]
             if rsa>0.25:
                 is_buried_or_exposed=1
-    return [rsa,is_buried_or_exposed]
+            ss_char=dssp[key][2]
+            ss=secondary_structure_map[ss_char]
+            phi=dssp[key][4]
+            psi=dssp[key][5]
+    return [rsa,is_buried_or_exposed,int(ss),str(ss_char),float(psi),float(phi)]
 
 
 
-def Run_FoldX(foldx_path,foldx_name,pdb_path,wt_aa,mut_aa,loc,chain_id,raw_dict:dict,diff_dict:dict):
-    shutil.copytree(f'{foldx_path}molecules/','./molecules/')
-    with open('./individual_list.txt','w') as txt:
+def Run_FoldX(foldx_path,foldx_name,pdb_path,wt_aa,mut_aa,loc,chain_id,raw_dict:dict,diff_dict:dict,temp_path,o_folder_name):
+    '''
+    :purpose: Compute FoldX energy terms
+    :param foldx_path: Input FoldX path
+    :param foldx_name: Input FoldX program name
+    :param pdb_path: Input a PDB file path
+    :param wt_aa: Input wt AA for making mutation file
+    :param mut_aa: Input mut AA for making mutation file
+    :param loc: Input true loc for making mutation file
+    :param chain_id: Input chain id for making mutation file
+    :param raw_dict: Input an output dict to save raw energy terms
+    :param diff_dict: Input an output dict to save diff energy terms
+    :param temp_path: Input TMP Path
+    :param o_folder_name: Input outpath folder name
+    :return: True/False
+    :outpath: like TMP/foldx_res_ID
+    :process: 1. Check if resource folder exist
+              2. make mutation file
+              3. make temp pdb file
+              4. run FoldX and output in outpath
+              5. Read results and fill output dict
+    '''
+    outpath=temp_path+o_folder_name+'/'
+    if os.path.exists(outpath):
+        shutil.rmtree(outpath)
+    os.mkdir(outpath)
+    if not os.path.exists('./molecules/'):
+        return False
+    with open(f'{outpath}/individual_list.txt','w') as txt:
         txt.write(wt_aa+chain_id+str(loc)+mut_aa+';')
 
     with open(pdb_path,'r') as pdb:
-        with open('./temp.pdb','w') as new_pdb:
+        with open(f'{outpath}/temp.pdb','w') as new_pdb:
             new_pdb.write(pdb.read())
 
-    os.system(f'{foldx_path}{foldx_name} --command=BuildModel --pdb=temp.pdb --mutant-file=individual_list.txt')
+    os.system(f'{foldx_path}{foldx_name} --command=BuildModel --pdb=temp.pdb --pdb-dir {outpath} --mutant-file={outpath}individual_list.txt --output-dir={outpath}')
 
-    files=os.listdir('./')
+    files=os.listdir(outpath)
 
 
     for file in files:
-        if os.path.isdir(file):
+        if os.path.isdir(outpath+file):
             continue
         is_data_line=False
         if file.split('_')[0]=='Raw':
-            with open(file,'r') as f:
+            with open(outpath+file,'r') as f:
                 for line in f.readlines():
                     if is_data_line:
                         data=line.split()
@@ -645,7 +751,7 @@ def Run_FoldX(foldx_path,foldx_name,pdb_path,wt_aa,mut_aa,loc,chain_id,raw_dict:
                         is_data_line=True
         is_data_line = False
         if file.split('_')[0]=='Dif':
-            with open(file,'r') as f:
+            with open(outpath+file,'r') as f:
                 for line in f.readlines():
                     if is_data_line:
                         data=line.split()
@@ -653,10 +759,23 @@ def Run_FoldX(foldx_path,foldx_name,pdb_path,wt_aa,mut_aa,loc,chain_id,raw_dict:
                             diff_dict[list(diff_dict.keys())[i]]=data[i]
                     if line.find('Pdb')!=-1 and line.find('total')!=-1 and line.find('energy')!=-1 and line.find('Backbone')!=-1 and line.find('Electrostatics')!=-1:
                         is_data_line=True
-    Clean_Main_Directory()
+    # Clean_Main_Directory()
+    # shutil.rmtree('./molecules/')
+    return True
+
+def Remove_FoldX_Resource():
     shutil.rmtree('./molecules/')
 
+
 def Fetch_Chain_ID_from_Seq(loc:int,seq_dict:dict,wt_aa_for_test):
+    '''
+    :purpose: By true location (after PDB clean), to locate mutation in which chain
+    :param loc: Input true AA location
+    :param seq_dict: Input a dict of sequence
+    :param wt_aa_for_test: Input a AA type for testing
+    :return: Chain ID/False
+    :process: Maintain a count variable to iterative match true location then record chain ID
+    '''
     count=0
     for key in seq_dict.keys():
         for aa in seq_dict[key]:
@@ -679,6 +798,16 @@ def Clean_Main_Directory():
 
 
 def Run_Rdikit(pdb_path,rdkit_path,rdkit_fdef_name,res_dict:dict,aa:Researched_Amino_Acid,cutoff:float):
+    '''
+    :purpose: By function of rdkit to get all pharmacophore count surrounding AA site by a cutoff distance
+    :param pdb_path: Input a PDB file path
+    :param rdkit_path: Input rdkit resource path
+    :param rdkit_fdef_name: Input rdkit resource name
+    :param res_dict: Input an output dict of all pharmacophore count
+    :param aa: Input an AA obj to extract its central x,y,z
+    :param cutoff: Input a cutoff distance
+    :return: True/False
+    '''
     res=Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,aa.Central_X,aa.Central_Y,aa.Central_Z,cutoff)
     try:
         for key in res_dict.keys():
@@ -712,15 +841,29 @@ def Sulfur_Count(aa_list:list[Researched_Amino_Acid]):
 
 
 
-def Run_NMA(wt_pdb_path,mut_pdb_path,loc:int,NMA_path,NMA_app_name):
+def Run_NMA(wt_pdb_path,mut_pdb_path,loc:int,NMA_path,NMA_app_name,temp_path,o_folder_name):
+    '''
+    :purpose: By Bio3D R script to compute NMA info
+    :param wt_pdb_path: Input a WT PDB file path to pass into Rscript
+    :param mut_pdb_path: Input a MUT PDB file path to pass into Rscript
+    :param loc: Input true location to pass into Rscript
+    :param NMA_path: Input R script location
+    :param NMA_app_name: Input R script name
+    :outpath: like TMP_Path/nma_res_ID/
+    :return: Dict/False
+    '''
+    outpath=temp_path+o_folder_name+'/'
+    if os.path.exists(outpath):
+        shutil.rmtree(outpath)
+    os.mkdir(outpath)
     try:
-        os.system(f'Rscript {NMA_path}{NMA_app_name} {wt_pdb_path} {mut_pdb_path} {loc} {NMA_path}')
-        with open('./r_output.txt') as output:
+        os.system(f'Rscript {NMA_path}{NMA_app_name} {wt_pdb_path} {mut_pdb_path} {loc} {NMA_path} {outpath}')
+        with open(f'{outpath}/r_output.txt') as output:
                 div=output.readlines()[0].split()
-                Clean_Main_Directory()
+                #Clean_Main_Directory()
                 return {'wt_fluctuation_loc':float(div[0]),'mut_fluctuation_loc':float(div[1]),'rmsip':float(div[2])}
     except:
-        Clean_Main_Directory()
+        #Clean_Main_Directory()
         return False
 
 def Run_Psipred(seq_dict:dict,chain_id,name,psipred_path):
@@ -867,6 +1010,14 @@ def Read_XLS(Raw_Dataset_File):
         for j in range(column):
             list_.append(rs.cell_value(i, j))
         Raw_Data_List.append(list_)
+    temp_list=[]
+    for data_list in Raw_Data_List:
+        id=data_list[0]+'_'+data_list[1]
+        temp_list.append(id)
+    temp_set=set(temp_list)
+    if len(temp_list)!=len(temp_set):
+        error_obj.Something_Wrong(Read_XLS.__name__)
+        exit(1)
     return Raw_Data_List
 
 
@@ -930,5 +1081,6 @@ def Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path
 
 def Clean_with_Error(docker_container_name):
     Clean_Main_Directory()
+    Remove_FoldX_Resource()
     if Global_Value.D_or_S=='D':
         Docker_Remove_Container(docker_container_name)
