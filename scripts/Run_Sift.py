@@ -1,8 +1,8 @@
 import os
-from Global_Value import WT_MSA_Path
-from Utils import Fetch_Single_Chain_Loc
+from scripts.Global_Value import WT_MSA_Path
+from scripts.Utils import Fetch_Single_Chain_Loc
 # from Utils import Clean_Main_Directory
-from Caps import Trans_blast_2_fasta
+from scripts.Caps import Trans_blast_2_fasta
 
 def Share_Aligned_File(name,seq_dict:dict,chain_id,in_path,out_path=WT_MSA_Path):
     files=os.listdir(out_path)

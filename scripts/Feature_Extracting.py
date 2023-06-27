@@ -1,17 +1,17 @@
-from Utils import *
-from Classes import *
-from Global_Value import *
-import Global_Value
-from Prof import Compute_B_Factor
-from Run_DisEMBL import Run_DisEMBL,Generate_Res_DisEMBL
+from scripts.Utils import *
+from scripts.Classes import *
+from scripts.Global_Value import *
+import scripts.Global_Value
+from scripts.Prof import Compute_B_Factor
+from scripts.Run_DisEMBL import Run_DisEMBL,Generate_Res_DisEMBL
 # from Caps import Compute_Co_Evo
-from Run_Sift import Run_Sift
-from Pymol import *
-from Run_Ring3 import Run_Ring,Judge_Bond_of_Ring
-from MSA import find_pssm_score
-from Rosetta import Run_Score_JD2
-import AAindex
-from AAindex import Get_Mutation_Index_List_from_Matrix,Get_Mutation_Index_List_from_Index
+from scripts.Run_Sift import Run_Sift
+from scripts.Pymol import *
+from scripts.Run_Ring3 import Run_Ring,Judge_Bond_of_Ring
+from scripts.MSA import find_pssm_score
+from scripts.Rosetta import Run_Score_JD2
+import scripts.AAindex
+from scripts.AAindex import Get_Mutation_Index_List_from_Matrix,Get_Mutation_Index_List_from_Index
 import multiprocessing
 
 
@@ -538,9 +538,9 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     Subtract_Dict(obj.WT_Rosetta_Energy_Term_Dict,obj.MUT_Rosetta_Energy_Term_Dict,obj.Diff_Rosetta_Energy_Term_Dict)
 
     print(f'Task {task_count}: Features Extraction 17: Calculating AAindex features')
-    Get_Mutation_Index_List_from_Index(obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,AAindex.aaindex1_list,obj.Diff_AAindex1)
-    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}',AAindex.aaindex2_list,obj.Overall_AAindex2)
-    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}', AAindex.aaindex3_list,obj.Overall_AAindex3)
+    Get_Mutation_Index_List_from_Index(obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,scripts.AAindex.aaindex1_list,obj.Diff_AAindex1)
+    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}',scripts.AAindex.aaindex2_list,obj.Overall_AAindex2)
+    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}', scripts.AAindex.aaindex3_list,obj.Overall_AAindex3)
 
     #return True
     return obj

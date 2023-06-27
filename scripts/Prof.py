@@ -1,10 +1,10 @@
 import os
-from Error import error_obj
-from Utils import Fetch_Single_Chain_Loc
-from Docker import *
-from Global_Value import Docker_Container_Name,Singularity_Container_Path,Home_Location
-import Global_Value
-from Singularity import *
+from scripts.Error import error_obj
+from scripts.Utils import Fetch_Single_Chain_Loc
+from scripts.Docker import *
+from scripts.Global_Value import Docker_Container_Name,Singularity_Container_Path,Home_Location
+import scripts.Global_Value
+from scripts.Singularity import *
 
 def Temp_Fasta(seq_dict:dict,chain_id,name,temp_path):
     with open(f'{temp_path}test.fasta','w') as temp:
@@ -13,14 +13,14 @@ def Temp_Fasta(seq_dict:dict,chain_id,name,temp_path):
 
 
 def Trans_Blast_2_Saf(name,blast_path,fasta_path,output_path):
-    if Global_Value.D_or_S=='D':
+    if scripts.Global_Value.D_or_S=='D':
         Docker_Make_Dir(Docker_Container_Name,'/home/prof_temp/')
         Docker_Import_File(Docker_Container_Name,blast_path,'/home/prof_temp/blast.output')
         Docker_Import_File(Docker_Container_Name, fasta_path, '/home/prof_temp/temp.fasta')
         Docker_Run_Cmd(Docker_Container_Name,f'/usr/share/librg-utils-perl/blastpgp_to_saf.pl fileInBlast=/home/prof_temp/blast.output fileInQuery=/home/prof_temp/temp.fasta fileOutRdb=/home/prof_temp/{name}.useless.rdb fileOutSaf=/home/prof_temp/{name}.saf red=100 maxAli=3000 tile=0')
         Docker_Export_File(Docker_Container_Name,f'/home/prof_temp/{name}.saf',f'{output_path}{name}.saf')
         Docker_Delete_Dir(Docker_Container_Name,'/home/prof_temp/')
-    elif Global_Value.D_or_S=='S':
+    elif scripts.Global_Value.D_or_S=='S':
         Singularity_Make_Dir_on_Home(Singularity_Container_Path,'prof_temp')
         Singularity_Copy_File(blast_path,'~/prof_temp/blast.output')
         Singularity_Copy_File(fasta_path, '~/prof_temp/temp.fasta')
@@ -41,13 +41,13 @@ def Trans_Blast_2_Saf(name,blast_path,fasta_path,output_path):
 
 #os.system(f'{app_path}copf.pl {saf_path} formatIn=saf formatOut=hssp fileOut={output_path}{name}.hssp exeConvertSeq=convert_seq')
 def Trans_Saf_2_Hssp_and_filter(name,saf_path,output_path):
-    if Global_Value.D_or_S=='D':
+    if scripts.Global_Value.D_or_S=='D':
         Docker_Make_Dir(Docker_Container_Name,'/home/prof_temp/')
         Docker_Import_File(Docker_Container_Name,saf_path,'/home/prof_temp/temp.saf')
         Docker_Run_Cmd(Docker_Container_Name,f'/usr/share/librg-utils-perl/copf.pl /home/prof_temp/temp.saf formatIn=saf formatOut=hssp fileOut=/home/prof_temp/{name}.hssp exeConvertSeq=convert_seq')
         Docker_Export_File(Docker_Container_Name,f'/home/prof_temp/{name}.hssp',f'{output_path}{name}.hssp')
         Docker_Delete_Dir(Docker_Container_Name,'/home/prof_temp/')
-    elif Global_Value.D_or_S=='S':
+    elif scripts.Global_Value.D_or_S=='S':
         Singularity_Make_Dir_on_Home(Singularity_Container_Path,'prof_temp')
         Singularity_Copy_File(saf_path,'~/prof_temp/temp.saf')
         Singularity_Run_Cmd(Singularity_Container_Path,f'/usr/share/librg-utils-perl/copf.pl {Home_Location}/prof_temp/temp.saf formatIn=saf formatOut=hssp fileOut={Home_Location}/prof_temp/{name}.hssp exeConvertSeq=convert_seq')
@@ -61,13 +61,13 @@ def Trans_Saf_2_Hssp_and_filter(name,saf_path,output_path):
     with open(f'{output_path}{name}.hssp','r') as hssp:
         if hssp.read()=='':
             return False
-    if Global_Value.D_or_S=='D':
+    if scripts.Global_Value.D_or_S=='D':
         Docker_Make_Dir(Docker_Container_Name,'/home/prof_temp/')
         Docker_Import_File(Docker_Container_Name,f'{output_path}{name}.hssp','/home/prof_temp/temp.hssp')
         Docker_Run_Cmd(Docker_Container_Name,f'/usr/share/librg-utils-perl/hssp_filter.pl red=80 /home/prof_temp/temp.hssp fileOut=/home/prof_temp/{name}_filtered.hssp')
         Docker_Export_File(Docker_Container_Name,f'/home/prof_temp/{name}_filtered.hssp',f'{output_path}{name}_filtered.hssp')
         Docker_Delete_Dir(Docker_Container_Name,'/home/prof_temp/')
-    elif Global_Value.D_or_S=='S':
+    elif scripts.Global_Value.D_or_S=='S':
         Singularity_Make_Dir_on_Home(Singularity_Container_Path,'prof_temp')
         Singularity_Copy_File(f'{output_path}{name}.hssp','~/prof_temp/temp.hssp')
         Singularity_Run_Cmd(Singularity_Container_Path,f'/usr/share/librg-utils-perl/hssp_filter.pl red=80 {Home_Location}/prof_temp/temp.hssp fileOut={Home_Location}/prof_temp/{name}_filtered.hssp')
@@ -87,13 +87,13 @@ def Trans_Saf_2_Hssp_and_filter(name,saf_path,output_path):
 
 
 def Generate_RDB(name,hssp_path,output_path):
-    if Global_Value.D_or_S=='D':
+    if scripts.Global_Value.D_or_S=='D':
         Docker_Make_Dir(Docker_Container_Name,'/home/prof_temp/')
         Docker_Import_File(Docker_Container_Name,hssp_path,'/home/prof_temp/test_filtered.hssp')
         Docker_Run_Cmd(Docker_Container_Name,f'prof /home/prof_temp/test_filtered.hssp fileRdb=/home/prof_temp/{name}.hssp.prof')
         Docker_Export_File(Docker_Container_Name,f'/home/prof_temp/{name}.hssp.prof',f'{output_path}{name}.hssp.prof')
         Docker_Delete_Dir(Docker_Container_Name,'/home/prof_temp/')
-    elif Global_Value.D_or_S=='S':
+    elif scripts.Global_Value.D_or_S=='S':
         Singularity_Make_Dir_on_Home(Singularity_Container_Path,'prof_temp')
         Singularity_Copy_File(hssp_path,'~/prof_temp/test_filtered.hssp')
         Singularity_Run_Cmd(Singularity_Container_Path,f'prof {Home_Location}/prof_temp/test_filtered.hssp fileRdb={Home_Location}/prof_temp/{name}.hssp.prof')
@@ -111,7 +111,7 @@ def Generate_RDB(name,hssp_path,output_path):
 #prof .hssp fileRdb=.hssp.prof
 
 def Run_Profbval(name,fasta_path,prof_path,hssp_path,output_path):
-    if Global_Value.D_or_S=='D':
+    if scripts.Global_Value.D_or_S=='D':
         Docker_Make_Dir(Docker_Container_Name, '/home/prof_temp/')
         Docker_Import_File(Docker_Container_Name, fasta_path, '/home/prof_temp/test.fasta')
         Docker_Import_File(Docker_Container_Name,prof_path,'/home/prof_temp/test.hssp.prof')
@@ -119,7 +119,7 @@ def Run_Profbval(name,fasta_path,prof_path,hssp_path,output_path):
         Docker_Run_Cmd(Docker_Container_Name,f'profbval /home/prof_temp/test.fasta /home/prof_temp/test.hssp.prof /home/prof_temp/test_filtered.hssp /home/prof_temp/{name}.profbval 9 6')
         Docker_Export_File(Docker_Container_Name,f'/home/prof_temp/{name}.profbval',f'{output_path}{name}.profbval')
         Docker_Delete_Dir(Docker_Container_Name,'/home/prof_temp/')
-    elif Global_Value.D_or_S=='S':
+    elif scripts.Global_Value.D_or_S=='S':
         Singularity_Make_Dir_on_Home(Singularity_Container_Path,'prof_temp')
         Singularity_Copy_File(fasta_path,'~/prof_temp/test.fasta')
         Singularity_Copy_File(prof_path, '~/prof_temp/test.hssp.prof')

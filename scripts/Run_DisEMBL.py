@@ -1,7 +1,7 @@
 from bin.DisEMBL_1_4.DisEMBL import runDisEMBLpipeline
 # from Utils import Clean_Main_Directory
-from Error import error_obj
-from Classes import Researched_Amino_Acid
+from scripts.Error import error_obj
+from scripts.Classes import Researched_Amino_Acid
 
 def Run_DisEMBL(seq_dict:dict,chain_id_mut,name,path,temp_path,o_folder_name):
     '''

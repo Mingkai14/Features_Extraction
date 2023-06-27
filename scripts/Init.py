@@ -1,8 +1,8 @@
 import os
-from Error import error_obj
-from Global_Value import *
-from Utils import Amino_Acid_Encode,SS_Encode
-import AAindex
+from scripts.Error import error_obj
+from scripts.Global_Value import *
+from scripts.Utils import Amino_Acid_Encode,SS_Encode
+import scripts.AAindex
 
 def Init():
     Init_for_SIFT()
@@ -11,7 +11,7 @@ def Init():
     Amino_Acid_Encode()
     Init_for_FoldX()
     SS_Encode()
-    AAindex.Init_AAindex(AAIndex1_Path,AAIndex2_Path,AAIndex3_Path)
+    scripts.AAindex.Init_AAindex(AAIndex1_Path,AAIndex2_Path,AAIndex3_Path)
 
 def Init_for_SIFT():
     if not os.path.isdir(SIFT_Path):

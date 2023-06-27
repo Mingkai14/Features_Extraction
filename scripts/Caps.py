@@ -1,6 +1,6 @@
-from MSA import run_blastp_2_13_0
+from scripts.MSA import run_blastp_2_13_0
 import os
-from Utils import Clean_Main_Directory,amino_acid_num_map,Fetch_Single_Chain_Loc
+from scripts.Utils import Clean_Main_Directory,amino_acid_num_map,Fetch_Single_Chain_Loc
 # from Run_Sift import Share_Aligned_File
 def Trans_blast_2_fasta(blast_file,output_file,line_limit:int):
     count = 0
@@ -166,7 +166,7 @@ def Compute_Co_Evo(blastp_path,seq_dict:dict,chain_id,name,db_path,db_name,caps_
         for group in temp_ll:
             if len(group)>max_len:
                 max_len=len(group)
-    from Run_Sift import Share_Aligned_File
+    from scripts.Run_Sift import Share_Aligned_File
     Share_Aligned_File(name,seq_dict,chain_id,'./blast_out.fasta')
     Clean_Main_Directory()
     res_l=[]

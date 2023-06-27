@@ -1,5 +1,5 @@
 import os
-from Error import error_obj
+from scripts.Error import error_obj
 
 
 def Run_Score_JD2(rostta_bin_path,rosetta_db_path,pdb_path,rosetta_terms_dict:dict,temp_path,o_folder_name):
@@ -46,7 +46,7 @@ def Clean_PDB_by_Rosetta(pdb_path,output_path,clean_path):
                 with open(output_path,'w') as w:
                     w.write(r.read())
             break
-    from Utils import Clean_Main_Directory
+    from scripts.Utils import Clean_Main_Directory
     Clean_Main_Directory()
 
 

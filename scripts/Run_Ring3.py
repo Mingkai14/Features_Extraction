@@ -1,7 +1,7 @@
-from Error import error_obj
+from scripts.Error import error_obj
 import os
-from Classes import Ring_Bond
-from Utils import amino_acid_map,Researched_Amino_Acid
+from scripts.Classes import Ring_Bond
+from scripts.Utils import amino_acid_map,Researched_Amino_Acid
 import shutil
 
 def Run_Ring(pdb_path,ring_bin_path,bond_list:list,temp_path,o_folder_name):

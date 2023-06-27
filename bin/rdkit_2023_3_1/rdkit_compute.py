@@ -24,7 +24,7 @@ def Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,central
             x=atom_c[0][0]
             y=atom_c[0][1]
             z=atom_c[0][2]
-            from Utils import Get_Distance
+            from scripts.Utils import Get_Distance
             dis=Get_Distance(central_x,central_y,central_z,x,y,z)
             if dis<cutoff:
                 features_list.append(feature)

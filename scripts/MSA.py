@@ -1,9 +1,9 @@
 import os
-from Error import error_obj
-from Utils import Fetch_Chain_ID_from_Seq,Read_Seq_from_Fasta,Fetch_Single_Chain_Loc
-from Classes import Researched_Amino_Acid
-from Global_Value import *
-import Global_Value
+from scripts.Error import error_obj
+from scripts.Utils import Fetch_Chain_ID_from_Seq,Read_Seq_from_Fasta,Fetch_Single_Chain_Loc
+from scripts.Classes import Researched_Amino_Acid
+from scripts.Global_Value import *
+import scripts.Global_Value
 
 
 data_list=[]
@@ -142,7 +142,7 @@ def run_blastpgp_2_6_0(fasta,db_path,db_name,psi_blast_path,pssm_path,pdb_name):
     os.system(f'blastpgp -i {fasta} -d {db_path+db_name} -j 3 -h 0.001 -o {psi_blast_path+pdb_name}.output -Q {pssm_path+pdb_name}.pssm')
 
 def run_psiblast_2_13_0(blast_path,fasta,db_path,db_name,psi_blast_path,pssm_path,pdb_name):
-    os.system(f'{blast_path}psiblast -query {fasta} -evalue .001 -inclusion_ethresh .002 -db {db_path+db_name} -num_iterations 3 -seg yes -out {psi_blast_path+pdb_name}.output -out_ascii_pssm {pssm_path+pdb_name}.pssm -outfmt 0 -num_threads {Global_Value.Psi_Threads_Num}')
+    os.system(f'{blast_path}psiblast -query {fasta} -evalue .001 -inclusion_ethresh .002 -db {db_path+db_name} -num_iterations 3 -seg yes -out {psi_blast_path+pdb_name}.output -out_ascii_pssm {pssm_path+pdb_name}.pssm -outfmt 0 -num_threads {scripts.Global_Value.Psi_Threads_Num}')
 
 
 pssm_map={'A':0,'R':1,'N':2,'D':3,'C':4,'Q':5,'E':6,'G':7,'H':8,'I':9,'L':10,'K':11,'M':12,'F':13,'P':14,'S':15,'T':16,'W':17,'Y':18,'V':19}
@@ -199,7 +199,7 @@ def read_pssm(pssm_path,aa:Researched_Amino_Acid,seq_dict:dict,chain):
 
 
 def run_blastp_2_13_0(blast_path,fasta_path,out_path,db_path,db_name,blast_outfmt_info):
-    os.system(f'{blast_path}blastp -query {fasta_path} -out {out_path} -db {db_path}{db_name} -outfmt \'{blast_outfmt_info}\' -evalue 1e-5 -num_threads {Global_Value.Psi_Threads_Num}')
+    os.system(f'{blast_path}blastp -query {fasta_path} -out {out_path} -db {db_path}{db_name} -outfmt \'{blast_outfmt_info}\' -evalue 1e-5 -num_threads {scripts.Global_Value.Psi_Threads_Num}')
 #../ncbi-blast-2.13.0+/bin/blastp -query 1AAR_H68E.fasta -out res.fasta -db ~/blast_resource/uniref50 -outfmt '6 sseqid sseq'  -evalue 1e-5 -num_descriptions 100 -num_threads 4
 
 

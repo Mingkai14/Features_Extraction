@@ -5,14 +5,14 @@ import os
 from Bio import SeqIO
 from Bio.PDB import *
 
-import Global_Value
-from Error import error_obj
-from Classes import *
+import scripts.Global_Value
+from scripts.Error import error_obj
+from scripts.Classes import *
 from bin.rdkit_2023_3_1.rdkit_compute import Compute_Pharmacophore_with_Rdkit
 from bin.Protlego.Hydrophobic_cluster import *
 from math import sqrt,pow
-from Rosetta import Clean_PDB_by_Rosetta
-from Docker import Docker_Remove_Container
+from scripts.Rosetta import Clean_PDB_by_Rosetta
+from scripts.Docker import Docker_Remove_Container
 
 
 
@@ -1082,5 +1082,5 @@ def Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path
 def Clean_with_Error(docker_container_name):
     Clean_Main_Directory()
     Remove_FoldX_Resource()
-    if Global_Value.D_or_S=='D':
+    if scripts.Global_Value.D_or_S=='D':
         Docker_Remove_Container(docker_container_name)

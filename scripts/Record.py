@@ -1,5 +1,5 @@
-from Error import error_obj
-from Classes import *
+from scripts.Error import error_obj
+from scripts.Classes import *
 import xlwt,xlrd,csv
 import os
 

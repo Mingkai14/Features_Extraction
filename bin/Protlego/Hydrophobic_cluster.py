@@ -1,5 +1,5 @@
 # from protlego.builder.chimera import Chimera
-from Classes import *
+from scripts.Classes import *
 # from moleculekit.molecule import Molecule
 
 # mol=Molecule('./Mut_PDB/1AYF_C95S.pdb')

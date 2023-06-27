@@ -2,7 +2,7 @@ from modeller import *
 from modeller.automodel import *
 import os
 from Bio import SeqIO
-from Error import error_obj
+from scripts.Error import error_obj
 
 
 data_list=[]

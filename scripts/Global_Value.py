@@ -59,7 +59,7 @@ MSA_DB_Name=''
 
 Prof_Temp_Path='./src/Prof/'
 
-Main_Location=os.path.dirname(os.path.abspath(__file__))+'/'
+Main_Location=os.path.abspath('./')+'/'
 Home_Location=os.path.expandvars('$HOME')
 
 R_NMA_Path='./bin/R_NMA/'
