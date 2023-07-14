@@ -29,17 +29,36 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
                 data_list.append(line.replace('\n',''))
 
     print('Checking if all data ID are unique')
+
+    for i in range(len(data_list)):
+        item_list = str(data_list[i]).split(',')
+        ID = item_list[0]
+        postfix=ID.split('_')[-1]
+        if postfix[0]==postfix[-1]:
+            print(f'{ID} has same WT and MUT sign, has been removed')
+            data_list[i]='remove'
+
+    for i in range(len(data_list) - 1, -1, -1):
+        if data_list[i]=='remove':
+            data_list.pop(i)
+
     temp_list=[]
-    for data in data_list:
-        item_list = str(data).split(',')
+    for i in range(len(data_list)):
+        item_list=str(data_list[i]).split(',')
         ID=item_list[0]
-        temp_list.append(ID)
-    temp_set=set(temp_list)
-    if len(temp_list)!=len(temp_set):
+        if ID in temp_list:
+            print(f'{ID} is repeated, has been removed')
+            data_list[i]='remove'
+        else:
+            temp_list.append(ID)
+
+    for i in range(len(data_list) - 1, -1, -1):
+        if data_list[i]=='remove':
+            data_list.pop(i)
+
+    if len(data_list)!=len(temp_list):
         error_obj.Something_Wrong(Feature_Extraction.__name__)
         exit(1)
-
-
 
 
     print('Aligning PDB with Pymol')
@@ -51,6 +70,8 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
         wt_pdb_path=item_list[6]
         mut_pdb_path=item_list[8]
         Pymol_Clean_Align_PDB_Pair(wt_pdb_path, mut_pdb_path, wt_pdb_path, mut_pdb_path)
+
+    print('Begin with multiple process')
 
     task_count=0
     pool = multiprocessing.Pool(process_num)
@@ -75,22 +96,38 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
     pool.close()
     pool.join()
 
+    print('End with multiple process and check multiple process results')
+
+    if len(process_res_list)!=task_count:
+        print('Multiple process results wrong, program will abort')
+        exit(1)
+
+    res_count=0
+    failed_count=0
     for process_res in process_res_list:
-        if process_res.get() is False:
-            error_obj.Something_Wrong(Feature_Extraction.__name__)
-            exit(1)
+        item_list = str(data_list[res_count]).split(',')
+        ID = item_list[0]
+        res_count+=1
+
+        if not process_res.successful():
+            print(f'task {res_count}, ID {ID} has false return, maybe has exception in there')
+            failed_count += 1
         else:
-            obj=process_res.get()
-            assert isinstance(obj, Feature_Object)
-            features_obj_list.append(obj)
+            if process_res.get() is False:
+                print(f'task {res_count}, ID {ID} has failed and been filtered')
+                failed_count += 1
+            else:
+                obj = process_res.get()
+                if isinstance(obj, Feature_Object):
+                    features_obj_list.append(obj)
+                else:
+                    print(f'task {res_count}, ID {ID} has unknown return and been filtered')
+                    failed_count += 1
+
+    print(f'Has failed {failed_count} data')
 
 
-    print('Features Extraction: Separately Compute B-factor')
-    for obj in features_obj_list:
-        assert isinstance(obj,Feature_Object)
-        if not Separately_Compute_B_factor(obj):
-            error_obj.Something_Wrong(Feature_Object.__name__)
-            exit(1)
+
 
 
 
@@ -100,7 +137,7 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
 def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     print(f'Processing task {task_count}')
     try:
-        print(f'Task {task_count}: Features Extraction 1: Extracting task data')
+        print(f'Task {task_count}, ID (waiting to get): Features Extraction 1: Extracting task data')
         obj.ID = basic_list[0]
         obj.WT_Amino_Acid_short = basic_list[1]
         obj.MUT_Amino_Acid_short = basic_list[2]
@@ -140,7 +177,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
     #####
     # WT_Amino_Acid
-    print(f'Task {task_count}: Features Extraction 2: Generating basic info')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 2: Generating basic info')
     if not Get_Reasearched_Amino_Acid(obj.WT_Amino_Acid, obj.WT_Structure.PDB_Name, obj.WT_Structure.PDB_path, obj.True_Loc_of_Mutation, obj.WT_Amino_Acid_short):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
@@ -192,7 +229,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #Ring_Bond_List, Num_HBOND_Ring, Num_SSBOND_Ring, Num_IONIC_Ring, Num_VDW_Ring, Num_PICATION_Ring, Num_PIPISTACK_Ring, Num_IAC_Ring,
-    print(f'Task {task_count}: Features Extraction 3: Running Ring3')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 3: Running Ring3')
     ########there, place of cleaning need to fix
     res_dict=Run_Ring(obj.WT_Structure.PDB_path,Ring_Path,obj.WT_Ring_Bond_List,TMP_Path,f'ring3_res_{obj.ID}_WT')
     if res_dict is False:
@@ -247,7 +284,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #HD_Cluster_List, Num_HD_Cluster_Protlego
-    print(f'Task {task_count}: Features Extraction 4: Running Protlego')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 4: Running Protlego')
     obj.WT_Num_HD_Cluster_Protlego=Run_Prolego(obj.WT_Structure.PDB_path,obj.WT_HD_Cluster_List,Main_Location)
     obj.WT_Max_HD_Cluster_Area=Get_Max_Area(obj.WT_HD_Cluster_List,obj.WT_Amino_Acid_List)
     obj.MUT_Num_HD_Cluster_Protlego=Run_Prolego(obj.MUT_Structure.PDB_path,obj.MUT_HD_Cluster_List,Main_Location)
@@ -267,7 +304,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     # Amino_Acid_Categories
-    print(f'Task {task_count}: Features Extraction 5: Calculating AA categories and Running DSSP to get RSA')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 5: Calculating AA categories and Running DSSP to get RSA')
     Compute_AA_Categories(obj.WT_Amino_Acid_List,obj.Overall_Pct_Amino_Acid_Categories,obj.Overall_Num_Amino_Acid_Categories)
 
 
@@ -306,7 +343,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #Psipred
-    print(f'Task {task_count}: Features Extraction 6: Running Psipred to get SS (abandoned)')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 6: Running Psipred to get SS (abandoned)')
     # obj.WT_Psipred_List=Run_Psipred(obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Structure.PDB_Name,Psipred_Path)
     # res_list=Get_Res_from_Psipred(obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Amino_Acid,obj.Overall_Pct_Secondary_Structure,obj.WT_Psipred_List)
     # if res_list is False:
@@ -327,42 +364,42 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     # Pharmacophore
-    print(f'Task {task_count}: Features Extraction 7: Running Rdkit to get Pharmacophore info')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 7: Running Rdkit to get Pharmacophore info')
     if not Run_Rdikit(obj.WT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.WT_Num_Pharmacophore_Categories,obj.WT_Amino_Acid,0.0):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Run_Rdikit(obj.MUT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.MUT_Num_Pharmacophore_Categories,obj.MUT_Amino_Acid,0.0):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Subtract_Dict(obj.WT_Num_Pharmacophore_Categories,obj.MUT_Num_Pharmacophore_Categories,obj.Diff_Num_Pharmacophore_Categories):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
 
     if not Run_Rdikit(obj.WT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.WT_Num_Pharmacophore_Categories_Layer1,obj.WT_Amino_Acid,obj.Cutoff1):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Run_Rdikit(obj.MUT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.MUT_Num_Pharmacophore_Categories_Layer1,obj.MUT_Amino_Acid,obj.Cutoff1):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Subtract_Dict(obj.WT_Num_Pharmacophore_Categories_Layer1,obj.MUT_Num_Pharmacophore_Categories_Layer1,obj.Diff_Num_Pharmacophore_Categories_Layer1):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
 
     if not Run_Rdikit(obj.WT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.WT_Num_Pharmacophore_Categories_Layer2,obj.WT_Amino_Acid,obj.Cutoff2):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Run_Rdikit(obj.MUT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.MUT_Num_Pharmacophore_Categories_Layer2,obj.MUT_Amino_Acid,obj.Cutoff2):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Subtract_Dict(obj.WT_Num_Pharmacophore_Categories_Layer2,obj.MUT_Num_Pharmacophore_Categories_Layer2,obj.Diff_Num_Pharmacophore_Categories_Layer2):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
 
     if not Run_Rdikit(obj.WT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.WT_Num_Pharmacophore_Categories_Layer3,obj.WT_Amino_Acid,obj.Cutoff3):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Run_Rdikit(obj.MUT_Structure.PDB_path, Rdkit_Path, Rdkit_Fdef_Name, obj.MUT_Num_Pharmacophore_Categories_Layer3,obj.MUT_Amino_Acid,obj.Cutoff3):
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'rkit can not read pdb')
         return False
     if not Subtract_Dict(obj.WT_Num_Pharmacophore_Categories_Layer3,obj.MUT_Num_Pharmacophore_Categories_Layer3,obj.Diff_Num_Pharmacophore_Categories_Layer3):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -374,32 +411,32 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #B Factor
-    print(f'Task {task_count}: Features Extraction 8: Running Prof in container to get B-factor (separately compute in outside)')
-    # res=Compute_B_Factor(obj.WT_Seq,obj.Chain_ID_of_Mut,TMP_Path,f'prof_res_{obj.ID}_WT',obj.WT_PSI_BLAST_Path,Main_Location,obj.True_Loc_of_Mutation,obj.WT_Amino_Acid_short)
-    # if res is False:
-    #     error_obj.Something_Wrong(Detail_Extraction.__name__)
-    #     return False
-    # else:
-    #     obj.WT_B_Factor=res
-    #
-    # res = Compute_B_Factor(obj.MUT_Seq, obj.Chain_ID_of_Mut,TMP_Path,f'prof_res_{obj.ID}_MUT', obj.MUT_PSI_BLAST_Path,
-    #                        Main_Location, obj.True_Loc_of_Mutation, obj.MUT_Amino_Acid_short)
-    # if res is False:
-    #     error_obj.Something_Wrong(Detail_Extraction.__name__)
-    #     return False
-    # else:
-    #     obj.MUT_B_Factor = res
-    # obj.Diff_B_Factor=obj.MUT_B_Factor-obj.WT_B_Factor
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 8: Running Prof in container to get B-factor')
+    res=Compute_B_Factor(obj.WT_Seq,obj.Chain_ID_of_Mut,TMP_Path,f'prof_res_{obj.ID}_WT',obj.WT_PSI_BLAST_Path,Main_Location,obj.True_Loc_of_Mutation,obj.WT_Amino_Acid_short)
+    if res is False:
+        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        return False
+    else:
+        obj.WT_B_Factor=res
+
+    res = Compute_B_Factor(obj.MUT_Seq, obj.Chain_ID_of_Mut,TMP_Path,f'prof_res_{obj.ID}_MUT', obj.MUT_PSI_BLAST_Path,
+                           Main_Location, obj.True_Loc_of_Mutation, obj.MUT_Amino_Acid_short)
+    if res is False:
+        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        return False
+    else:
+        obj.MUT_B_Factor = res
+    obj.Diff_B_Factor=obj.MUT_B_Factor-obj.WT_B_Factor
 
 
     #FoldX
-    print(f'Task {task_count}: Features Extraction 9: Running FoldX')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 9: Running FoldX')
     if not Run_FoldX(FoldX_Path,FoldX_Name,obj.WT_Structure.PDB_path,obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,obj.True_Loc_of_Mutation,obj.Chain_ID_of_Mut,obj.WT_FoldX_Energy_Term_Dict,obj.Diff_FoldX_Energy_Term_Dict,TMP_Path,f'foldx_res_{obj.ID}'):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
 
     #NMA
-    print(f'Task {task_count}: Features Extraction 10: Running Bio3D to get NMA')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 10: Running Bio3D to get NMA')
     res=Run_NMA(obj.WT_Structure.PDB_path,obj.MUT_Structure.PDB_path,obj.True_Loc_of_Mutation,R_NMA_Path,R_NMA_App_Name,TMP_Path,f'nma_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -411,7 +448,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Diff_NMA_Fluctuation=obj.MUT_NMA_Fluctuation-obj.WT_NMA_Fluctuation
 
     #Length
-    print(f'Task {task_count}: Features Extraction 11: Running DisEMBL')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 11: Running DisEMBL')
     res=Run_DisEMBL(obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Structure.PDB_Name,DisEMBL_Path,TMP_Path,f'disembl_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -435,7 +472,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #co_evo
-    print(f'Task {task_count}: Features Extraction 12: Running Caps to get Co-evo info (abandoned)')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 12: Running Caps to get Co-evo info (abandoned)')
     # res=Compute_Co_Evo(obj.WT_BLASTP_Path,obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Structure.PDB_Name,Global_Value.MSA_DB_Path,Global_Value.MSA_DB_Name,Caps_Path,obj.True_Loc_of_Mutation,300)
     # obj.Is_Mut_Co_Evo=res[0]
     # obj.Co_Evo_AA_Type=res[1]
@@ -443,7 +480,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     # obj.Co_Evo_Group_Num=res[3]
 
     #SIFT
-    print(f'Task {task_count}: Features Extraction 13: Running SIFT')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 13: Running SIFT')
     res=Run_Sift(obj.WT_Structure.PDB_Name,obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,obj.True_Loc_of_Mutation,SIFT_Path,WT_MSA_Path,obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_BLASTP_Path,TMP_Path,f'sift_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -454,7 +491,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #ANGLOR
-    print(f'Task {task_count}: Features Extraction 14: Running ANGLOR (abandoned)')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 14: Running ANGLOR (abandoned)')
     # res=Run_ANGLOR(obj.WT_Seq,obj.Chain_ID_of_Mut,ANGLOR_Path,obj.True_Loc_of_Mutation)
     # obj.WT_Psi_ANGLOR=res[0]
     # obj.WT_Phi_ANGLOR=res[1]
@@ -465,7 +502,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     # obj.Diff_Phi_ANGLOR = obj.MUT_Phi_ANGLOR - obj.WT_Phi_ANGLOR
 
     #
-    print(f'Task {task_count}: Features Extraction 15: Calculating features on AA site')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 15: Calculating features on AA site')
     res_list=Get_Mutation_Description(obj.WT_Amino_Acid,obj.MUT_Amino_Acid,obj.WT_Secondary_Structure_Char,obj.MUT_Secondary_Structure_Char)
     obj.WT_AA_Type=res_list[0]
     obj.MUT_AA_Type=res_list[1]
@@ -532,16 +569,18 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Diff_PSSM_Score=obj.MUT_PSSM_Score-obj.WT_PSSM_Score
     obj.Diff_PSSM_Score_Aver=obj.MUT_PSSM_Score_Aver-obj.WT_PSSM_Score_Aver
 
-    print(f'Task {task_count}: Features Extraction 16: Run Rosetta score function')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 16: Run Rosetta score function')
     Run_Score_JD2(Rosetta_Bin_Path,Rosetta_DB_Path,obj.WT_Structure.PDB_path,obj.WT_Rosetta_Energy_Term_Dict,TMP_Path,f'rosetta_res_{obj.ID}_WT')
     Run_Score_JD2(Rosetta_Bin_Path,Rosetta_DB_Path,obj.MUT_Structure.PDB_path,obj.MUT_Rosetta_Energy_Term_Dict,TMP_Path,f'rosetta_res_{obj.ID}_MUT')
     Subtract_Dict(obj.WT_Rosetta_Energy_Term_Dict,obj.MUT_Rosetta_Energy_Term_Dict,obj.Diff_Rosetta_Energy_Term_Dict)
 
-    print(f'Task {task_count}: Features Extraction 17: Calculating AAindex features')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 17: Calculating AAindex features')
     Get_Mutation_Index_List_from_Index(obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,scripts.AAindex.aaindex1_list,obj.Diff_AAindex1)
     Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}',scripts.AAindex.aaindex2_list,obj.Overall_AAindex2)
     Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}', scripts.AAindex.aaindex3_list,obj.Overall_AAindex3)
 
+
+    print(f'Task {task_count}, ID {obj.ID}: Have finished features extraction, and normally return')
     #return True
     return obj
 
@@ -563,6 +602,73 @@ def Separately_Compute_B_factor(obj:Feature_Object):
         obj.MUT_B_Factor = res
     obj.Diff_B_Factor=obj.MUT_B_Factor-obj.WT_B_Factor
     return True
+
+
+def Feature_Extraction_for_Pred(table_path, table_name, features_obj_list:list):
+    print('Reading task table for Features Extraction')
+    with open(table_path+table_name,'r') as table:
+        lines=table.readlines()
+        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n':
+            error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
+            exit(1)
+        for line in lines[1:]:
+            if line!='' and line!='\n':
+                data_list.append(line.replace('\n',''))
+
+    print('Checking if all data ID are unique')
+
+
+    temp_list=[]
+    for i in range(len(data_list)):
+        item_list=str(data_list[i]).split(',')
+        ID=item_list[0]
+        if ID in temp_list:
+            print(f'{ID} is repeated, has been removed')
+            data_list[i]='remove'
+        else:
+            temp_list.append(ID)
+
+    for i in range(len(data_list) - 1, -1, -1):
+        if data_list[i]=='remove':
+            data_list.pop(i)
+
+    if len(data_list)!=len(temp_list):
+        error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
+        exit(1)
+
+
+    print('Aligning PDB with Pymol')
+    for data in data_list:
+        item_list=str(data).split(',')
+        if len(item_list)!=20:
+            error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
+            exit(1)
+        wt_pdb_path=item_list[6]
+        mut_pdb_path=item_list[8]
+        Pymol_Clean_Align_PDB_Pair(wt_pdb_path, mut_pdb_path, wt_pdb_path, mut_pdb_path)
+
+    print('Begin to process')
+
+    task_count=0
+    failed_count=0
+    for data in data_list:
+        item_list=str(data).split(',')
+        if len(item_list)!=20:
+            error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
+            exit(1)
+        task_count+=1
+        obj=Feature_Object()
+
+        res=Detail_Extraction(obj,item_list,task_count)
+        if res is False:
+            error_obj.Something_Wrong(Feature_Extraction.__name__)
+            failed_count+=1
+            continue
+        else:
+            features_obj_list.append(obj)
+
+
+    print(f'Has failed {failed_count} data')
 
 
 

@@ -1,6 +1,7 @@
 name: Features_Extraction
 channels:
   - nferruz
+  - ostrokach
   - salilab
   - defaults
   - acellera
@@ -36,10 +37,10 @@ dependencies:
   - bzip2=1.0.8=h7b6447c_0
   - c-ares=1.19.1=hd590300_0
   - c-blosc2=2.9.2=hb4ffafa_0
-  - ca-certificates=2023.5.7=hbcca054_0
+  - ca-certificates=2023.05.30=h06a4308_0
   - cairo=1.16.0=h35add3b_1015
   - cairomm-1.16=1.16.2=h7e731d7_1
-  - certifi=2023.5.7=pyhd8ed1ab_0
+  - certifi=2023.5.7=py310h06a4308_0
   - cffi=1.15.1=py310h5eee18b_3
   - comm=0.1.2=py310h06a4308_0
   - contourpy=1.0.5=py310hdb19cb5_0
@@ -52,6 +53,7 @@ dependencies:
   - debugpy=1.5.1=py310h295c915_0
   - decorator=5.1.1=pyhd3eb1b0_0
   - defusedxml=0.7.1=pyhd3eb1b0_0
+  - dssp=2.2.1=1
   - entrypoints=0.4=py310h06a4308_0
   - epoxy=1.5.10=h166bdaf_1
   - executing=0.8.3=pyhd3eb1b0_0

@@ -153,20 +153,36 @@ def find_pssm_score(pssm_path,aa_list:list[Researched_Amino_Acid],aa:Researched_
     begin=aa.Num-windows
     end=aa.Num+windows
     #wrong
-    if begin<1 or end>len(aa_list):
-        error_obj.Something_Wrong(find_pssm_score.__name__)
-        return False
+
     res_list = []
     try:
         index_l=range(begin,end+1)
+
+        for i in range(len(index_l)):
+            if index_l[i]<1:
+                res_list.append(0.0)
+
         for a in aa_list:
             if a.Num in index_l:
                 a_l.append(a)
+
+
         for a in a_l:
             if a.Chain_ID!=chain_id:
                 res_list.append(0.0)
             else:
-                res_list.append(read_pssm(pssm_path,a,seq_dict,chain_id))
+                try:
+                    data=read_pssm(pssm_path,a,seq_dict,chain_id)
+                except:
+                    res_list.append(0.0)
+                    continue
+                res_list.append(data)
+
+        for i in range(len(index_l)):
+            if index_l[i]>len(aa_list):
+                res_list.append(0.0)
+
+
     except:
         error_obj.Something_Wrong(find_pssm_score.__name__)
         return False

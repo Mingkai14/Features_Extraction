@@ -10,10 +10,15 @@ def get_atom_coordinates(feature,protein):
 
 def Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,central_x,central_y,central_z,cutoff):
     protein = Chem.MolFromPDBFile(pdb_path)
-    fdefFile = rdkit_path+rdkit_fdef_name
-    factory = ChemicalFeatures.BuildFeatureFactory(fdefFile)
-    features = factory.GetFeaturesForMol(protein)
-    features_list=[]
+    if protein==None:
+        return False
+    try:
+        fdefFile = rdkit_path+rdkit_fdef_name
+        factory = ChemicalFeatures.BuildFeatureFactory(fdefFile)
+        features = factory.GetFeaturesForMol(protein)
+        features_list=[]
+    except:
+        return False
 
     res_dict={'hb_acceptors': 0, 'hb_donors': 0, 'positives': 0, 'negatives': 0, 'aromatics': 0, 'aliphatics': 0,
      'hydrophobics': 0, 'ring': 0}

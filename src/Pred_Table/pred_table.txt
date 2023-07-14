@@ -1,0 +1,2 @@
+id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg
+test,C,S,30,30,test,./src/WT_PDB/test.pdb,test_mut,./src/Mut_PDB/test_mut.pdb,./src/WT_Fasta/test.fasta,./src/MUT_Fasta/test_mut.fasta,./src/PSSM_Data/WT/test.pssm,./src/PSSM_Data/MUT/test.pssm,./src/PSI_BLAST_Data/WT/test.output,./src/PSI_BLAST_Data/MUT/test.output,./src/BLASTP_Data/WT/test.output,./src/BLASTP_Data/MUT/test.output,7.5,25.0,0

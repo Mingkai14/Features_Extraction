@@ -6,8 +6,8 @@ import scripts.AAindex
 
 def Init():
     Init_for_SIFT()
-    Init_for_Psipred()
-    Init_for_ANGLOR()
+    # Init_for_Psipred()
+    # Init_for_ANGLOR()
     Amino_Acid_Encode()
     Init_for_FoldX()
     SS_Encode()

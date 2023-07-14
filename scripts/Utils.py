@@ -76,7 +76,11 @@ def Get_Mutation_Description(wt_aa:Researched_Amino_Acid,mut_aa:Researched_Amino
     return [wt_encode,mut_encode,mutation_des,mutation_des_by_ss]
 
 def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
+    count=0
+    wrong_count=0
+    right_count=0
     for Raw_Data in Raw_Data_List:
+        count+=1
         Raw_PDB_Num=Raw_Data[0]
         Mut_Info=Raw_Data[1]
         Chain_ID=Raw_Data[2]
@@ -85,7 +89,10 @@ def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Pat
         DDG=Raw_Data[3]
         if not Prepare(Table_Path,Clean_Path,Res_Table_Name,Raw_PDB_Num,Mut_Info,Chain_ID,pH,Temperature,DDG,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
             error_obj.Something_Wrong(__name__,Raw_Data[0]+'_'+Raw_Data[1])
-            exit(1)
+            wrong_count+=1
+            continue
+        right_count+=1
+    print(f'Preparing task table: There are whole {count} data in raw dataset, {wrong_count} data has been filter away and {right_count} data has been recorded')
     return True
 
 def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,pH,temperature,ddg,raw_pdb_path,w_pdb_path,m_pdb_path,raw_fasta_path,m_fasta_path,wt_pssm_data_path,mut_pssm_data_path,wt_psi_blast_data_path,mut_psi_blast_data_path):
@@ -105,9 +112,12 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
         error_obj.Something_Wrong(Prepare.__name__)
         return False
     true_loc = Get_True_Loc(loc, wt_aa_short, raw_pdb_path+raw_pdb_num+'.pdb',chain_id)
+    if true_loc is False:
+        error_obj.Something_Wrong(Prepare.__name__,'Something wrong in PDB file')
+        return False
     wt_pdb_name = raw_pdb_num
     wt_pdb_path = w_pdb_path + wt_pdb_name + '.pdb'
-    Clean_PDB_by_Rosetta(raw_pdb_path+raw_pdb_num+'.pdb',wt_pdb_path,clean_path)
+    Clean_PDB_by_Rosetta(raw_pdb_path+raw_pdb_num+'.pdb',w_pdb_path,clean_path,wt_pdb_name)
     if not Fetch_Fasta_from_PDB(wt_pdb_path,wt_pdb_name,raw_fasta_path):
         error_obj.Something_Wrong(Prepare.__name__)
         return False
@@ -129,7 +139,7 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
                 seq_list[i] = mut_aa_short
         mut_seq_dict[key] = ''.join(seq_list)
     if not is_ok:
-        error_obj.Something_Wrong(Prepare.__name__)
+        error_obj.Something_Wrong(Prepare.__name__,'There may be HETATM during chain')
         return False
     if not Make_Fasta_from_Seq(mut_seq_dict, id, m_fasta_path):
         error_obj.Something_Wrong(Prepare.__name__)
@@ -152,6 +162,73 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
         if is_file_existed:
             table.write('\n')
         table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(ddg))
+    return True
+
+
+def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_info,chain_id,pH,temperature,w_pdb_path,m_pdb_path,raw_fasta_path,m_fasta_path,wt_pssm_data_path,mut_pssm_data_path,wt_psi_blast_data_path,mut_psi_blast_data_path):
+    try:
+        wt_aa_short=mut_info[0]
+        mut_aa_short=mut_info[-1]
+        foo=str(mut_info).replace(wt_aa_short,'').replace(mut_aa_short,'')
+        loc=int(foo)
+        if wt_aa_short not in amino_acid_map.values() or mut_aa_short not in amino_acid_map.values():
+            error_obj.Something_Wrong(Prepare_for_Pred.__name__)
+            return False
+    except:
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__)
+        return False
+
+    true_loc = Get_True_Loc(loc, wt_aa_short, pdb_path,chain_id)
+    if true_loc is False:
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__,'Something wrong in PDB file')
+        return False
+    wt_pdb_name = pdb_name
+    wt_pdb_path = w_pdb_path + wt_pdb_name + '.pdb'
+    Clean_PDB_by_Rosetta(pdb_path,w_pdb_path,clean_path,wt_pdb_name)
+    if not Fetch_Fasta_from_PDB(wt_pdb_path,wt_pdb_name,raw_fasta_path):
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__)
+        return False
+    wt_fasta_path=raw_fasta_path+wt_pdb_name+'.fasta'
+    raw_seq_dict=Read_Seq_from_Fasta(wt_fasta_path)
+    if raw_seq_dict==False:
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__)
+        return False
+    mut_seq_dict = {}
+    count = 0
+    is_ok = True
+    for key in raw_seq_dict.keys():
+        seq_list = list(raw_seq_dict[key])
+        for i in range(len(seq_list)):
+            count += 1
+            if count == true_loc:
+                if not seq_list[i] == wt_aa_short:
+                    is_ok = False
+                seq_list[i] = mut_aa_short
+        mut_seq_dict[key] = ''.join(seq_list)
+    if not is_ok:
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__,'There may be HETATM during chain')
+        return False
+    mut_pdb_name=pdb_name+'_mut'
+    if not Make_Fasta_from_Seq(mut_seq_dict, mut_pdb_name, m_fasta_path):
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__)
+        return False
+    mut_fasta_path=m_fasta_path+mut_pdb_name+'.fasta'
+    mut_pdb_path=''
+    wt_pssm_path=''
+    mut_pssm_path=''
+    wt_psi_blast_path=''
+    mut_psi_blast_path=''
+    wt_blastp_path=''
+    mut_blastp_path=''
+    if not os.path.exists(table_path):
+        os.mkdir(table_path)
+    is_file_existed=os.path.exists(table_path+res_table_name)
+    with open(table_path+res_table_name,'a') as table:
+        if not is_file_existed:
+            table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n')
+        if is_file_existed:
+            table.write('\n')
+        table.write(pdb_name+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(0))
     return True
 
 def Add_Reverse_Data(table_path,table_name):
@@ -764,7 +841,8 @@ def Run_FoldX(foldx_path,foldx_name,pdb_path,wt_aa,mut_aa,loc,chain_id,raw_dict:
     return True
 
 def Remove_FoldX_Resource():
-    shutil.rmtree('./molecules/')
+    if os.path.exists('./molecules/'):
+        shutil.rmtree('./molecules/')
 
 
 def Fetch_Chain_ID_from_Seq(loc:int,seq_dict:dict,wt_aa_for_test):
@@ -809,6 +887,8 @@ def Run_Rdikit(pdb_path,rdkit_path,rdkit_fdef_name,res_dict:dict,aa:Researched_A
     :return: True/False
     '''
     res=Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,aa.Central_X,aa.Central_Y,aa.Central_Z,cutoff)
+    if res is False:
+        return False
     try:
         for key in res_dict.keys():
             res_dict[key]=res[key]
@@ -963,19 +1043,23 @@ def Get_True_Loc(loc:int,aa_short,pdb_path,chain_id):
         lines=pdb.readlines()
         loc_temp=0
         for line in lines:
-            if line.split()[0]=='ATOM':
-                aa=line[17:20]
-                if aa in amino_acid_map.keys():
-                    aa_=amino_acid_map[aa]
-                else:
-                    continue
-                loc_=int(line[22:27].replace(' ',''))
-                chain=line[21:22]
-                if loc_!=loc_temp:
-                    count+=1
-                    loc_temp=loc_
-                if aa_==aa_short and loc_==loc and chain==chain_id:
-                    break
+            try:
+                if line.split()[0]=='ATOM':
+                    aa=line[17:20]
+                    if aa in amino_acid_map.keys():
+                        aa_=amino_acid_map[aa]
+                    else:
+                        continue
+                    loc_=int(line[22:27].replace(' ',''))
+                    chain=line[21:22]
+                    if loc_!=loc_temp:
+                        count+=1
+                        loc_temp=loc_
+                    if aa_==aa_short and loc_==loc and chain==chain_id:
+                        break
+            except:
+                print(line)
+                return False
     return count
 
 
@@ -1027,9 +1111,9 @@ def Read_XLS(Raw_Dataset_File):
 
 
 
-def Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path,Control_List:list):
+def Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path,WT_BLASTP_Data_Path,MUT_BLASTP_Data_Path,Control_List:list):
     if Control_List==[]:
-        Control_List=[1,1,1,1,1,1,1,1,1,1]
+        Control_List=[1,1,1,1,1,1,1,1,1,1,1,1]
         #[1,1,0,0,1,1,0,0,0,0]
     if Control_List[0]==1:
         files=os.listdir(Table_Path)
@@ -1075,6 +1159,14 @@ def Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path
         files = os.listdir(MUT_PSI_BLAST_Data_Path)
         for file in files:
             os.remove(MUT_PSI_BLAST_Data_Path + file)
+    if Control_List[11] == 1:
+        files = os.listdir(WT_BLASTP_Data_Path)
+        for file in files:
+            os.remove(WT_BLASTP_Data_Path + file)
+    if Control_List[12] == 1:
+        files = os.listdir(MUT_BLASTP_Data_Path)
+        for file in files:
+            os.remove(MUT_BLASTP_Data_Path + file)
 
 
 

@@ -36,6 +36,9 @@ TMP_Path='./src/TMP/'
 Table_Path='./src/Data_Table/'
 Res_Table_Name='data_table.txt'
 
+Pred_Table_Path='./src/Pred_Table/'
+Pred_Table_Name='pred_table.txt'
+
 HBPlus_Path='./bin/hbplus/'
 
 Ring_Path='./bin/ring-3.0.0/ring/bin/'
@@ -50,6 +53,12 @@ Rdkit_Fdef_Name='BaseFeatures.fdef'
 
 
 Features_Table_Path='./src/Features_Table/'
+Features_Table_Name='features_table.csv'
+
+Model_Path='./models/'
+
+
+
 
 
 MSA_DB_Path=''
