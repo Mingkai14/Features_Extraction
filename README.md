@@ -104,7 +104,7 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
    
    R 
    
-   > install.package("bio3d")
+   >install.package("bio3d")
 
 ## 8. Make sure all file have run permission
   Do this:
