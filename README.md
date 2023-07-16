@@ -15,17 +15,31 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
 
 
 # Environment preparation steps:
+## 1. Git clone this repository
+Do this:
 
-## 1. Download and unzip Rosetta
+cd Your_Path/
+
+git clone https://github.com/geralt14/Features_Extraction.git
+
+
+## 2. Download and unzip Rosetta
 [License and Download | RosettaCommons](https://www.rosettacommons.org/software/license-and-download)
   Download Rosetta bin version from official website. 
   (rosetta_bin_linux_2021.16.61629_bundle version is the test version.) 
  
   Then unzip Rosetta tgz file to Your_Path/Features_Extraction/bin/rosetta/.
   
-  like: tar -zxvf rosetta_bin_linux_3.13_bundle.tgz -C Your_Path//Features_Extraction/bin/rosetta/
+  like: tar -zxvf rosetta_bin_linux_3.13_bundle.tgz -C Your_Path/Features_Extraction/bin/rosetta/
 
-## 2. Configure container evironment
+## 3. Download and unzip FoldX Linux version
+[Homepage | FoldX (crg.eu)](https://foldxsuite.crg.eu/)
+ Register and download FoldX Linux version from official website.
+
+ There is already a FoldX bin program in Your_Path/Features_Extraction/bin/FoldX_5.0/, but it may expire. You should 
+ delete all files in there and unzip your FoldX 5.0 to this folder.
+
+## 4. Configure container evironment
 
   In order to fix problems that some software can only run on specific system, I use container to run these software. Docker and Singularity are 
   supported. You only need to configure it, our program will automatically call it.
@@ -54,13 +68,13 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
  Follow singularity official instructions to install singularity 
 
 
-## 3. Create your Blast database 
+## 5. Create your Blast database 
   
   like: makeblastdb -in uniref50 -dbtype prot -out Your_Path/Your_DB_Name -parse_seqids
   
   tip: recommend to use blast+ 2.13.0
 
-## 4. Create conda virtual environment and install conda dependencies
+## 6. Create conda virtual environment and install conda dependencies
   Conda yml file in Your_Path/Features_Extraction/src/requirements.yml.
   
   Do this: 
@@ -71,7 +85,7 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
   
   conda activate Features_Extraction
 
-## 5. Configure Modeller
+## 7. Configure Modeller
   Modeller was used to generate mutation structures, it was already installed by conda. But it also need a license.
   
 [Registration (salilab.org)](https://salilab.org/modeller/registration.html)
@@ -85,7 +99,7 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
 
   Then Modeller can be used. 
 
-## 6. Configure DSSP
+## 8. Configure DSSP
   DSSP was used to calculate RSA and secondary stuctures. Due to version issues, you must do operations below to make DSSP can be used.
   
   Do this: 
@@ -96,7 +110,7 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
   
   cp mkdssp dssp
 
-## 7. Configure R
+## 9. Configure R
    You also need to configure R and install R package "Bio3D"
    (I assume you have already installed R)
    
@@ -106,7 +120,7 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
    
    >install.package("bio3d")
 
-## 8. Make sure all file have run permission
+## 10. Make sure all file have run permission
   Do this:
   
   cd Your_Path/Features_Extraction
