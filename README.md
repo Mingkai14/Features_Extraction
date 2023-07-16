@@ -5,13 +5,13 @@ This software has three parts: 1. Extract features from raw data of ddG 2. Train
 
   1. Pipeline of ddG features generating. Accept a raw data set, continuously call a series of software and scripts 
   to generate features data in a large scale. At present, there is no available specific software pipeline for 
-  generating feature data of ddG prediction. This pipeline collects and compares the most of the software used in 
+  generating feature data of ddG prediction. This pipeline collects and compares the most of software used in 
   other ddg predictors, and meanwhile, adds some new software to extract features. The generated features can not only
   be used to predict ddG, but also have described protein stability and can be used to predict other indicators
   of protein stability (e.g. dTm).
 
   2. Prediction of ddG. According to features we generated, we have trained models (AdaBoost Regressor, Decision Tree Regression, SVM Regression, Linear 
-  Regression, Random Forest Regression, XG Boost Regression) and implemented prediction function.
+  Regression, Random Forest Regression, XG Boost Regression) and implemented predicting function.
 
 
 # Environment preparation steps:
