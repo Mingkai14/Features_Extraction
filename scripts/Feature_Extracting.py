@@ -604,71 +604,7 @@ def Separately_Compute_B_factor(obj:Feature_Object):
     return True
 
 
-def Feature_Extraction_for_Pred(table_path, table_name, features_obj_list:list):
-    print('Reading task table for Features Extraction')
-    with open(table_path+table_name,'r') as table:
-        lines=table.readlines()
-        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n':
-            error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
-            exit(1)
-        for line in lines[1:]:
-            if line!='' and line!='\n':
-                data_list.append(line.replace('\n',''))
 
-    print('Checking if all data ID are unique')
-
-
-    temp_list=[]
-    for i in range(len(data_list)):
-        item_list=str(data_list[i]).split(',')
-        ID=item_list[0]
-        if ID in temp_list:
-            print(f'{ID} is repeated, has been removed')
-            data_list[i]='remove'
-        else:
-            temp_list.append(ID)
-
-    for i in range(len(data_list) - 1, -1, -1):
-        if data_list[i]=='remove':
-            data_list.pop(i)
-
-    if len(data_list)!=len(temp_list):
-        error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
-        exit(1)
-
-
-    print('Aligning PDB with Pymol')
-    for data in data_list:
-        item_list=str(data).split(',')
-        if len(item_list)!=20:
-            error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
-            exit(1)
-        wt_pdb_path=item_list[6]
-        mut_pdb_path=item_list[8]
-        Pymol_Clean_Align_PDB_Pair(wt_pdb_path, mut_pdb_path, wt_pdb_path, mut_pdb_path)
-
-    print('Begin to process')
-
-    task_count=0
-    failed_count=0
-    for data in data_list:
-        item_list=str(data).split(',')
-        if len(item_list)!=20:
-            error_obj.Something_Wrong(Feature_Extraction_for_Pred.__name__)
-            exit(1)
-        task_count+=1
-        obj=Feature_Object()
-
-        res=Detail_Extraction(obj,item_list,task_count)
-        if res is False:
-            error_obj.Something_Wrong(Feature_Extraction.__name__)
-            failed_count+=1
-            continue
-        else:
-            features_obj_list.append(obj)
-
-
-    print(f'Has failed {failed_count} data')
 
 
 

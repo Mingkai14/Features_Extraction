@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split,GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import joblib
 from scripts.Error import error_obj
@@ -38,12 +38,17 @@ def LinearRegression_Process(csv_path,save_path):
     X = fea
     y = Y_reg
 
+    param_grid = {'n_estimators': [50, 100, 200], 'learning_rate': [0.01, 0.1, 0.5, 1.0]}
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     model = LinearRegression()
-    model.fit(X_train, y_train)
 
-    y_pred = model.predict(X_test)
+    grid_search = GridSearchCV(model, param_grid, cv=5)
+
+    grid_search.fit(X_train, y_train)
+
+    y_pred = grid_search.predict(X_test)
 
     mse = mean_squared_error(y_test, y_pred)
 
@@ -66,7 +71,7 @@ def LinearRegression_Process(csv_path,save_path):
     print("R^2 Score:", r2)
     print("Pearson:", corr_matrix[0][1])
 
-    joblib.dump(model, save_path + 'LR.m')
+    joblib.dump(grid_search, save_path + 'LR.m')
 
     return True
 

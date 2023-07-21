@@ -94,7 +94,6 @@ if __name__ == '__main__':
             print('Recording features results')
             if not Record_Feature_Table(Feature_Object_List,Features_Table_Path):
                 error_obj.Something_Wrong(__name__)
-                Clean_with_Error(Docker_Container_Name)
                 exit(1)
 
     except:

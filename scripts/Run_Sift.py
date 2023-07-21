@@ -112,19 +112,19 @@ def Run_Sift(name,wt_aa,mut_aa,loc:int,sift_path,msa_path,seq_dict:dict,chain,bl
         for l in lines:
             try:
                 d=l.split('\t')
-                if d[1] in ['TOLERATED','DELETERIOUS']:
+                if d[1] in ['TOLERATED','DELETERIOUS','NOT SCORED\n']:
                     line=l
                     break
             except:
                 continue
         div=line.split('\t')
-        if div[1] not in ['TOLERATED','DELETERIOUS']:
+        if div[1] not in ['TOLERATED','DELETERIOUS','NOT SCORED\n']:
             #Clean_Main_Directory()
             return False
         if div[1]=='TOLERATED':
             #Clean_Main_Directory()
             return 1
-        elif div[1]=='DELETERIOUS':
+        elif div[1]=='DELETERIOUS' or div[1]=='NOT SCORED\n':
             #Clean_Main_Directory()
             return -1
         else:

@@ -38,6 +38,12 @@ Res_Table_Name='data_table.txt'
 
 Pred_Table_Path='./src/Pred_Table/'
 Pred_Table_Name='pred_table.txt'
+Pred_Res_Path='./src/Pred_Res/'
+
+Is_Pred=0
+
+Pred_Raw_Dataset_Path='./src/Pred_Raw_Dataset/'
+Pred_Raw_Dataset_Name='pred_raw.xls'
 
 HBPlus_Path='./bin/hbplus/'
 

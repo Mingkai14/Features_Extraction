@@ -4,6 +4,7 @@ from ml.RFRegression import RFRegression_Process
 from ml.LinearRegression import LinearRegression_Process
 from ml.DTRegression import DTRegression_Process
 from ml.AdaBoostRegressor import AdaBoostRegressor_Process
+from ml.MLPRegression import MLPRegression_Process
 
 from scripts.Global_Value import Features_Table_Path,Features_Table_Name
 
@@ -20,7 +21,7 @@ if __name__ == '__main__':
     parser.add_argument('--model_saving_path', type=str, default='./models/')
 
     args = parser.parse_args()
-    if args.model_type not in ['XGB','SVR','RF','LR','DTR','ABR']:
+    if args.model_type not in ['XGB','SVR','RF','LR','DTR','ABR','MLP']:
         error_obj.Something_Wrong(__name__,'There are some wrongs in arguments')
         exit(1)
 
@@ -51,6 +52,10 @@ if __name__ == '__main__':
     elif args.model_type=='ABR':
         if not AdaBoostRegressor_Process(Features_Table_Path + Features_Table_Name, args.model_saving_path):
             error_obj.Something_Wrong(__name__,'ABR trainning failed, feature dataset may be wrong')
+            exit(1)
+    elif args.model_type=='MLP':
+        if not MLPRegression_Process(Features_Table_Path + Features_Table_Name, args.model_saving_path):
+            error_obj.Something_Wrong(__name__,'MLP trainning failed, feature dataset may be wrong')
             exit(1)
 
 

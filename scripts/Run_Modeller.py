@@ -92,13 +92,24 @@ def model_with_modeller(fasta,pdb,name,path):
     aln.write(file='./'+name + '_out.ali', alignment_format='PIR')
     aln.write(file='./'+name + '_out.pap', alignment_format='PAP')
 
+    class MyModel(AutoModel):
+        def special_patches(self, aln):
+            # Rename both chains and renumber the residues in each
+            # self.rename_segments(segment_ids=['E', 'I'])
+            self.rename_segments(segment_ids=list(seq_dict.keys()))
+            # Another way to label individual chains:
+            # self.chains[0].name = 'E'
+            # self.chains[1].name = 'I'
+            for i in range(len(list(seq_dict.keys()))):
+                self.chains[i].name=list(seq_dict.keys())[i]
     #modelling
     env2 = Environ()
-    a = AutoModel(env2, alnfile='./'+name + '_out.ali',
-                  knowns=name + 'A', sequence=name,
-                  assess_methods=(assess.DOPE,
-                                  # soap_protein_od.Scorer(),
-                                  assess.GA341))
+    a = MyModel(env2, alnfile='./'+name + '_out.ali',knowns=name + 'A',sequence=name,assess_methods=(assess.DOPE,assess.GA341))
+    # a = AutoModel(env2, alnfile='./'+name + '_out.ali',
+    #               knowns=name + 'A', sequence=name,
+    #               assess_methods=(assess.DOPE,
+    #                               # soap_protein_od.Scorer(),
+    #                               assess.GA341))
     a.starting_model = 1
     a.ending_model = 3
     a.make()

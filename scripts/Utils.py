@@ -1,5 +1,6 @@
 import shutil
 import xlrd
+import xlwt
 import requests
 import os
 from Bio import SeqIO
@@ -75,29 +76,43 @@ def Get_Mutation_Description(wt_aa:Researched_Amino_Acid,mut_aa:Researched_Amino
     mutation_des_by_ss=secondary_structure_encode[temp]
     return [wt_encode,mut_encode,mutation_des,mutation_des_by_ss]
 
-def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
+def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path,Pred_PDB_Path=''):
     count=0
     wrong_count=0
     right_count=0
     for Raw_Data in Raw_Data_List:
         count+=1
-        Raw_PDB_Num=Raw_Data[0]
-        Mut_Info=Raw_Data[1]
-        Chain_ID=Raw_Data[2]
-        pH=Raw_Data[4]
-        Temperature=Raw_Data[5]
-        DDG=Raw_Data[3]
-        if not Prepare(Table_Path,Clean_Path,Res_Table_Name,Raw_PDB_Num,Mut_Info,Chain_ID,pH,Temperature,DDG,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
-            error_obj.Something_Wrong(__name__,Raw_Data[0]+'_'+Raw_Data[1])
-            wrong_count+=1
-            continue
-        right_count+=1
+        if scripts.Global_Value.Is_Pred==0:
+            Raw_PDB_Num=Raw_Data[0]
+            Mut_Info=Raw_Data[1]
+            Chain_ID=Raw_Data[2]
+            pH=Raw_Data[4]
+            Temperature=Raw_Data[5]
+            DDG=Raw_Data[3]
+            if not Prepare(Table_Path,Clean_Path,Res_Table_Name,Raw_PDB_Num,Mut_Info,Chain_ID,pH,Temperature,DDG,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
+                error_obj.Something_Wrong(__name__,Raw_Data[0]+'_'+Raw_Data[1])
+                wrong_count+=1
+                continue
+            right_count+=1
+        else:
+            Raw_PDB_Name=Raw_Data[0]
+            Mut_Info=Raw_Data[1]
+            Chain_ID=Raw_Data[2]
+            pH=Raw_Data[3]
+            T=Raw_Data[4]
+            from scripts.Global_Value import Pred_Table_Path,Pred_Table_Name
+            if not Prepare_for_Pred(Pred_Table_Path,Clean_Path,Pred_Table_Name,Raw_PDB_Name,Pred_PDB_Path,Mut_Info,Chain_ID,pH,T,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
+                error_obj.Something_Wrong(__name__, Raw_Data[0] + '_' + Raw_Data[1])
+                wrong_count += 1
+                continue
+            right_count += 1
+
     print(f'Preparing task table: There are whole {count} data in raw dataset, {wrong_count} data has been filter away and {right_count} data has been recorded')
     return True
 
 def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,pH,temperature,ddg,raw_pdb_path,w_pdb_path,m_pdb_path,raw_fasta_path,m_fasta_path,wt_pssm_data_path,mut_pssm_data_path,wt_psi_blast_data_path,mut_psi_blast_data_path):
     try:
-        id=raw_pdb_num+'_'+mut_info
+        id=raw_pdb_num+'_'+chain_id+'_'+mut_info
         wt_aa_short=mut_info[0]
         mut_aa_short=mut_info[len(mut_info)-1]
         foo=str(mut_info).replace(wt_aa_short,'').replace(mut_aa_short,'')
@@ -118,6 +133,9 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
     wt_pdb_name = raw_pdb_num
     wt_pdb_path = w_pdb_path + wt_pdb_name + '.pdb'
     Clean_PDB_by_Rosetta(raw_pdb_path+raw_pdb_num+'.pdb',w_pdb_path,clean_path,wt_pdb_name)
+    if not os.path.exists(wt_pdb_path):
+        error_obj.Something_Wrong(Prepare.__name__, 'PDB can not be cleaned, may only have CA')
+        return False
     if not Fetch_Fasta_from_PDB(wt_pdb_path,wt_pdb_name,raw_fasta_path):
         error_obj.Something_Wrong(Prepare.__name__)
         return False
@@ -167,6 +185,7 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
 
 def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_info,chain_id,pH,temperature,w_pdb_path,m_pdb_path,raw_fasta_path,m_fasta_path,wt_pssm_data_path,mut_pssm_data_path,wt_psi_blast_data_path,mut_psi_blast_data_path):
     try:
+        id = pdb_name + '_' + chain_id + '_' + mut_info
         wt_aa_short=mut_info[0]
         mut_aa_short=mut_info[-1]
         foo=str(mut_info).replace(wt_aa_short,'').replace(mut_aa_short,'')
@@ -185,6 +204,9 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
     wt_pdb_name = pdb_name
     wt_pdb_path = w_pdb_path + wt_pdb_name + '.pdb'
     Clean_PDB_by_Rosetta(pdb_path,w_pdb_path,clean_path,wt_pdb_name)
+    if not os.path.exists(wt_pdb_path):
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__, 'PDB can not be cleaned, may only have CA')
+        return False
     if not Fetch_Fasta_from_PDB(wt_pdb_path,wt_pdb_name,raw_fasta_path):
         error_obj.Something_Wrong(Prepare_for_Pred.__name__)
         return False
@@ -208,11 +230,11 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
     if not is_ok:
         error_obj.Something_Wrong(Prepare_for_Pred.__name__,'There may be HETATM during chain')
         return False
-    mut_pdb_name=pdb_name+'_mut'
-    if not Make_Fasta_from_Seq(mut_seq_dict, mut_pdb_name, m_fasta_path):
+    mut_pdb_name=id
+    if not Make_Fasta_from_Seq(mut_seq_dict, id, m_fasta_path):
         error_obj.Something_Wrong(Prepare_for_Pred.__name__)
         return False
-    mut_fasta_path=m_fasta_path+mut_pdb_name+'.fasta'
+    mut_fasta_path=m_fasta_path + id + '.fasta'
     mut_pdb_path=''
     wt_pssm_path=''
     mut_pssm_path=''
@@ -228,7 +250,7 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
             table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n')
         if is_file_existed:
             table.write('\n')
-        table.write(pdb_name+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(0))
+        table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(0))
     return True
 
 def Add_Reverse_Data(table_path,table_name):
@@ -302,7 +324,7 @@ def Fetch_Fasta_from_PDB(pdb_path, fasta_name, fasta_path):
             for residue in chain:
                 if residue.resname not in amino_acid_map.keys():
                     error_obj.Something_Wrong(Fetch_Fasta_from_PDB.__name__,'Amino acid is out of range')
-                    continue
+                    return False
                 seq_dict[chain.id]+=amino_acid_map[residue.resname]
     with open(fasta_path + fasta_name + '.fasta', 'w') as fasta:
         for key in seq_dict.keys():
@@ -1070,7 +1092,7 @@ def Fetch_Single_Chain_Loc(true_loc:int,seq_dict:dict,chain_id):
     count_single_chain = 0
     is_end = False
     for chain_ in seq_dict.keys():
-        for char in seq_dict[chain_id]:
+        for char in seq_dict[chain_]:
             if chain_ == chain_id:
                 count_single_chain += 1
             count += 1
@@ -1096,8 +1118,8 @@ def Read_XLS(Raw_Dataset_File):
         Raw_Data_List.append(list_)
     temp_list=[]
     for data_list in Raw_Data_List:
-        id=data_list[0]+'_'+data_list[1]
-        temp_list.append(id)
+        unique=data_list[0]+'_'+data_list[1]+'_'+data_list[2]
+        temp_list.append(unique)
     temp_set=set(temp_list)
     if len(temp_list)!=len(temp_set):
         error_obj.Something_Wrong(Read_XLS.__name__)
@@ -1176,3 +1198,94 @@ def Clean_with_Error(docker_container_name):
     Remove_FoldX_Resource()
     if scripts.Global_Value.D_or_S=='D':
         Docker_Remove_Container(docker_container_name)
+
+
+def Generate_Raw_Dataset_for_Pred(pdb_name,vari_info,chain,pH,T,pdb_path,table_path,table_name):
+    header=['PDB','Variation','Chain','pH','T']
+    if os.path.exists(table_path+table_name):
+        os.remove(table_path+table_name)
+    if vari_info!='all' and str(vari_info).find('*')==-1:
+        book=xlwt.Workbook()
+        sheet=book.add_sheet('sheet1')
+        for i in range(len(header)):
+            sheet.write(0,i,header[i])
+        sheet.write(1,0,pdb_name)
+        sheet.write(1,1,vari_info)
+        sheet.write(1,2,chain)
+        sheet.write(1,3,pH)
+        sheet.write(1,4,T)
+        book.save(table_path+table_name)
+        return True
+    if vari_info!='all' and str(vari_info).find('*')!=-1:
+        if vari_info[-1]!='*':
+            return False
+        if vari_info[0] not in amino_acid_map.values():
+            return False
+        foo = list(vari_info)
+        foo.pop(0)
+        foo.pop(-1)
+        loc = ''.join(foo)
+        try:
+            int(loc)
+        except:
+            return False
+        book = xlwt.Workbook()
+        sheet = book.add_sheet('sheet1')
+        for i in range(len(header)):
+            sheet.write(0, i, header[i])
+        aa_list=[]
+        for aa in amino_acid_map.values():
+            aa_list.append(aa)
+        prefix=str(vari_info).replace('*','')
+        for i in range(len(aa_list)):
+            v=prefix+aa_list[i]
+            sheet.write(i + 1, 0, pdb_name)
+            sheet.write(i + 1, 1, v)
+            sheet.write(i + 1, 2, chain)
+            sheet.write(i + 1, 3, pH)
+            sheet.write(i + 1, 4, T)
+        book.save(table_path + table_name)
+        return True
+    if vari_info == 'all':
+        record_dict={}
+        pdb = PDBParser(QUIET=True)
+        structure = pdb.get_structure('foo', pdb_path)
+        for chains in structure:
+            for chain in chains:
+                for residue in chain:
+                    if residue.resname not in amino_acid_map.keys():
+                        continue
+                    id=residue.get_id()
+                    num=id[1]
+                    chain_id=chain.id
+                    aa=amino_acid_map[residue.resname]
+                    if chain_id not in record_dict.keys():
+                        record_dict[chain_id]={}
+                    record_dict[chain_id][num]=aa
+        record_list=[]
+        for chain_ in record_dict.keys():
+            for num_ in dict(record_dict[chain_]).keys():
+                for aa in amino_acid_map.keys():
+                    foo=[]
+                    foo.append(pdb_name)
+                    v=record_dict[chain_][num_]+str(num_)+amino_acid_map[aa]
+                    foo.append(v)
+                    foo.append(chain_)
+                    foo.append(pH)
+                    foo.append(T)
+                    record_list.append(foo)
+        book = xlwt.Workbook()
+        sheet = book.add_sheet('sheet1')
+        for i in range(len(header)):
+            sheet.write(0, i, header[i])
+        for i in range(len(record_list)):
+            for j in range(len(record_list[i])):
+                sheet.write(i+1,j,record_list[i][j])
+        book.save(table_path + table_name)
+        return True
+
+
+
+
+
+
