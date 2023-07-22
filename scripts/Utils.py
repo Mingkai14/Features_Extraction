@@ -144,6 +144,13 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
     if raw_seq_dict==False:
         error_obj.Something_Wrong(Prepare.__name__)
         return False
+    if len(list(raw_seq_dict.keys()))>4:
+        error_obj.Something_Wrong(Prepare.__name__, 'PDB has so many chains')
+        return False
+    for key in raw_seq_dict.keys():
+        if len(raw_seq_dict[key])>800:
+            error_obj.Something_Wrong(Prepare.__name__, 'some chains in PDB have so many aa')
+            return False
     mut_seq_dict = {}
     count = 0
     is_ok = True
@@ -215,6 +222,13 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
     if raw_seq_dict==False:
         error_obj.Something_Wrong(Prepare_for_Pred.__name__)
         return False
+    if len(list(raw_seq_dict.keys()))>4:
+        error_obj.Something_Wrong(Prepare.__name__, 'PDB has so many chains')
+        return False
+    for key in raw_seq_dict.keys():
+        if len(raw_seq_dict[key])>800:
+            error_obj.Something_Wrong(Prepare.__name__, 'some chains in PDB have so many aa')
+            return False
     mut_seq_dict = {}
     count = 0
     is_ok = True

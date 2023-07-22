@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     print('Processing input arguments')
     args = parser.parse_args()
-    if args.raw_dataset_path=='' or args.db_folder_path=='' or args.db_name=='' or args.if_reversed_data not in [0,1] or args.psiblast_threads_num<1 or args.psiblast_threads_num>30:
+    if args.raw_dataset_path=='' or args.db_folder_path=='' or args.db_name=='' or args.if_reversed_data not in [0,1] or args.psiblast_threads_num<1 or args.psiblast_threads_num>40 or args.process_num>40 or args.process_num<1:
         error_obj.Something_Wrong(__name__)
         exit(1)
     if str(args.raw_dataset_path).split('.')[len(str(args.raw_dataset_path).split('.'))-1]!='xls':
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
         if scripts.Global_Value.Mode=='whole' or scripts.Global_Value.Mode=='model_only':
             print('Modelling MUT models')
-            Prepare_MUT_Models(Table_Path,Res_Table_Name,MUT_PDB_Path)
+            Prepare_MUT_Models(Table_Path,Res_Table_Name,MUT_PDB_Path,scripts.Global_Value.Process_Num)
 
         if scripts.Global_Value.Mode=='whole' or scripts.Global_Value.Mode=='blast_only':
             print('Preparing Blast files')

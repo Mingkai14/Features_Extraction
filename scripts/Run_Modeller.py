@@ -3,11 +3,12 @@ from modeller.automodel import *
 import os
 from Bio import SeqIO
 from scripts.Error import error_obj
+import multiprocessing
 
 
 data_list=[]
 backup_lines=[]
-def Prepare_MUT_Models(table_path,table_name,mut_pdb_path):
+def Prepare_MUT_Models(table_path,table_name,mut_pdb_path,process_num:int):
     if os.path.exists(mut_pdb_path) == False:
         os.mkdir(mut_pdb_path)
     with open(table_path+table_name,'r') as table:
@@ -20,6 +21,8 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path):
         for line in lines[1:]:
             data_list.append(line.replace('\n',''))
     line_num=1
+    pool = multiprocessing.Pool(process_num)
+    process_res_list = []
     for data in data_list:
         item_list=str(data).split(',')
         if len(item_list)!=20:
@@ -28,6 +31,7 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path):
         fasta_path=item_list[10]
         template_pdb_path=item_list[6]
         pdb_name=item_list[7]
+
         files = os.listdir(mut_pdb_path)
         pdbs_names = []
         for file in files:
@@ -42,9 +46,10 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path):
             line_num+=1
             continue
         else:
-            if not model_with_modeller(fasta_path, template_pdb_path, pdb_name, mut_pdb_path):
-                error_obj.Modelling_Fail(Prepare_MUT_Models.__name__, pdb_name)
-                return False
+            arg = (fasta_path, template_pdb_path, pdb_name, mut_pdb_path)
+            res = pool.apply_async(model_with_modeller, arg)
+            process_res_list.append(res)
+
             item_list[8] = mut_pdb_path + pdb_name + '.pdb'
             if line_num!=len(backup_lines)-1:
                 new_line=','.join(item_list)+'\n'
@@ -52,6 +57,22 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path):
                 new_line = ','.join(item_list)
             backup_lines[line_num]=new_line
             line_num+=1
+
+    pool.close()
+    pool.join()
+
+    res_count = 0
+    for process_res in process_res_list:
+        item_list = str(data_list[res_count]).split(',')
+        name=item_list[7]
+        res_count += 1
+        if not process_res.successful():
+            error_obj.Modelling_Fail(Prepare_MUT_Models.__name__, name)
+            return False
+        if process_res.get() is False:
+            error_obj.Modelling_Fail(Prepare_MUT_Models.__name__, name)
+            return False
+
     with open(table_path + table_name, 'w') as table:
         for line in backup_lines:
             table.write(line)
@@ -79,14 +100,14 @@ def model_with_modeller(fasta,pdb,name,path):
     with open('./' + name + '.ali', 'r') as ali:
         print(ali.read())
     with open(pdb,'r') as f:
-        with open('./temp.pdb','w') as p:
+        with open(f'./{name}_temp.pdb','w') as p:
             p.write(f.read())
     #Alignment
     env1 = Environ()
     aln = Alignment(env1)
     print(list(seq_dict.keys()))
-    mdl = Model(env1, file='./temp', model_segment=('FIRST:'+list(seq_dict.keys())[0], 'LAST:'+list(seq_dict.keys())[len(list(seq_dict.keys()))-1]))
-    aln.append_model(mdl, align_codes=name + 'A', atom_files='./temp.pdb')
+    mdl = Model(env1, file=f'./{name}_temp', model_segment=('FIRST:'+list(seq_dict.keys())[0], 'LAST:'+list(seq_dict.keys())[len(list(seq_dict.keys()))-1]))
+    aln.append_model(mdl, align_codes=name + 'A', atom_files=f'./{name}_temp.pdb')
     aln.append(file='./'+name+'.ali', align_codes=name)
     aln.align2d(max_gap_length=50)
     aln.write(file='./'+name + '_out.ali', alignment_format='PIR')
@@ -129,11 +150,6 @@ def model_with_modeller(fasta,pdb,name,path):
     #Clearing
     files_temp = os.listdir('./')
     for file in files_temp:
-        file_div = file.split('.')
-        if file_div[0] == name:
-            os.remove(file)
-        if file_div[0] == name + '_out':
-            os.remove(file)
-        if file == 'temp.pdb':
-            os.remove(file)
+        if file.find(name)!=-1 and file.split('.')[-1]!='py':
+            os.remove(f'./{file}')
     return True

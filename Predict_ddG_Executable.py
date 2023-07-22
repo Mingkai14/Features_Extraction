@@ -46,7 +46,7 @@ if __name__ == '__main__':
     mode=args.mode
     process_num=args.process_num
 
-    if pdb_name=='' or pdb_path=='' or vari_info=='' or chain=='' or pH==0.0 or T==0.0 or db_fold_path=='' or db_name=='' or psi_threads_num<1 or psi_threads_num>30 or container_type not in ['D','S']:
+    if pdb_name=='' or pdb_path=='' or vari_info=='' or chain=='' or pH==0.0 or T==0.0 or db_fold_path=='' or db_name=='' or psi_threads_num<1 or psi_threads_num>40 or container_type not in ['D','S'] or args.process_num>40 or args.process_num<1:
         error_obj.Something_Wrong(__name__, 'Incomplete agruments')
         exit(1)
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
         if scripts.Global_Value.Mode=='whole' or scripts.Global_Value.Mode=='model_only':
             print('Modelling MUT models')
-            Prepare_MUT_Models(Pred_Table_Path,Pred_Table_Name,MUT_PDB_Path)
+            Prepare_MUT_Models(Pred_Table_Path,Pred_Table_Name,MUT_PDB_Path,process_num)
 
         if scripts.Global_Value.Mode=='whole' or scripts.Global_Value.Mode=='blast_only':
             print('Preparing Blast files')
