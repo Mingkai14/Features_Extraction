@@ -89,6 +89,10 @@ def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Pat
             pH=Raw_Data[4]
             Temperature=Raw_Data[5]
             DDG=Raw_Data[3]
+            if str(Raw_PDB_Num).find('_')!=-1:
+                error_obj.Something_Wrong(Prepare,f'Check xls file {Raw_PDB_Num}')
+                wrong_count+=1
+                continue
             if not Prepare(Table_Path,Clean_Path,Res_Table_Name,Raw_PDB_Num,Mut_Info,Chain_ID,pH,Temperature,DDG,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
                 error_obj.Something_Wrong(__name__,Raw_Data[0]+'_'+Raw_Data[1])
                 wrong_count+=1
@@ -100,6 +104,10 @@ def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Pat
             Chain_ID=Raw_Data[2]
             pH=Raw_Data[3]
             T=Raw_Data[4]
+            if str(Raw_PDB_Name).find('_')!=-1:
+                error_obj.Something_Wrong(Prepare,f'Check xls file {Raw_PDB_Name}')
+                wrong_count += 1
+                continue
             from scripts.Global_Value import Pred_Table_Path,Pred_Table_Name
             if not Prepare_for_Pred(Pred_Table_Path,Clean_Path,Pred_Table_Name,Raw_PDB_Name,Pred_PDB_Path,Mut_Info,Chain_ID,pH,T,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
                 error_obj.Something_Wrong(__name__, Raw_Data[0] + '_' + Raw_Data[1])
@@ -128,7 +136,7 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
         return False
     true_loc = Get_True_Loc(loc, wt_aa_short, raw_pdb_path+raw_pdb_num+'.pdb',chain_id)
     if true_loc is False:
-        error_obj.Something_Wrong(Prepare.__name__,'Something wrong in PDB file')
+        error_obj.Something_Wrong(Prepare.__name__,f'Something wrong in {id} PDB file or Variation info does not match in PDB file')
         return False
     wt_pdb_name = raw_pdb_num
     wt_pdb_path = w_pdb_path + wt_pdb_name + '.pdb'
@@ -153,19 +161,26 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
             return False
     mut_seq_dict = {}
     count = 0
-    is_ok = True
+    is_match = True
+    is_find = False
     for key in raw_seq_dict.keys():
         seq_list = list(raw_seq_dict[key])
         for i in range(len(seq_list)):
             count += 1
             if count == true_loc:
                 if not seq_list[i] == wt_aa_short:
-                    is_ok = False
+                    is_match = False
                 seq_list[i] = mut_aa_short
+                is_find=True
         mut_seq_dict[key] = ''.join(seq_list)
-    if not is_ok:
+    if not is_match:
         error_obj.Something_Wrong(Prepare.__name__,'There may be HETATM during chain')
         return False
+
+    if not is_find:
+        error_obj.Something_Wrong(Prepare.__name__,f'Something wrong in {id} PDB file or Variation info does not match in PDB file')
+        return False
+
     if not Make_Fasta_from_Seq(mut_seq_dict, id, m_fasta_path):
         error_obj.Something_Wrong(Prepare.__name__)
         return False
@@ -300,7 +315,7 @@ def Add_Reverse_Data(table_path,table_name):
             if line.find('\n')==-1:
                 line=line+'\n'
             backup_lines.append(line)
-            new_id=id.split('_')[0]+'_'+mut_aa_short+loc+wt_aa_short
+            new_id=id.split('_')[0]+'_'+id.split('_')[1]+'_'+mut_aa_short+loc+wt_aa_short
             l=f'{new_id},{mut_aa_short},{wt_aa_short},{loc},{t_loc},{mut_pdb_name},{mut_pdb_path},{wt_pdb_name},{wt_pdb_path},{mut_fasta_path},{wt_fasta_path},{mut_pssm_path},{wt_pssm_path},{mut_psi_blast_path},{wt_psi_blast_path},{mut_blastp_path},{wt_blastp_path},{pH},{temperature},{str(-float(ddg))}\n'
             backup_lines.append(l)
     with open(table_path+table_name,'w') as w_table:
@@ -1076,6 +1091,7 @@ def Get_Distance(x1,y1,z1,x2,y2,z2):
 def Get_True_Loc(loc:int,aa_short,pdb_path,chain_id):
     count = 0
     with open(pdb_path) as pdb:
+        if_successful=False
         lines=pdb.readlines()
         loc_temp=0
         for line in lines:
@@ -1092,10 +1108,13 @@ def Get_True_Loc(loc:int,aa_short,pdb_path,chain_id):
                         count+=1
                         loc_temp=loc_
                     if aa_==aa_short and loc_==loc and chain==chain_id:
+                        if_successful=True
                         break
             except:
                 print(line)
                 return False
+    if not if_successful:
+        return False
     return count
 
 

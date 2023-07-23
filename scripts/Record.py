@@ -112,7 +112,7 @@ def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
                 if key in expand_dict.keys():
                     temp_dict=data_dict[key]
                     for temp_name in dict(temp_dict).keys():
-                        if temp_name != 'Pdb':
+                        if temp_name != 'Pdb' and temp_name!='total_score':
                             data_w.append(temp_dict[temp_name])
                 else:
                     if data_dict[key]==-99:
