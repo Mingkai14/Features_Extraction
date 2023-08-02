@@ -85,7 +85,15 @@ def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Pat
         if scripts.Global_Value.Is_Pred==0:
             Raw_PDB_Num=Raw_Data[0]
             Mut_Info=Raw_Data[1]
-            Chain_ID=Raw_Data[2]
+            if isinstance(Raw_Data[2], str):
+                Chain_ID = Raw_Data[2]
+            else:
+                try:
+                    Chain_ID = str(int(Raw_Data[2]))
+                except:
+                    error_obj.Something_Wrong(Prepare, f'Check xls file {Raw_PDB_Num}')
+                    wrong_count += 1
+                    continue
             pH=Raw_Data[4]
             Temperature=Raw_Data[5]
             DDG=Raw_Data[3]
@@ -101,7 +109,15 @@ def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Pat
         else:
             Raw_PDB_Name=Raw_Data[0]
             Mut_Info=Raw_Data[1]
-            Chain_ID=Raw_Data[2]
+            if isinstance(Raw_Data[2], str):
+                Chain_ID = Raw_Data[2]
+            else:
+                try:
+                    Chain_ID = str(int(Raw_Data[2]))
+                except:
+                    error_obj.Something_Wrong(Prepare, f'Check xls file {Raw_PDB_Num}')
+                    wrong_count += 1
+                    continue
             pH=Raw_Data[3]
             T=Raw_Data[4]
             if str(Raw_PDB_Name).find('_')!=-1:
@@ -152,13 +168,13 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
     if raw_seq_dict==False:
         error_obj.Something_Wrong(Prepare.__name__)
         return False
-    if len(list(raw_seq_dict.keys()))>4:
-        error_obj.Something_Wrong(Prepare.__name__, 'PDB has so many chains')
-        return False
-    for key in raw_seq_dict.keys():
-        if len(raw_seq_dict[key])>800:
-            error_obj.Something_Wrong(Prepare.__name__, 'some chains in PDB have so many aa')
-            return False
+    # if len(list(raw_seq_dict.keys()))>4:
+    #     error_obj.Something_Wrong(Prepare.__name__, 'PDB has so many chains')
+    #     return False
+    # for key in raw_seq_dict.keys():
+    #     if len(raw_seq_dict[key])>800:
+    #         error_obj.Something_Wrong(Prepare.__name__, 'some chains in PDB have so many aa')
+    #         return False
     mut_seq_dict = {}
     count = 0
     is_match = True
@@ -237,13 +253,13 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
     if raw_seq_dict==False:
         error_obj.Something_Wrong(Prepare_for_Pred.__name__)
         return False
-    if len(list(raw_seq_dict.keys()))>4:
-        error_obj.Something_Wrong(Prepare.__name__, 'PDB has so many chains')
-        return False
-    for key in raw_seq_dict.keys():
-        if len(raw_seq_dict[key])>800:
-            error_obj.Something_Wrong(Prepare.__name__, 'some chains in PDB have so many aa')
-            return False
+    # if len(list(raw_seq_dict.keys()))>4:
+    #     error_obj.Something_Wrong(Prepare.__name__, 'PDB has so many chains')
+    #     return False
+    # for key in raw_seq_dict.keys():
+    #     if len(raw_seq_dict[key])>800:
+    #         error_obj.Something_Wrong(Prepare.__name__, 'some chains in PDB have so many aa')
+    #         return False
     mut_seq_dict = {}
     count = 0
     is_ok = True
@@ -1089,30 +1105,100 @@ def Get_Distance(x1,y1,z1,x2,y2,z2):
 
 
 def Get_True_Loc(loc:int,aa_short,pdb_path,chain_id):
-    count = 0
-    with open(pdb_path) as pdb:
-        if_successful=False
-        lines=pdb.readlines()
-        loc_temp=0
-        for line in lines:
-            try:
-                if line.split()[0]=='ATOM':
-                    aa=line[17:20]
-                    if aa in amino_acid_map.keys():
-                        aa_=amino_acid_map[aa]
-                    else:
-                        continue
-                    loc_=int(line[22:27].replace(' ',''))
-                    chain=line[21:22]
-                    if loc_!=loc_temp:
-                        count+=1
-                        loc_temp=loc_
-                    if aa_==aa_short and loc_==loc and chain==chain_id:
-                        if_successful=True
-                        break
-            except:
-                print(line)
-                return False
+    try:
+        with open(pdb_path) as pdb:
+            if_successful=False
+            lines=pdb.readlines()
+            last_aa_index=''
+            for line in lines:
+                if line[0:4] != "ATOM" and line[0:6] != 'HETATM':
+                    continue
+                else:
+                    last_aa_index=line[22:27]
+                    break
+            aa_buffer=[]
+            count=0
+            for line in lines:
+                if line[0:4] != "ATOM" and line[0:6] != 'HETATM':
+                    continue
+                else:
+                    aa_index=line[22:27]
+                    if aa_index!=last_aa_index:
+                        hasCA=False
+                        hasN=False
+                        hasC=False
+                        aa = aa_buffer[0][17:20]
+                        if aa in amino_acid_map.keys():
+                            aa_s=amino_acid_map[aa]
+                        else:
+                            aa_s='HETATM'
+                        chain = aa_buffer[0][21:22]
+                        for line_ in aa_buffer:
+                            atomname = line_[12:16]
+                            occupancy = float(line_[55:60])
+                            if atomname == " CA " and occupancy > 0.0:
+                                hasCA = True
+                            if atomname == " N  " and occupancy > 0.0:
+                                hasN = True
+                            if atomname == " C  " and occupancy > 0.0:
+                                hasC = True
+                            if line_[17:20]!=aa:
+                                return False
+                            if line_[21:22]!=chain:
+                                return False
+                        if hasCA and hasN and hasC:
+                            count+=1
+                        if aa_s ==aa_short and chain==chain_id:
+                            try:
+                                loc_temp=int(last_aa_index.replace(' ', ''))
+                                if loc_temp==loc:
+                                    if_successful = True
+                                    aa_buffer = []
+                                    break
+                            except:
+                                pass
+                        last_aa_index = aa_index
+                        aa_buffer=[]
+
+                    aa_buffer.append(line)
+            if aa_buffer!=[]:
+                hasCA = False
+                hasN = False
+                hasC = False
+                last_aa_index = aa_buffer[0][22:27]
+                aa = aa_buffer[0][17:20]
+                if aa in amino_acid_map.keys():
+                    aa_s = amino_acid_map[aa]
+                else:
+                    aa_s = 'HETATM'
+                chain = aa_buffer[0][21:22]
+                for line_ in aa_buffer:
+                    atomname = line_[12:16]
+                    occupancy = float(line_[55:60])
+                    if atomname == " CA " and occupancy > 0.0:
+                        hasCA = True
+                    if atomname == " N  " and occupancy > 0.0:
+                        hasN = True
+                    if atomname == " C  " and occupancy > 0.0:
+                        hasC = True
+                    if line_[17:20] != aa:
+                        return False
+                    if line_[21:22] != chain:
+                        return False
+                if hasCA and hasN and hasC:
+                    count += 1
+                if aa_s == aa_short and chain == chain_id:
+                    try:
+                        loc_temp = int(last_aa_index.replace(' ', ''))
+                        if loc_temp == loc:
+                            if_successful = True
+                            aa_buffer = []
+                    except:
+                        pass
+
+    except:
+            print(line)
+            return False
     if not if_successful:
         return False
     return count
@@ -1151,11 +1237,11 @@ def Read_XLS(Raw_Dataset_File):
         Raw_Data_List.append(list_)
     temp_list=[]
     for data_list in Raw_Data_List:
-        unique=data_list[0]+'_'+data_list[1]+'_'+data_list[2]
+        unique=data_list[0]+'_'+data_list[1]+'_'+str(data_list[2])
         temp_list.append(unique)
     temp_set=set(temp_list)
     if len(temp_list)!=len(temp_set):
-        error_obj.Something_Wrong(Read_XLS.__name__)
+        error_obj.Something_Wrong(Read_XLS.__name__, 'has repeated data')
         exit(1)
     return Raw_Data_List
 
