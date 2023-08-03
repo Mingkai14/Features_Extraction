@@ -8,8 +8,16 @@ def get_atom_coordinates(feature,protein):
     atom_coordinates = [protein.GetConformer().GetAtomPosition(idx) for idx in atom_indices]
     return atom_coordinates
 
-def Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,central_x,central_y,central_z,cutoff):
+def Check_Available_PDB_with_Rdkit(pdb_path):
     protein = Chem.MolFromPDBFile(pdb_path)
+    if protein==None:
+        return False
+    else:
+        return True
+
+
+def Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,central_x,central_y,central_z,cutoff,is_bonding:bool):
+    protein = Chem.MolFromPDBFile(pdb_path,proximityBonding=is_bonding)
     if protein==None:
         return False
     try:

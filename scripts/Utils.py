@@ -9,7 +9,7 @@ from Bio.PDB import *
 import scripts.Global_Value
 from scripts.Error import error_obj
 from scripts.Classes import *
-from bin.rdkit_2023_3_1.rdkit_compute import Compute_Pharmacophore_with_Rdkit
+from bin.rdkit_2023_3_1.rdkit_compute import Compute_Pharmacophore_with_Rdkit,Check_Available_PDB_with_Rdkit
 from bin.Protlego.Hydrophobic_cluster import *
 from math import sqrt,pow
 from scripts.Rosetta import Clean_PDB_by_Rosetta
@@ -942,7 +942,7 @@ def Clean_Main_Directory():
         os.remove(file)
 
 
-def Run_Rdikit(pdb_path,rdkit_path,rdkit_fdef_name,res_dict:dict,aa:Researched_Amino_Acid,cutoff:float):
+def Run_Rdikit(pdb_path,rdkit_path,rdkit_fdef_name,res_dict:dict,aa:Researched_Amino_Acid,cutoff:float,is_bonding:bool):
     '''
     :purpose: By function of rdkit to get all pharmacophore count surrounding AA site by a cutoff distance
     :param pdb_path: Input a PDB file path
@@ -953,7 +953,7 @@ def Run_Rdikit(pdb_path,rdkit_path,rdkit_fdef_name,res_dict:dict,aa:Researched_A
     :param cutoff: Input a cutoff distance
     :return: True/False
     '''
-    res=Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,aa.Central_X,aa.Central_Y,aa.Central_Z,cutoff)
+    res=Compute_Pharmacophore_with_Rdkit(pdb_path,rdkit_path,rdkit_fdef_name,aa.Central_X,aa.Central_Y,aa.Central_Z,cutoff,is_bonding)
     if res is False:
         return False
     try:
