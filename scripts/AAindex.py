@@ -150,6 +150,7 @@ def Get_Mutation_Index_List_from_Index(wt_aa:str,mut_aa:str,aaindex_list:list[di
         mut_dict[name]=data
     for name in wt_dict.keys():
         out_dict[name]=mut_dict[name]-wt_dict[name]
+    return wt_dict
 
 
 

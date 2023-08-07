@@ -30,15 +30,15 @@ expand_dict={'WT_FoldX_Energy_Term_Dict':'wt_foldx_',
              'WT_Rosetta_Energy_Term_Dict':'wt_rosetta_',
              'MUT_Rosetta_Energy_Term_Dict':'mut_rosetta_',
              'Diff_Rosetta_Energy_Term_Dict':'diff_rosetta_',
-             'Overall_Pct_Amino_Acid_Categories':'overall_pct_aa_c_',
-             'Overall_Num_Amino_Acid_Categories':'overall_num_aa_c_',
+             'WT_Pct_Amino_Acid_Categories':'wt_pct_aa_c_',
+             'WT_Num_Amino_Acid_Categories':'wt_num_aa_c_',
              'Layer1_Pct_Amino_Acid_Categories':'layer1_pct_aa_c_',
              'Layer1_Num_Amino_Acid_Categories':'layer1_num_aa_c_',
              'Layer2_Pct_Amino_Acid_Categories':'layer2_pct_aa_c_',
              'Layer2_Num_Amino_Acid_Categories':'layer2_num_aa_c_',
              'Layer3_Pct_Amino_Acid_Categories':'layer3_pct_aa_c_',
              'Layer3_Num_Amino_Acid_Categories':'layer3_num_aa_c_',
-             'Overall_Pct_Secondary_Structure':'overall_pct_ss_',
+             'WT_Pct_Secondary_Structure':'overall_pct_ss_',
              'Layer1_Pct_Secondary_Structure':'layer1_pct_ss_',
              'Layer2_Pct_Secondary_Structure':'layer2_pct_ss_',
              'Layer3_Pct_Secondary_Structure':'layer3_pct_ss_',
@@ -54,83 +54,143 @@ expand_dict={'WT_FoldX_Energy_Term_Dict':'wt_foldx_',
              'WT_Num_Pharmacophore_Categories_Layer3':'layer3_wt_num_pharm_c_',
              'MUT_Num_Pharmacophore_Categories_Layer3':'layer3_mut_num_pharm_c_',
              'Diff_Num_Pharmacophore_Categories_Layer3':'layer3_diff_num_pharm_c_',
-             'Diff_AAindex1':'aaindex1_',
-             'Overall_AAindex2':'aaindex2_',
-             'Overall_AAindex3':'aaindex3_'}
+             'WT_AAindex1':'wt_aaindex1_',
+             'Diff_AAindex1':'diff_aaindex1_',
+             'Descri_AAindex2':'descri_aaindex2_',
+             'Descri_AAindex3':'descri_aaindex3_'}
 
 
+# the conditions at which the stability change is measured
+class_1_name=['pH','Temperature']
+# the environment surrounding the mutation site
+class_2_name=['WT_Pct_Amino_Acid_Categories','WT_Pct_Buried_Residue','WT_Pct_Exposed_Residue',
+              'WT_Pct_Secondary_Structure','WT_Pct_coils','WT_Pct_rem465',
+              'WT_Pct_hotloop','WT_NMA_Fluctuation','WT_FoldX_Energy_Term_Dict','WT_Rosetta_Energy_Term_Dict','WT_Num_HBOND_Ring','WT_Num_SSBOND_Ring','WT_Num_IONIC_Ring','WT_Num_VDW_Ring',
+              'WT_Num_PICATION_Ring','WT_Num_PIPISTACK_Ring','WT_Num_HD_Cluster_Protlego','WT_Max_HD_Cluster_Area','WT_Num_Pharmacophore_Categories',
+              'WT_Num_Pharmacophore_Categories_Layer1','WT_Num_Pharmacophore_Categories_Layer2','WT_Num_Pharmacophore_Categories_Layer3','WT_HD_Cluster_Area',
+              'WT_B_Factor','WT_Psi','WT_Phi','WT_RSA','WT_Secondary_Structure','WT_AAindex1']
+# changes in the space surrounding the mutation site
+class_3_name=['Diff_NMA_Fluctuation','Diff_FoldX_Energy_Term_Dict','Diff_Rosetta_Energy_Term_Dict','Diff_Num_HBOND_Ring',
+              'Diff_Num_SSBOND_Ring','Diff_Num_IONIC_Ring','Diff_Num_VDW_Ring','Diff_Num_PICATION_Ring',
+              'Diff_Num_PIPISTACK_Ring','Diff_Num_HD_Cluster_Protlego','Diff_Max_HD_Cluster_Area',
+              'Diff_Num_Pharmacophore_Categories','Diff_Num_Pharmacophore_Categories_Layer1','Diff_Num_Pharmacophore_Categories_Layer2',
+              'Diff_Num_Pharmacophore_Categories_Layer3','Diff_HD_Cluster_Area','Diff_B_Factor','Diff_Psi','Diff_Phi','Diff_RSA','Diff_AAindex1']
+# the type of mutation
+class_4_name=['Descri_HBOND','Descri_SSBOND','Descri_IONIC','Descri_VDW','Descri_PICATION','Descri_PIPISTACK',
+              'Descri_HD_Cluster','SIFT_Score','Descri_Buried_or_Exposed','Descri_SS','Descri_AA','Descri_Uncharged_Polar',
+              'Descri_Positively_Charged_Polar','Descri_Negatively_Charged_Polar','Descri_Nonpolar','Descri_Aliphatic',
+              'Descri_Aromatic','Descri_Heterocyclic','Descri_Sulfur_Containing','Descri_AAindex2','Descri_AAindex3']
+# evolutionary information
+class_5_name=['WT_PSSM_Score','MUT_PSSM_Score','WT_PSSM_Score_F1','WT_PSSM_Score_F2','WT_PSSM_Score_F3','WT_PSSM_Score_F4',
+              'WT_PSSM_Score_F5','WT_PSSM_Score_B1','WT_PSSM_Score_B2','WT_PSSM_Score_B3','WT_PSSM_Score_B4',
+              'WT_PSSM_Score_B5','WT_PSSM_Score_Aver','MUT_PSSM_Score_F1','MUT_PSSM_Score_F2','MUT_PSSM_Score_F3',
+              'MUT_PSSM_Score_F4','MUT_PSSM_Score_F5','MUT_PSSM_Score_B1','MUT_PSSM_Score_B2','MUT_PSSM_Score_B3',
+              'MUT_PSSM_Score_B4','MUT_PSSM_Score_B5','MUT_PSSM_Score_Aver','Diff_PSSM_Score','Diff_PSSM_Score_Aver']
 
 
 
 def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
-    try:
-        files=os.listdir(Folder_Path)
-        for file in files:
-            os.remove(Folder_Path+file)
+    temp_obj=Feature_Obj_List[0]
+    attribute_list=[]
+    attribute_list.append('ID')
+    for name in class_1_name:
+        if name in expand_dict.keys():
+            prefix=expand_dict[name]
+            temp_dict=dict(temp_obj.__dict__[name])
+            for key in temp_dict:
+                attribute_list.append(prefix+key)
+        else:
+            attribute_list.append(name)
+    for name in class_2_name:
+        if name in expand_dict.keys():
+            prefix = expand_dict[name]
+            temp_dict = dict(temp_obj.__dict__[name])
+            for key in temp_dict:
+                attribute_list.append(prefix + key)
+        else:
+            attribute_list.append(name)
+    for name in class_3_name:
+        if name in expand_dict.keys():
+            prefix=expand_dict[name]
+            temp_dict=dict(temp_obj.__dict__[name])
+            for key in temp_dict:
+                attribute_list.append(prefix+key)
+        else:
+            attribute_list.append(name)
+    for name in class_4_name:
+        if name in expand_dict.keys():
+            prefix=expand_dict[name]
+            temp_dict=dict(temp_obj.__dict__[name])
+            for key in temp_dict:
+                attribute_list.append(prefix+key)
+        else:
+            attribute_list.append(name)
+    for name in class_5_name:
+        if name in expand_dict.keys():
+            prefix=expand_dict[name]
+            temp_dict=dict(temp_obj.__dict__[name])
+            for key in temp_dict:
+                attribute_list.append(prefix+key)
+        else:
+            attribute_list.append(name)
+    attribute_list.append('Experimental_DDG')
+    attribute_list.append('Experimental_DDG_Classification')
 
-        name_dict=Feature_Obj_List[0].__dict__
-        name_list=name_dict.keys()
-        name_w=[]
-
-        for name in name_list:
-            if name in pass_list:
-                continue
+    w_data_whole=[]
+    for obj in Feature_Obj_List:
+        w_data=[]
+        data_dict=obj.__dict__
+        w_data.append(data_dict['ID'])
+        for name in class_1_name:
             if name in expand_dict.keys():
-                temp_dict=name_dict[name]
-                for temp_name in dict(temp_dict).keys():
-                    if temp_name!='Pdb' and temp_name!='total_score':
-                        name_w.append(expand_dict[name]+temp_name)
+                temp_dict = dict(data_dict[name])
+                for key in temp_dict:
+                    w_data.append(temp_dict[key])
             else:
-                name_w.append(name)
+                w_data.append(data_dict[name])
+        for name in class_2_name:
+            if name in expand_dict.keys():
+                temp_dict = dict(data_dict[name])
+                for key in temp_dict:
+                    w_data.append(temp_dict[key])
+            else:
+                w_data.append(data_dict[name])
+        for name in class_3_name:
+            if name in expand_dict.keys():
+                temp_dict = dict(data_dict[name])
+                for key in temp_dict:
+                    w_data.append(temp_dict[key])
+            else:
+                w_data.append(data_dict[name])
+        for name in class_4_name:
+            if name in expand_dict.keys():
+                temp_dict = dict(data_dict[name])
+                for key in temp_dict:
+                    w_data.append(temp_dict[key])
+            else:
+                w_data.append(data_dict[name])
+        for name in class_5_name:
+            if name in expand_dict.keys():
+                temp_dict = dict(data_dict[name])
+                for key in temp_dict:
+                    w_data.append(temp_dict[key])
+            else:
+                w_data.append(data_dict[name])
+        w_data.append(data_dict['Experimental_DDG'])
+        w_data.append(data_dict['Experimental_DDG_Classification'])
+        w_data_whole.append(w_data)
 
-        with open(Folder_Path+'features_table.csv', 'a', newline='') as w:
+
+    with open(Folder_Path+'features_table.csv', 'a', newline='') as w:
+        w_csv = csv.writer(w, dialect='excel')
+        w_csv.writerow(attribute_list)
+
+    for w_l in w_data_whole:
+        with open(Folder_Path + 'features_table.csv', 'a', newline='') as w:
             w_csv = csv.writer(w, dialect='excel')
-            w_csv.writerow(name_w)
+            w_csv.writerow(w_l)
 
-
-
-        count=1
-        error_count=0
-        for obj in Feature_Obj_List:
-            assert isinstance(obj, Feature_Object)
-
-            data_dict=obj.__dict__
-            data_w=[]
-            data_w.append(data_dict['ID'])
-            for key in data_dict.keys():
-                if key in pass_list:
-                    continue
-                if type(data_dict[key])==str:
-                    error_count+=1
-                    continue
-                if type(data_dict[key]) != dict:
-                    try:
-                        int(data_dict[key])
-                    except:
-                        error_count += 1
-                        continue
-                if key in expand_dict.keys():
-                    temp_dict=data_dict[key]
-                    for temp_name in dict(temp_dict).keys():
-                        if temp_name != 'Pdb' and temp_name!='total_score':
-                            data_w.append(temp_dict[temp_name])
-                else:
-                    if data_dict[key]==-99:
-                        data_dict[key]=0
-                    data_w.append(data_dict[key])
-            if len(data_w)!= len(name_w):
-                error_obj.Something_Wrong(Record_Feature_Table.__name__)
-                return False
-
-            with open(Folder_Path + 'features_table.csv', 'a', newline='') as w:
-                w_csv = csv.writer(w, dialect='excel')
-                w_csv.writerow(data_w)
-
-            count += 1
-        return True
-    except:
-        error_obj.Something_Wrong(Record_Feature_Table.__name__)
-        return False
+    return True
 
 
 

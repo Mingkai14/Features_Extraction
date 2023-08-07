@@ -298,14 +298,14 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     res=Judge_If_in_Cluster(obj.MUT_Amino_Acid,obj.MUT_HD_Cluster_List)
     obj.Is_MUT_HD_Cluster=res[0]
     obj.MUT_HD_Cluster_Area=res[1]
-
+    obj.Diff_HD_Cluster_Area=obj.MUT_HD_Cluster_Area-obj.WT_HD_Cluster_Area
 
 
 
 
     # Amino_Acid_Categories
     print(f'Task {task_count}, ID {obj.ID}: Features Extraction 5: Calculating AA categories and Running DSSP to get RSA')
-    Compute_AA_Categories(obj.WT_Amino_Acid_List,obj.Overall_Pct_Amino_Acid_Categories,obj.Overall_Num_Amino_Acid_Categories)
+    Compute_AA_Categories(obj.WT_Amino_Acid_List,obj.WT_Pct_Amino_Acid_Categories,obj.WT_Num_Amino_Acid_Categories)
 
 
     res_list=Run_Dssp(obj.WT_Structure.PDB_Name, obj.WT_Structure.PDB_path,obj.WT_Seq)
@@ -313,9 +313,9 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
     else:
-        obj.Overall_Pct_Buried_Residue=res_list[0]
-        obj.Overall_Pct_Exposed_Residue=res_list[1]
-        obj.Overall_Pct_Secondary_Structure=res_list[2]
+        obj.WT_Pct_Buried_Residue=res_list[0]
+        obj.WT_Pct_Exposed_Residue=res_list[1]
+        obj.WT_Pct_Secondary_Structure=res_list[2]
 
 
     res_list=Get_Res_of_DSSP(obj.WT_Structure.PDB_Name,obj.WT_Structure.PDB_path,obj.WT_Seq,obj.WT_Amino_Acid)
@@ -469,12 +469,12 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
     else:
-        obj.Overall_Pct_coils=res['COILS_Pct']
-        obj.Overall_Whole_Length_coils = res['COILS_Length']
-        obj.Overall_Pct_rem465 = res['REM465_Pct']
-        obj.Overall_Whole_Length_rem465 = res['REM465_Length']
-        obj.Overall_Pct_hotloop = res['HOTLOOPS_Pct']
-        obj.Overall_Whole_Length_hotloop = res['HOTLOOPS_Length']
+        obj.WT_Pct_coils=res['COILS_Pct']
+        obj.WT_Whole_Length_coils = res['COILS_Length']
+        obj.WT_Pct_rem465 = res['REM465_Pct']
+        obj.WT_Whole_Length_rem465 = res['REM465_Length']
+        obj.WT_Pct_hotloop = res['HOTLOOPS_Pct']
+        obj.WT_Whole_Length_hotloop = res['HOTLOOPS_Length']
 
 
 
@@ -513,8 +513,8 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     res_list=Get_Mutation_Description(obj.WT_Amino_Acid,obj.MUT_Amino_Acid,obj.WT_Secondary_Structure_Char,obj.MUT_Secondary_Structure_Char)
     obj.WT_AA_Type=res_list[0]
     obj.MUT_AA_Type=res_list[1]
-    obj.Mutation_Description=res_list[2]
-    obj.Mutation_Description_by_SS=res_list[3]
+    obj.Descri_AA=res_list[2]
+    obj.Descri_SS=res_list[3]
 
     res_dict=Judge_AA_Categories(obj.WT_Amino_Acid)
     obj.Is_WT_Uncharged_Polar=res_dict['uncharged_polar']
@@ -535,6 +535,27 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Is_MUT_Aromatic = res_dict['aromatic']
     obj.Is_MUT_Heterocyclic = res_dict['heterocyclic']
     obj.Is_MUT_Sulfur_Containing = res_dict['sulfur_containing']
+
+    obj.Descri_HBOND = Return_4_type(obj.Is_WT_HBOND,obj.Is_MUT_HBOND)
+    obj.Descri_SSBOND = Return_4_type(obj.Is_WT_SSBOND,obj.Is_MUT_SSBOND)
+    obj.Descri_IONIC = Return_4_type(obj.Is_WT_IONIC,obj.Is_MUT_IONIC)
+    obj.Descri_VDW = Return_4_type(obj.Is_WT_VDW,obj.Is_MUT_VDW)
+    obj.Descri_PICATION = Return_4_type(obj.Is_WT_PICATION,obj.Is_MUT_PICATION)
+    obj.Descri_PIPISTACK = Return_4_type(obj.Is_WT_PIPISTACK,obj.Is_WT_PIPISTACK)
+
+    obj.Descri_HD_Cluster = Return_4_type(obj.Is_WT_HD_Cluster,obj.Is_MUT_HD_Cluster)
+
+    obj.Descri_Buried_or_Exposed = Return_4_type(obj.WT_Is_Buried_or_Exposed,obj.MUT_Is_Buried_or_Exposed)
+
+    obj.Descri_Uncharged_Polar = Return_4_type(obj.Is_WT_Uncharged_Polar,obj.Is_MUT_Uncharged_Polar)
+    obj.Descri_Positively_Charged_Polar = Return_4_type(obj.Is_WT_Positively_Charged_Polar,obj.Is_MUT_Positively_Charged_Polar)
+    obj.Descri_Negatively_Charged_Polar = Return_4_type(obj.Is_WT_Negatively_Charged_Polar,obj.Is_WT_Negatively_Charged_Polar)
+    obj.Descri_Nonpolar = Return_4_type(obj.Is_WT_Nonpolar,obj.Is_MUT_Nonpolar)
+    obj.Descri_Aliphatic = Return_4_type(obj.Is_WT_Aliphatic,obj.Is_MUT_Aliphatic)
+    obj.Descri_Aromatic = Return_4_type(obj.Is_WT_Aromatic,obj.Is_MUT_Aromatic)
+    obj.Descri_Heterocyclic = Return_4_type(obj.Is_WT_Heterocyclic,obj.Is_MUT_Heterocyclic)
+    obj.Descri_Sulfur_Containing = Return_4_type(obj.Is_WT_Sulfur_Containing,obj.Is_MUT_Sulfur_Containing)
+
 
     res_list=find_pssm_score(obj.WT_PSSM_Path,obj.WT_Amino_Acid_List,obj.WT_Amino_Acid,obj.WT_Seq,obj.Chain_ID_of_Mut,5)
     if res_list is False:
@@ -582,9 +603,9 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     Subtract_Dict(obj.WT_Rosetta_Energy_Term_Dict,obj.MUT_Rosetta_Energy_Term_Dict,obj.Diff_Rosetta_Energy_Term_Dict)
 
     print(f'Task {task_count}, ID {obj.ID}: Features Extraction 17: Calculating AAindex features')
-    Get_Mutation_Index_List_from_Index(obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,scripts.AAindex.aaindex1_list,obj.Diff_AAindex1)
-    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}',scripts.AAindex.aaindex2_list,obj.Overall_AAindex2)
-    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}', scripts.AAindex.aaindex3_list,obj.Overall_AAindex3)
+    obj.WT_AAindex1=Get_Mutation_Index_List_from_Index(obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,scripts.AAindex.aaindex1_list,obj.Diff_AAindex1)
+    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}',scripts.AAindex.aaindex2_list,obj.Descri_AAindex2)
+    Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}', scripts.AAindex.aaindex3_list,obj.Descri_AAindex3)
 
 
     print(f'Task {task_count}, ID {obj.ID}: Have finished features extraction, and normally return')

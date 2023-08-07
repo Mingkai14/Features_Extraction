@@ -97,23 +97,23 @@ class Feature_Object:
 
     #2. Overall Environment Features
         # Amino Acid Categories Infomation, by my script
-        self.Overall_Pct_Amino_Acid_Categories = {'uncharged_polar': -99.99, 'positively_charged_polar': -99.99,
+        self.WT_Pct_Amino_Acid_Categories = {'uncharged_polar': -99.99, 'positively_charged_polar': -99.99,
                                                   'negatively_charged_polar': -99.99, 'nonpolar': -99.99,
                                                   'aromatic': -99.99, 'aliphatic': -99.99, 'heterocyclic': -99.99,
                                                   'sulfur_containing': -99.99}
-        self.Overall_Num_Amino_Acid_Categories = {'uncharged_polar': 0, 'positively_charged_polar': 0,
+        self.WT_Num_Amino_Acid_Categories = {'uncharged_polar': 0, 'positively_charged_polar': 0,
                                                   'negatively_charged_polar': 0, 'nonpolar': 0, 'aromatic': 0,
                                                   'aliphatic': 0, 'heterocyclic': 0, 'sulfur_containing': 0}
 
         # Buried_Residue, Exposed_Residue, Secondary_Structure Information, by DSSP
-        self.Overall_Pct_Buried_Residue = -99.99
-        self.Overall_Pct_Exposed_Residue = -99.99
+        self.WT_Pct_Buried_Residue = -99.99
+        self.WT_Pct_Exposed_Residue = -99.99
         self.Dssp_List = []
         self.WT_Psipred_List = []
         self.MUT_Psipred_List = []
         # self.Overall_Pct_Secondary_Structure = {'H': -99.99, 'E': -99.99, 'C': -99.99}
 
-        self.Overall_Pct_Secondary_Structure = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99,
+        self.WT_Pct_Secondary_Structure = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99,
                                                 'T': -99.99, 'S': -99.99, '-': -99.99}
 
         # Coils, Rem465, and Hotloop Information, by disEMBL
@@ -121,12 +121,12 @@ class Feature_Object:
         self.REM465_line = ''
         self.HOTLOOPS_line = ''
 
-        self.Overall_Pct_coils = -99.99
-        self.Overall_Whole_Length_coils = -99.99
-        self.Overall_Pct_rem465 = -99.99
-        self.Overall_Whole_Length_rem465 = -99.99
-        self.Overall_Pct_hotloop = -99.99
-        self.Overall_Whole_Length_hotloop = -99.99
+        self.WT_Pct_coils = -99.99
+        self.WT_Whole_Length_coils = -99.99
+        self.WT_Pct_rem465 = -99.99
+        self.WT_Whole_Length_rem465 = -99.99
+        self.WT_Pct_hotloop = -99.99
+        self.WT_Whole_Length_hotloop = -99.99
 
 
     #3. Environmental Changes Features
@@ -286,11 +286,25 @@ class Feature_Object:
         self.Is_MUT_PICATION = 0
         self.Is_MUT_PIPISTACK = 0
 
+        self.Descri_HBOND=-99
+        self.Descri_SSBOND = -99
+        self.Descri_IONIC = -99
+        self.Descri_VDW = -99
+        self.Descri_PICATION = -99
+        self.Descri_PIPISTACK = -99
+
+
+
+
         #If join in HD Cluster, by Protlego
         self.Is_WT_HD_Cluster=0
         self.WT_HD_Cluster_Area=0.0
         self.Is_MUT_HD_Cluster=0
         self.MUT_HD_Cluster_Area=0.0
+        self.Diff_HD_Cluster_Area=0.0
+
+        self.Descri_HD_Cluster = -99
+
 
 
 
@@ -330,19 +344,22 @@ class Feature_Object:
         self.WT_RSA = -99
         self.MUT_RSA = -99
         self.Diff_RSA = -99
+
         self.WT_Is_Buried_or_Exposed = -99
         self.MUT_Is_Buried_or_Exposed = -99
+        self.Descri_Buried_or_Exposed=-99
+
         self.WT_Secondary_Structure = -99
         self.MUT_Secondary_Structure = -99
         self.WT_Secondary_Structure_Char = ''
         self.MUT_Secondary_Structure_Char = ''
-        self.Mutation_Description_by_SS=-99
+        self.Descri_SS=-99
 
 
         #Mutation Substitute Information, by my script #Not yet
         self.WT_AA_Type=-99
         self.MUT_AA_Type = -99
-        self.Mutation_Description = -99
+        self.Descri_AA = -99
 
 
         self.Is_WT_Uncharged_Polar=0
@@ -362,6 +379,15 @@ class Feature_Object:
         self.Is_MUT_Aromatic = 0
         self.Is_MUT_Heterocyclic = 0
         self.Is_MUT_Sulfur_Containing = 0
+
+        self.Descri_Uncharged_Polar = 0
+        self.Descri_Positively_Charged_Polar = 0
+        self.Descri_Negatively_Charged_Polar = 0
+        self.Descri_Nonpolar = 0
+        self.Descri_Aliphatic = 0
+        self.Descri_Aromatic = 0
+        self.Descri_Heterocyclic = 0
+        self.Descri_Sulfur_Containing = 0
 
         #PSSM matrix score, by blast
         self.WT_PSSM_Score=-99
@@ -396,9 +422,10 @@ class Feature_Object:
         self.Diff_PSSM_Score_Aver= -99.99
 
         #AA Physicochemical properties, by aaindex
+        self.WT_AAindex1={}
         self.Diff_AAindex1={}
-        self.Overall_AAindex2 = {}
-        self.Overall_AAindex3 = {}
+        self.Descri_AAindex2 = {}
+        self.Descri_AAindex3 = {}
 
     #Labels
         #Regression label #Not yet

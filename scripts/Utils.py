@@ -715,6 +715,18 @@ def Judge_AA_Categories(aa:Researched_Amino_Acid):
         amino_acid_categories_map['sulfur_containing']=1
     return amino_acid_categories_map
 
+def Return_4_type(type1:int,type2:int):
+    if type1==0 and type2==0:
+        return 0
+    elif type1==0 and type2==1:
+        return 1
+    elif type1==1 and type2==0:
+        return 2
+    elif type1==1 and type2==1:
+        return 3
+    else:
+        return False
+
 def Run_Dssp(pdb_name,pdb_path,seq_dict_for_test:dict):
     '''
     :purpose: By DSSP to get buried/exposed aa info and secondary structure percentage info
