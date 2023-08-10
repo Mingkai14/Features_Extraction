@@ -46,7 +46,10 @@ def Run_HD_Cluser(pdb,main_loc):
               Fill a new list of all cluster obj
     '''
     clusters_list = []
-    res_list=get_structures(pdb.replace('./',main_loc))
+    try:
+        res_list=get_structures(pdb.replace('./',main_loc))
+    except:
+        res_list=[]
     for cluster in res_list:
         hd_cluster=Protlego_Hydrophobic_Cluster()
         hd_cluster.Residues_List=cluster['residues']
@@ -86,11 +89,14 @@ def Get_Max_Area(hd_cluster_list:list[Protlego_Hydrophobic_Cluster],layer_aa_lis
             if aa_num in aa_list:
                 cluster_list.append(cluster)
                 break
-    max=cluster_list[0].Area
-    for cluster in cluster_list:
-        if cluster.Area>max:
-            max=cluster.Area
-    return max
+    if len(cluster_list)>0:
+        max=cluster_list[0].Area
+        for cluster in cluster_list:
+            if cluster.Area>max:
+                max=cluster.Area
+        return max
+    else:
+        return 0.0
 
 
 def Judge_If_in_Cluster(aa:Researched_Amino_Acid,cluster_list:list[Protlego_Hydrophobic_Cluster]):

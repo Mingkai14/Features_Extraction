@@ -38,7 +38,7 @@ expand_dict={'WT_FoldX_Energy_Term_Dict':'wt_foldx_',
              'Layer2_Num_Amino_Acid_Categories':'layer2_num_aa_c_',
              'Layer3_Pct_Amino_Acid_Categories':'layer3_pct_aa_c_',
              'Layer3_Num_Amino_Acid_Categories':'layer3_num_aa_c_',
-             'WT_Pct_Secondary_Structure':'overall_pct_ss_',
+             'WT_Pct_Secondary_Structure':'wt_pct_ss_',
              'Layer1_Pct_Secondary_Structure':'layer1_pct_ss_',
              'Layer2_Pct_Secondary_Structure':'layer2_pct_ss_',
              'Layer3_Pct_Secondary_Structure':'layer3_pct_ss_',
@@ -98,7 +98,8 @@ def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
             prefix=expand_dict[name]
             temp_dict=dict(temp_obj.__dict__[name])
             for key in temp_dict:
-                attribute_list.append(prefix+key)
+                if key != 'Pdb' and key!= 'score':
+                    attribute_list.append(prefix+key)
         else:
             attribute_list.append(name)
     for name in class_2_name:
@@ -106,7 +107,8 @@ def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
             prefix = expand_dict[name]
             temp_dict = dict(temp_obj.__dict__[name])
             for key in temp_dict:
-                attribute_list.append(prefix + key)
+                if key != 'Pdb' and key != 'score':
+                    attribute_list.append(prefix + key)
         else:
             attribute_list.append(name)
     for name in class_3_name:
@@ -114,7 +116,8 @@ def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
             prefix=expand_dict[name]
             temp_dict=dict(temp_obj.__dict__[name])
             for key in temp_dict:
-                attribute_list.append(prefix+key)
+                if key != 'Pdb' and key != 'score':
+                    attribute_list.append(prefix + key)
         else:
             attribute_list.append(name)
     for name in class_4_name:
@@ -122,7 +125,8 @@ def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
             prefix=expand_dict[name]
             temp_dict=dict(temp_obj.__dict__[name])
             for key in temp_dict:
-                attribute_list.append(prefix+key)
+                if key != 'Pdb' and key != 'score':
+                    attribute_list.append(prefix + key)
         else:
             attribute_list.append(name)
     for name in class_5_name:
@@ -130,7 +134,8 @@ def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
             prefix=expand_dict[name]
             temp_dict=dict(temp_obj.__dict__[name])
             for key in temp_dict:
-                attribute_list.append(prefix+key)
+                if key != 'Pdb' and key != 'score':
+                    attribute_list.append(prefix + key)
         else:
             attribute_list.append(name)
     attribute_list.append('Experimental_DDG')
@@ -145,35 +150,40 @@ def Record_Feature_Table(Feature_Obj_List:list[Feature_Object],Folder_Path):
             if name in expand_dict.keys():
                 temp_dict = dict(data_dict[name])
                 for key in temp_dict:
-                    w_data.append(temp_dict[key])
+                    if key != 'Pdb' and key != 'score':
+                        w_data.append(temp_dict[key])
             else:
                 w_data.append(data_dict[name])
         for name in class_2_name:
             if name in expand_dict.keys():
                 temp_dict = dict(data_dict[name])
                 for key in temp_dict:
-                    w_data.append(temp_dict[key])
+                    if key != 'Pdb' and key != 'score':
+                        w_data.append(temp_dict[key])
             else:
                 w_data.append(data_dict[name])
         for name in class_3_name:
             if name in expand_dict.keys():
                 temp_dict = dict(data_dict[name])
                 for key in temp_dict:
-                    w_data.append(temp_dict[key])
+                    if key != 'Pdb' and key != 'score':
+                        w_data.append(temp_dict[key])
             else:
                 w_data.append(data_dict[name])
         for name in class_4_name:
             if name in expand_dict.keys():
                 temp_dict = dict(data_dict[name])
                 for key in temp_dict:
-                    w_data.append(temp_dict[key])
+                    if key != 'Pdb' and key != 'score':
+                        w_data.append(temp_dict[key])
             else:
                 w_data.append(data_dict[name])
         for name in class_5_name:
             if name in expand_dict.keys():
                 temp_dict = dict(data_dict[name])
                 for key in temp_dict:
-                    w_data.append(temp_dict[key])
+                    if key != 'Pdb' and key != 'score':
+                        w_data.append(temp_dict[key])
             else:
                 w_data.append(data_dict[name])
         w_data.append(data_dict['Experimental_DDG'])

@@ -150,6 +150,18 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
     if not Fetch_PDB(raw_pdb_num,raw_pdb_path):
         error_obj.Something_Wrong(Prepare.__name__)
         return False
+
+    if scripts.Global_Value.Is_Beta:
+        res=Check_PDB_chain_order(raw_pdb_path+raw_pdb_num+'.pdb',chain_id,loc,wt_aa_short)
+        if res is False:
+            error_obj.Something_Wrong(Prepare.__name__)
+            return False
+        else:
+            if res[0]==False:
+                pass
+            else:
+                chain_id=res[1]
+
     true_loc = Get_True_Loc(loc, wt_aa_short, raw_pdb_path+raw_pdb_num+'.pdb',chain_id)
     if true_loc is False:
         error_obj.Something_Wrong(Prepare.__name__,f'Something wrong in {id} PDB file or Variation info does not match in PDB file')
@@ -745,13 +757,16 @@ def Run_Dssp(pdb_name,pdb_path,seq_dict_for_test:dict):
     dssp=DSSP(model,pdb_path)
     count=0
     errot_c=0
-    for key in dssp.keys():
-        if seq[count]!=dssp[key][1]:
-            errot_c+=1
-        count+=1
-    if errot_c!=0:
-        error_obj.Something_Wrong(Run_Dssp.__name__)
-        return False
+
+    if not scripts.Global_Value.Is_Beta:
+        for key in dssp.keys():
+            if seq[count]!=dssp[key][1]:
+                errot_c+=1
+            count+=1
+        if errot_c!=0:
+            error_obj.Something_Wrong(Run_Dssp.__name__)
+            return False
+
     count=0
     buried=0
     exposed=0
@@ -832,13 +847,16 @@ def Get_Res_of_DSSP(pdb_name,pdb_path,seq_dict_for_test:dict,aa:Researched_Amino
     dssp = DSSP(model, pdb_path)
     count = 0
     errot_c = 0
-    for key in dssp.keys():
-        if seq[count] != dssp[key][1]:
-            errot_c += 1
-        count += 1
-    if errot_c != 0:
-        error_obj.Something_Wrong(Run_Dssp.__name__)
-        return False
+
+    if not scripts.Global_Value.Is_Beta:
+        for key in dssp.keys():
+            if seq[count] != dssp[key][1]:
+                errot_c += 1
+            count += 1
+        if errot_c != 0:
+            error_obj.Something_Wrong(Run_Dssp.__name__)
+            return False
+
     for key in dssp.keys():
         if aa.Num == key[1][1] and aa.Type_short==dssp[key][1]:
             rsa=dssp[key][3]
@@ -1414,6 +1432,123 @@ def Generate_Raw_Dataset_for_Pred(pdb_name,vari_info,chain,pH,T,pdb_path,table_p
                 sheet.write(i+1,j,record_list[i][j])
         book.save(table_path + table_name)
         return True
+
+
+def Check_PDB_chain_order(raw_pdb_path,chain_id,loc,wt_aa):
+    with open(raw_pdb_path,'r') as pdb:
+        lines=pdb.readlines()
+        is_success=False
+        for line in lines:
+            if line[0:4] != "ATOM" and line[0:6] != 'HETATM':
+                continue
+            aa_index = int(str(line[22:27]).replace(' ',''))
+            chain = line[21:22]
+            aa = line[17:20]
+            try:
+                aa_s=amino_acid_map[aa]
+            except:
+                aa_s='HETATM'
+            if aa_s==wt_aa and chain_id==chain and aa_index==loc:
+                is_success=True
+        if not is_success:
+            return False
+        alphabet=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        now_chain=''
+        chain_back_list=[]
+        for line in lines:
+            if line[0:4] != "ATOM" and line[0:6] != 'HETATM':
+                continue
+            chain = line[21:22]
+            now_chain=chain
+            chain_back_list.append(chain)
+            break
+        chain_count=0
+        aa_chain_count=0
+        for line in lines:
+            if line[0:4] != "ATOM" and line[0:6] != 'HETATM':
+                continue
+            chain = line[21:22]
+            if chain!=now_chain:
+                now_chain=chain
+                chain_count+=1
+                chain_back_list.append(chain)
+            aa_index = int(str(line[22:27]).replace(' ', ''))
+            aa = line[17:20]
+            try:
+                aa_s = amino_acid_map[aa]
+            except:
+                aa_s = 'HETATM'
+            if aa_s == wt_aa and chain_id == chain and aa_index == loc:
+                aa_chain_count=chain_count
+        is_need_adjust=False
+        for i in range(1,len(chain_back_list)):
+            pre=chain_back_list[i-1]
+            now=chain_back_list[i]
+            if alphabet.index(pre)<alphabet.index(now):
+                pass
+            elif alphabet.index(pre)>alphabet.index(now):
+                is_need_adjust=True
+            else:
+                return False
+        if not is_need_adjust:
+            return [False,chain_id]
+
+        now_chain=chain_back_list[0]
+        chain_count=0
+        write_list=[]
+        line_count=0
+        for line in lines:
+            if line[0:3]=='TER' and lines[line_count+1][0:4]=='ATOM':
+                line_count+=1
+                continue
+            line_count+=1
+            if line[0:4] != "ATOM" and line[0:6] != 'HETATM':
+                write_list.append(line)
+                continue
+            chain = line[21:22]
+            if now_chain!=chain:
+                now_chain=chain
+                chain_count+=1
+            new_chain=alphabet[chain_count]
+            temp_line=list(line)
+            temp_line[21:22]=new_chain
+            new_line=''.join(temp_line)
+            write_list.append(new_line)
+        atom_count=1
+        final_write_list=[]
+        for line in write_list:
+            if line[0:4] != "ATOM" and line[0:6] != 'HETATM':
+                final_write_list.append(line)
+                continue
+            temp_line=list(line)
+            atom_count_s=str(atom_count)
+            atom_count_s=atom_count_s.rjust(7)
+            for i in range(len(atom_count_s)):
+                temp_line[4+i]=atom_count_s[i]
+            new_line=''.join(temp_line)
+            final_write_list.append(new_line)
+            atom_count+=1
+        with open(raw_pdb_path,'w') as write_pdb:
+            for line in final_write_list:
+                write_pdb.write(line)
+        return [True,alphabet[aa_chain_count]]
+
+
+def Change_TER(pdb):
+    with open(pdb,'r') as pdb_r:
+        lines=pdb_r.readlines()
+        line_count=0
+        w_list=[]
+        for line in lines:
+            if line[0:3]=='TER' and lines[line_count+1][0:3]!='END':
+                line_count+=1
+                continue
+            w_list.append(line)
+            line_count+=1
+    with open(pdb,'w') as pdb_w:
+        for line in w_list:
+            pdb_w.write(line)
+
 
 
 

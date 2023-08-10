@@ -71,6 +71,10 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
         mut_pdb_path=item_list[8]
         Pymol_Clean_Align_PDB_Pair(wt_pdb_path, mut_pdb_path, wt_pdb_path, mut_pdb_path)
 
+        if scripts.Global_Value.Is_Beta:
+            Change_TER(wt_pdb_path)
+            Change_TER(mut_pdb_path)
+
     print('Begin with multiple process')
 
     task_count=0
@@ -446,7 +450,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     print(f'Task {task_count}, ID {obj.ID}: Features Extraction 10: Running Bio3D to get NMA')
     res=Run_NMA(obj.WT_Structure.PDB_path,obj.MUT_Structure.PDB_path,obj.True_Loc_of_Mutation,R_NMA_Path,R_NMA_App_Name,TMP_Path,f'nma_res_{obj.ID}')
     if res is False:
-        error_obj.Something_Wrong(Detail_Extraction.__name__)
+        error_obj.Something_Wrong(Detail_Extraction.__name__,'NMA failed, maybe PDB is too big and need more memories')
         return False
     else:
         obj.WT_NMA_Fluctuation=res['wt_fluctuation_loc']
