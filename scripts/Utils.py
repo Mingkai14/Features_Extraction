@@ -151,7 +151,12 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
         error_obj.Something_Wrong(Prepare.__name__)
         return False
 
-    if scripts.Global_Value.Is_Beta:
+    Is_Beta=Check_Is_Beta(raw_pdb_path+raw_pdb_num+'.pdb')
+    if Is_Beta:
+        is_beta='1'
+    else:
+        is_beta='0'
+    if Is_Beta:
         res=Check_PDB_chain_order(raw_pdb_path+raw_pdb_num+'.pdb',chain_id,loc,wt_aa_short)
         if res is False:
             error_obj.Something_Wrong(Prepare.__name__)
@@ -226,10 +231,10 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
     is_file_existed=os.path.exists(table_path+res_table_name)
     with open(table_path+res_table_name,'a') as table:
         if not is_file_existed:
-            table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n')
+            table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg,is_beta\n')
         if is_file_existed:
             table.write('\n')
-        table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(ddg))
+        table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(ddg)+','+is_beta)
     return True
 
 
@@ -246,6 +251,23 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
     except:
         error_obj.Something_Wrong(Prepare_for_Pred.__name__)
         return False
+
+    Is_Beta = Check_Is_Beta(pdb_path)
+    if Is_Beta:
+        is_beta='1'
+    else:
+        is_beta='0'
+
+    if Is_Beta:
+        res = Check_PDB_chain_order(pdb_path, chain_id, loc, wt_aa_short)
+        if res is False:
+            error_obj.Something_Wrong(Prepare.__name__)
+            return False
+        else:
+            if res[0] == False:
+                pass
+            else:
+                chain_id = res[1]
 
     true_loc = Get_True_Loc(loc, wt_aa_short, pdb_path,chain_id)
     if true_loc is False:
@@ -304,17 +326,17 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
     is_file_existed=os.path.exists(table_path+res_table_name)
     with open(table_path+res_table_name,'a') as table:
         if not is_file_existed:
-            table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n')
+            table.write('id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg,is_beta\n')
         if is_file_existed:
             table.write('\n')
-        table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(0))
+        table.write(id+','+wt_aa_short+','+mut_aa_short+','+str(loc)+','+str(true_loc)+','+wt_pdb_name+','+wt_pdb_path+','+mut_pdb_name+','+mut_pdb_path+','+wt_fasta_path+','+mut_fasta_path+','+wt_pssm_path+','+mut_pssm_path+','+wt_psi_blast_path+','+mut_psi_blast_path+','+wt_blastp_path+','+mut_blastp_path+','+str(pH)+','+str(temperature)+','+str(0)+','+is_beta)
     return True
 
 def Add_Reverse_Data(table_path,table_name):
     backup_lines = []
     with open(table_path+table_name,'r') as table:
         lines=table.readlines()
-        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n':
+        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg,is_beta\n':
             error_obj.Something_Wrong(Add_Reverse_Data.__name__)
             exit(1)
         backup_lines.append(lines[0])
@@ -340,11 +362,12 @@ def Add_Reverse_Data(table_path,table_name):
             pH = item_list[17]
             temperature = item_list[18]
             ddg = item_list[19]
+            is_beta = item_list[20]
             if line.find('\n')==-1:
                 line=line+'\n'
             backup_lines.append(line)
             new_id=id.split('_')[0]+'_'+id.split('_')[1]+'_'+mut_aa_short+loc+wt_aa_short
-            l=f'{new_id},{mut_aa_short},{wt_aa_short},{loc},{t_loc},{mut_pdb_name},{mut_pdb_path},{wt_pdb_name},{wt_pdb_path},{mut_fasta_path},{wt_fasta_path},{mut_pssm_path},{wt_pssm_path},{mut_psi_blast_path},{wt_psi_blast_path},{mut_blastp_path},{wt_blastp_path},{pH},{temperature},{str(-float(ddg))}\n'
+            l=f'{new_id},{mut_aa_short},{wt_aa_short},{loc},{t_loc},{mut_pdb_name},{mut_pdb_path},{wt_pdb_name},{wt_pdb_path},{mut_fasta_path},{wt_fasta_path},{mut_pssm_path},{wt_pssm_path},{mut_psi_blast_path},{wt_psi_blast_path},{mut_blastp_path},{wt_blastp_path},{pH},{temperature},{str(-float(ddg))},{is_beta}\n'
             backup_lines.append(l)
     with open(table_path+table_name,'w') as w_table:
         for line in backup_lines:
@@ -739,7 +762,7 @@ def Return_4_type(type1:int,type2:int):
     else:
         return False
 
-def Run_Dssp(pdb_name,pdb_path,seq_dict_for_test:dict):
+def Run_Dssp(is_beta,pdb_name,pdb_path,seq_dict_for_test:dict):
     '''
     :purpose: By DSSP to get buried/exposed aa info and secondary structure percentage info
     :param pdb_name: Input a name
@@ -758,7 +781,7 @@ def Run_Dssp(pdb_name,pdb_path,seq_dict_for_test:dict):
     count=0
     errot_c=0
 
-    if not scripts.Global_Value.Is_Beta:
+    if is_beta=='0':
         for key in dssp.keys():
             if seq[count]!=dssp[key][1]:
                 errot_c+=1
@@ -822,7 +845,7 @@ def Devide_Res_of_DSSP_by_Layers(dssp_list:list,aa_list:list[Researched_Amino_Ac
     pct_dict['-'] = ss_num_dict['-'] / count
     return [buried_pct, exposed_pct]
 
-def Get_Res_of_DSSP(pdb_name,pdb_path,seq_dict_for_test:dict,aa:Researched_Amino_Acid):
+def Get_Res_of_DSSP(is_beta,pdb_name,pdb_path,seq_dict_for_test:dict,aa:Researched_Amino_Acid):
     '''
     :purpose: Targeting on one site, compute RSA, if_buried_or_exposed, ss, psi and phi info
     :param pdb_name: Input a name
@@ -848,7 +871,7 @@ def Get_Res_of_DSSP(pdb_name,pdb_path,seq_dict_for_test:dict,aa:Researched_Amino
     count = 0
     errot_c = 0
 
-    if not scripts.Global_Value.Is_Beta:
+    if is_beta=='0':
         for key in dssp.keys():
             if seq[count] != dssp[key][1]:
                 errot_c += 1
@@ -1157,6 +1180,7 @@ def Get_True_Loc(loc:int,aa_short,pdb_path,chain_id):
                         hasCA=False
                         hasN=False
                         hasC=False
+                        hasABnormal=True
                         aa = aa_buffer[0][17:20]
                         if aa in amino_acid_map.keys():
                             aa_s=amino_acid_map[aa]
@@ -1176,7 +1200,10 @@ def Get_True_Loc(loc:int,aa_short,pdb_path,chain_id):
                                 return False
                             if line_[21:22]!=chain:
                                 return False
-                        if hasCA and hasN and hasC:
+                            altpos = line_[16]
+                            if altpos==' ' or altpos=='A':
+                                hasABnormal=False
+                        if hasCA and hasN and hasC and not hasABnormal:
                             count+=1
                         if aa_s ==aa_short and chain==chain_id:
                             try:
@@ -1481,6 +1508,8 @@ def Check_PDB_chain_order(raw_pdb_path,chain_id,loc,wt_aa):
             if aa_s == wt_aa and chain_id == chain and aa_index == loc:
                 aa_chain_count=chain_count
         is_need_adjust=False
+        if len(chain_back_list)<2:
+            return [False,chain_id]
         for i in range(1,len(chain_back_list)):
             pre=chain_back_list[i-1]
             now=chain_back_list[i]
@@ -1551,7 +1580,28 @@ def Change_TER(pdb):
 
 
 
-
-
+def Check_Is_Beta(pdb_path):
+    alphabet=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+    chain_list=[]
+    p = PDBParser(QUIET=True)
+    structure = p.get_structure('check', pdb_path)
+    model = structure[0]
+    for chain in model:
+        chain_list.append(chain.id)
+    if len(chain_list)<2:
+        return False
+    for chain in chain_list:
+        if chain not in alphabet:
+            return False
+    for i in range(1,len(chain_list)):
+        pre_chain=chain_list[i-1]
+        now_chain=chain_list[i]
+        if alphabet.index(pre_chain)<alphabet.index(now_chain):
+            pass
+        elif alphabet.index(pre_chain)>alphabet.index(now_chain):
+            return True
+        else:
+            return False
+    return False
 
 

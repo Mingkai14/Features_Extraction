@@ -1,7 +1,5 @@
 import os
 
-Is_Beta=False
-
 Is_Use_Reverse_Data=True
 
 Psi_Threads_Num=4

@@ -21,7 +21,7 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
     print('Reading task table for Features Extraction')
     with open(table_path+table_name,'r') as table:
         lines=table.readlines()
-        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n':
+        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg,is_beta\n':
             error_obj.Something_Wrong(Feature_Extraction.__name__)
             exit(1)
         for line in lines[1:]:
@@ -64,14 +64,15 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
     print('Aligning PDB with Pymol')
     for data in data_list:
         item_list=str(data).split(',')
-        if len(item_list)!=20:
+        if len(item_list)!=21:
             error_obj.Something_Wrong(Feature_Extraction.__name__)
             exit(1)
         wt_pdb_path=item_list[6]
         mut_pdb_path=item_list[8]
         Pymol_Clean_Align_PDB_Pair(wt_pdb_path, mut_pdb_path, wt_pdb_path, mut_pdb_path)
 
-        if scripts.Global_Value.Is_Beta:
+        Is_Beta=item_list[20]
+        if Is_Beta=='1':
             Change_TER(wt_pdb_path)
             Change_TER(mut_pdb_path)
 
@@ -82,7 +83,7 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
     process_res_list = []
     for data in data_list:
         item_list=str(data).split(',')
-        if len(item_list)!=20:
+        if len(item_list)!=21:
             error_obj.Something_Wrong(Feature_Extraction.__name__)
             exit(1)
         task_count+=1
@@ -162,6 +163,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         obj.pH = float(basic_list[17])
         obj.Temperature = float(basic_list[18])
         obj.Experimental_DDG = float(basic_list[19])
+        obj.Is_Beta=basic_list[20]
         if obj.Experimental_DDG>0.5:
             obj.Experimental_DDG_Classification=1
         elif obj.Experimental_DDG<-0.5:
@@ -312,7 +314,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     Compute_AA_Categories(obj.WT_Amino_Acid_List,obj.WT_Pct_Amino_Acid_Categories,obj.WT_Num_Amino_Acid_Categories)
 
 
-    res_list=Run_Dssp(obj.WT_Structure.PDB_Name, obj.WT_Structure.PDB_path,obj.WT_Seq)
+    res_list=Run_Dssp(obj.Is_Beta,obj.WT_Structure.PDB_Name, obj.WT_Structure.PDB_path,obj.WT_Seq)
     if res_list is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
@@ -322,7 +324,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         obj.WT_Pct_Secondary_Structure=res_list[2]
 
 
-    res_list=Get_Res_of_DSSP(obj.WT_Structure.PDB_Name,obj.WT_Structure.PDB_path,obj.WT_Seq,obj.WT_Amino_Acid)
+    res_list=Get_Res_of_DSSP(obj.Is_Beta,obj.WT_Structure.PDB_Name,obj.WT_Structure.PDB_path,obj.WT_Seq,obj.WT_Amino_Acid)
     obj.WT_RSA=res_list[0]
     obj.WT_Is_Buried_or_Exposed=res_list[1]
     obj.WT_Secondary_Structure=res_list[2]
@@ -331,7 +333,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.WT_Phi=res_list[5]
 
 
-    res_list = Get_Res_of_DSSP(obj.MUT_Structure.PDB_Name, obj.MUT_Structure.PDB_path, obj.MUT_Seq, obj.MUT_Amino_Acid)
+    res_list = Get_Res_of_DSSP(obj.Is_Beta,obj.MUT_Structure.PDB_Name, obj.MUT_Structure.PDB_path, obj.MUT_Seq, obj.MUT_Amino_Acid)
     obj.MUT_RSA = res_list[0]
     obj.MUT_Is_Buried_or_Exposed = res_list[1]
     obj.MUT_Secondary_Structure = res_list[2]

@@ -15,7 +15,7 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path,process_num:int):
         lines=table.readlines()
         for line in lines:
             backup_lines.append(line)
-        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg\n':
+        if lines[0]!='id,wt_aa_short,mut_aa_short,loc,t_loc,wt_pdb_name,wt_pdb_path,mut_pdb_name,mut_pdb_path,wt_fasta_path,mut_fasta_path,wt_pssm_path,mut_pssm_path,wt_psi_blast_path,mut_psi_blast_path,wt_blastp_path,mut_blastp_path,pH,temperature,ddg,is_beta\n':
             error_obj.Something_Wrong(Prepare_MUT_Models.__name__)
             exit(1)
         for line in lines[1:]:
@@ -25,7 +25,7 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path,process_num:int):
     process_res_list = []
     for data in data_list:
         item_list=str(data).split(',')
-        if len(item_list)!=20:
+        if len(item_list)!=21:
             error_obj.Something_Wrong(Prepare_MUT_Models.__name__)
             exit(1)
         fasta_path=item_list[10]

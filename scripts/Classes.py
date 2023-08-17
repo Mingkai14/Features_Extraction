@@ -74,6 +74,7 @@ class Feature_Object:
         self.Cutoff1=13.0
         self.Cutoff2 = 10.0
         self.Cutoff3 = 7.0
+        self.Is_Beta = '0'
 
 
 
