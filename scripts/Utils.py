@@ -177,6 +177,8 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
     if not os.path.exists(wt_pdb_path):
         error_obj.Something_Wrong(Prepare.__name__, 'PDB can not be cleaned, may only have CA')
         return False
+    if Is_Beta:
+        os.remove(raw_pdb_path+raw_pdb_num+'.pdb')
     if not Fetch_Fasta_from_PDB(wt_pdb_path,wt_pdb_name,raw_fasta_path):
         error_obj.Something_Wrong(Prepare.__name__)
         return False
