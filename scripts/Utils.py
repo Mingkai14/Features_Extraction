@@ -783,14 +783,14 @@ def Run_Dssp(is_beta,pdb_name,pdb_path,seq_dict_for_test:dict):
     count=0
     errot_c=0
 
-    if is_beta=='0':
-        for key in dssp.keys():
-            if seq[count]!=dssp[key][1]:
-                errot_c+=1
-            count+=1
-        if errot_c!=0:
-            error_obj.Something_Wrong(Run_Dssp.__name__)
-            return False
+    # if is_beta=='0':
+    #     for key in dssp.keys():
+    #         if seq[count]!=dssp[key][1]:
+    #             errot_c+=1
+    #         count+=1
+    #     if errot_c!=0:
+    #         error_obj.Something_Wrong(Run_Dssp.__name__)
+    #         return False
 
     count=0
     buried=0
@@ -873,14 +873,14 @@ def Get_Res_of_DSSP(is_beta,pdb_name,pdb_path,seq_dict_for_test:dict,aa:Research
     count = 0
     errot_c = 0
 
-    if is_beta=='0':
-        for key in dssp.keys():
-            if seq[count] != dssp[key][1]:
-                errot_c += 1
-            count += 1
-        if errot_c != 0:
-            error_obj.Something_Wrong(Run_Dssp.__name__)
-            return False
+    # if is_beta=='0':
+    #     for key in dssp.keys():
+    #         if seq[count] != dssp[key][1]:
+    #             errot_c += 1
+    #         count += 1
+    #     if errot_c != 0:
+    #         error_obj.Something_Wrong(Run_Dssp.__name__)
+    #         return False
 
     for key in dssp.keys():
         if aa.Num == key[1][1] and aa.Type_short==dssp[key][1]:
@@ -1043,7 +1043,7 @@ def Sulfur_Count(aa_list:list[Researched_Amino_Acid]):
 
 
 
-def Run_NMA(wt_pdb_path,mut_pdb_path,loc:int,NMA_path,NMA_app_name,temp_path,o_folder_name):
+def Run_NMA(wt_pdb_path,mut_pdb_path,loc:int,chain_of_mut,seq_dict,NMA_path,NMA_app_name,temp_path,o_folder_name):
     '''
     :purpose: By Bio3D R script to compute NMA info
     :param wt_pdb_path: Input a WT PDB file path to pass into Rscript
@@ -1065,8 +1065,43 @@ def Run_NMA(wt_pdb_path,mut_pdb_path,loc:int,NMA_path,NMA_app_name,temp_path,o_f
                 #Clean_Main_Directory()
                 return {'wt_fluctuation_loc':float(div[0]),'mut_fluctuation_loc':float(div[1]),'rmsip':float(div[2])}
     except:
-        #Clean_Main_Directory()
-        return False
+        try:
+            Resave_PDB_One_Chain(wt_pdb_path,f'{outpath}/temp_single_chain_wt.pdb',chain_of_mut)
+            Resave_PDB_One_Chain(mut_pdb_path, f'{outpath}/temp_single_chain_mut.pdb', chain_of_mut)
+            single_loc=Fetch_Single_Chain_Loc(loc,seq_dict,chain_of_mut)
+            os.system(f'Rscript {NMA_path}{NMA_app_name} {outpath}/temp_single_chain_wt.pdb {outpath}/temp_single_chain_mut.pdb {single_loc} {NMA_path} {outpath}')
+            with open(f'{outpath}/r_output.txt') as output:
+                div = output.readlines()[0].split()
+                # Clean_Main_Directory()
+                return {'wt_fluctuation_loc': float(div[0]), 'mut_fluctuation_loc': float(div[1]),
+                        'rmsip': float(div[2])}
+
+        except:
+            #Clean_Main_Directory()
+            return False
+
+def Resave_PDB_One_Chain(in_pdb,outpath,chain_of_mut):
+    parser = PDBParser(QUIET=True)
+    structure = parser.get_structure("test", in_pdb)
+
+    from Bio import PDB
+    new_structure = PDB.Structure.Structure("new_structure")
+
+    model=structure[0]
+    new_model = PDB.Model.Model(model.id)
+
+    for chain in model:
+        if chain.id == chain_of_mut:
+            new_chain = PDB.Chain.Chain(chain_of_mut)
+            for residue in chain:
+                new_chain.add(residue)
+            new_model.add(new_chain)
+    new_structure.add(new_model)
+
+    io = PDB.PDBIO()
+    io.set_structure(new_structure)
+    io.save(outpath)
+
 
 def Run_Psipred(seq_dict:dict,chain_id,name,psipred_path):
     with open('./temp.fasta','w') as seq:
@@ -1481,7 +1516,9 @@ def Check_PDB_chain_order(raw_pdb_path,chain_id,loc,wt_aa):
                 is_success=True
         if not is_success:
             return False
-        alphabet=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        alphabet1 = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+        alphabet2 = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30']
+        use_number_alp=False
         now_chain=''
         chain_back_list=[]
         for line in lines:
@@ -1491,6 +1528,8 @@ def Check_PDB_chain_order(raw_pdb_path,chain_id,loc,wt_aa):
             now_chain=chain
             chain_back_list.append(chain)
             break
+        if now_chain in alphabet2:
+            use_number_alp=True
         chain_count=0
         aa_chain_count=0
         for line in lines:
@@ -1513,14 +1552,24 @@ def Check_PDB_chain_order(raw_pdb_path,chain_id,loc,wt_aa):
         if len(chain_back_list)<2:
             return [False,chain_id]
         for i in range(1,len(chain_back_list)):
-            pre=chain_back_list[i-1]
-            now=chain_back_list[i]
-            if alphabet.index(pre)<alphabet.index(now):
-                pass
-            elif alphabet.index(pre)>alphabet.index(now):
-                is_need_adjust=True
+            if not use_number_alp:
+                pre=chain_back_list[i-1]
+                now=chain_back_list[i]
+                if alphabet1.index(pre)<alphabet1.index(now):
+                    pass
+                elif alphabet1.index(pre)>alphabet1.index(now):
+                    is_need_adjust=True
+                else:
+                    return False
             else:
-                return False
+                pre=chain_back_list[i-1]
+                now=chain_back_list[i]
+                if alphabet2.index(pre)<alphabet2.index(now):
+                    pass
+                elif alphabet2.index(pre)>alphabet2.index(now):
+                    is_need_adjust=True
+                else:
+                    return False
         if not is_need_adjust:
             return [False,chain_id]
 
@@ -1540,7 +1589,10 @@ def Check_PDB_chain_order(raw_pdb_path,chain_id,loc,wt_aa):
             if now_chain!=chain:
                 now_chain=chain
                 chain_count+=1
-            new_chain=alphabet[chain_count]
+            if not use_number_alp:
+                new_chain=alphabet1[chain_count]
+            else:
+                new_chain = alphabet2[chain_count]
             temp_line=list(line)
             temp_line[21:22]=new_chain
             new_line=''.join(temp_line)
@@ -1562,7 +1614,10 @@ def Check_PDB_chain_order(raw_pdb_path,chain_id,loc,wt_aa):
         with open(raw_pdb_path,'w') as write_pdb:
             for line in final_write_list:
                 write_pdb.write(line)
-        return [True,alphabet[aa_chain_count]]
+        if not use_number_alp:
+            return [True,alphabet1[aa_chain_count]]
+        else:
+            return [True, alphabet2[aa_chain_count]]
 
 
 def Change_TER(pdb):
@@ -1583,27 +1638,45 @@ def Change_TER(pdb):
 
 
 def Check_Is_Beta(pdb_path):
-    alphabet=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+    alphabet1=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
+    alphabet2=['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30']
     chain_list=[]
     p = PDBParser(QUIET=True)
     structure = p.get_structure('check', pdb_path)
     model = structure[0]
+    use_number_alp=False
     for chain in model:
         chain_list.append(chain.id)
+    if chain_list[0] in alphabet2:
+        use_number_alp=True
     if len(chain_list)<2:
         return False
     for chain in chain_list:
-        if chain not in alphabet:
-            return False
-    for i in range(1,len(chain_list)):
-        pre_chain=chain_list[i-1]
-        now_chain=chain_list[i]
-        if alphabet.index(pre_chain)<alphabet.index(now_chain):
-            pass
-        elif alphabet.index(pre_chain)>alphabet.index(now_chain):
-            return True
+        if not use_number_alp:
+            if chain not in alphabet1:
+                return False
         else:
-            return False
+            if chain not in alphabet2:
+                return False
+    for i in range(1,len(chain_list)):
+        if not use_number_alp:
+            pre_chain=chain_list[i-1]
+            now_chain=chain_list[i]
+            if alphabet1.index(pre_chain)<alphabet1.index(now_chain):
+                pass
+            elif alphabet1.index(pre_chain)>alphabet1.index(now_chain):
+                return True
+            else:
+                return False
+        else:
+            pre_chain=chain_list[i-1]
+            now_chain=chain_list[i]
+            if alphabet2.index(pre_chain)<alphabet2.index(now_chain):
+                pass
+            elif alphabet2.index(pre_chain)>alphabet2.index(now_chain):
+                return True
+            else:
+                return False
     return False
 
 

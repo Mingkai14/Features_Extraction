@@ -450,7 +450,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
     #NMA
     print(f'Task {task_count}, ID {obj.ID}: Features Extraction 10: Running Bio3D to get NMA')
-    res=Run_NMA(obj.WT_Structure.PDB_path,obj.MUT_Structure.PDB_path,obj.True_Loc_of_Mutation,R_NMA_Path,R_NMA_App_Name,TMP_Path,f'nma_res_{obj.ID}')
+    res=Run_NMA(obj.WT_Structure.PDB_path,obj.MUT_Structure.PDB_path,obj.True_Loc_of_Mutation,obj.Chain_ID_of_Mut,obj.WT_Seq,R_NMA_Path,R_NMA_App_Name,TMP_Path,f'nma_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__,'NMA failed, maybe PDB is too big and need more memories')
         return False
