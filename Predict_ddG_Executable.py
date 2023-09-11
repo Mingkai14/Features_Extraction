@@ -12,7 +12,7 @@ from scripts.Feature_Extracting import *
 from scripts.Run_Modeller import *
 from scripts.MSA import *
 from scripts.Record import Record_Feature_Table
-from ml.XGBoostRegression import XGBoostRegression_Predict
+from ml.DDGWizard import XGBoostRegression_Predict
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Input arguments')
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         files = os.listdir(Pred_Table_Path)
         for file in files:
             os.remove(Pred_Table_Path + file)
-        Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path,WT_BLASTP_Data_Path,MUT_BLASTP_Data_Path,[1,1,1,1,1,1,1,1,1,1,1,1,1])
+        Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path,WT_BLASTP_Data_Path,MUT_BLASTP_Data_Path,[1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0])
 
         print('Preparing task table')
         Prepare_Table(Raw_Data_List,Pred_Table_Path,Pred_Table_Name,Clean_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path,pdb_path)
@@ -147,7 +147,7 @@ if __name__ == '__main__':
                 error_obj.Something_Wrong(__name__,'Recording failed')
                 exit(1)
 
-            print('Compute ddG with XGB model')
+            print('Computing ddG with XGB model')
             XGBoostRegression_Predict(Features_Table_Path+Features_Table_Name,Model_Path,Pred_Res_Path)
 
 
