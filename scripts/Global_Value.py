@@ -44,7 +44,6 @@ Is_Pred=0
 Pred_Raw_Dataset_Path='./src/Pred_Raw_Dataset/'
 Pred_Raw_Dataset_Name='pred_raw.xls'
 
-HBPlus_Path='./bin/hbplus/'
 
 Ring_Path='./bin/ring-3.0.0/ring/bin/'
 
@@ -82,22 +81,14 @@ R_NMA_App_Name='NMA.R'
 DisEMBL_Path='./bin/DisEMBL_1_4/'
 
 BLAST_Path='./bin/ncbi_blast_2_13_0+/bin/'
-Caps_Path='./bin/caps_2_0/'
+
 
 # WT_MSA_Path='./src/WT_MSA/'
 WT_MSA_Path=''
 SIFT_Path='./bin/sift6_2_1/'
 
-Psipred_Path='./bin/psipred_v4/'
 
 
-ANGLOR_Path='./bin/ANGLOR_source/'
-
-NR_Filter_Path='./src/nr_filter/nr.filter'
-
-Rosetta_Path='./bin/rosetta/'
-Rosetta_Bin_Path='./bin/rosetta/rosetta_bin_linux_2021.16.61629_bundle/main/source/bin/'
-Rosetta_DB_Path='./bin/rosetta/rosetta_bin_linux_2021.16.61629_bundle/main/database/'
 
 Clean_Path='./bin/clean/'
 

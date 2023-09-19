@@ -7,9 +7,8 @@ from scripts.Run_DisEMBL import Run_DisEMBL,Generate_Res_DisEMBL
 # from Caps import Compute_Co_Evo
 from scripts.Run_Sift import Run_Sift
 from scripts.Pymol import *
-from scripts.Run_Ring3 import Run_Ring,Judge_Bond_of_Ring
+from scripts.Run_Ring3 import Run_Ring,Judge_Bond_of_Ring,Devide_Res_of_Ring_by_Layers
 from scripts.MSA import find_pssm_score
-from scripts.Rosetta import Run_Score_JD2
 import scripts.AAindex
 from scripts.AAindex import Get_Mutation_Index_List_from_Matrix,Get_Mutation_Index_List_from_Index
 import multiprocessing
@@ -197,11 +196,17 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     if not Get_All_Amino_Acid(obj.WT_Amino_Acid_List, obj.WT_Structure.PDB_Name, obj.WT_Structure.PDB_path):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
+    obj.WT_Amino_Acid_List_Layer1=Get_Surrounding_AA(obj.WT_Amino_Acid,obj.WT_Amino_Acid_List,obj.Cutoff1)
+    obj.WT_Amino_Acid_List_Layer2 = Get_Surrounding_AA(obj.WT_Amino_Acid, obj.WT_Amino_Acid_List, obj.Cutoff2)
+    obj.WT_Amino_Acid_List_Layer3 = Get_Surrounding_AA(obj.WT_Amino_Acid, obj.WT_Amino_Acid_List, obj.Cutoff3)
 
     # MUT_Amino_Acid_List
     if not Get_All_Amino_Acid(obj.MUT_Amino_Acid_List, obj.MUT_Structure.PDB_Name, obj.MUT_Structure.PDB_path):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
+    obj.MUT_Amino_Acid_List_Layer1=Get_Surrounding_AA(obj.MUT_Amino_Acid,obj.MUT_Amino_Acid_List,obj.Cutoff1)
+    obj.MUT_Amino_Acid_List_Layer2 = Get_Surrounding_AA(obj.MUT_Amino_Acid, obj.MUT_Amino_Acid_List, obj.Cutoff2)
+    obj.MUT_Amino_Acid_List_Layer3 = Get_Surrounding_AA(obj.MUT_Amino_Acid, obj.MUT_Amino_Acid_List, obj.Cutoff3)
 
     # WT_Seq
     if not Read_Seq_from_AA_List(obj.WT_Seq,obj.WT_Amino_Acid_List):
@@ -236,7 +241,6 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
     #Ring_Bond_List, Num_HBOND_Ring, Num_SSBOND_Ring, Num_IONIC_Ring, Num_VDW_Ring, Num_PICATION_Ring, Num_PIPISTACK_Ring, Num_IAC_Ring,
     print(f'Task {task_count}, ID {obj.ID}: Features Extraction 3: Running Ring3')
-    ########there, place of cleaning need to fix
     res_dict=Run_Ring(obj.WT_Structure.PDB_path,Ring_Path,obj.WT_Ring_Bond_List,TMP_Path,f'ring3_res_{obj.ID}_WT')
     if res_dict is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -248,6 +252,34 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         obj.WT_Num_VDW_Ring=res_dict['VDW']
         obj.WT_Num_PICATION_Ring=res_dict['PICATION']
         obj.WT_Num_PIPISTACK_Ring=res_dict['PIPISTACK']
+
+
+    res_dict=Devide_Res_of_Ring_by_Layers(obj.WT_Ring_Bond_List,obj.WT_Amino_Acid_List_Layer1)
+    obj.WT_Num_HBOND_Ring_Layer1 = res_dict['HBOND']
+    obj.WT_Num_SSBOND_Ring_Layer1 = res_dict['SSBOND']
+    obj.WT_Num_IONIC_Ring_Layer1 = res_dict['IONIC']
+    obj.WT_Num_VDW_Ring_Layer1 = res_dict['VDW']
+    obj.WT_Num_PICATION_Ring_Layer1 = res_dict['PICATION']
+    obj.WT_Num_PIPISTACK_Ring_Layer1 = res_dict['PIPISTACK']
+
+    res_dict=Devide_Res_of_Ring_by_Layers(obj.WT_Ring_Bond_List,obj.WT_Amino_Acid_List_Layer2)
+    obj.WT_Num_HBOND_Ring_Layer2 = res_dict['HBOND']
+    obj.WT_Num_SSBOND_Ring_Layer2 = res_dict['SSBOND']
+    obj.WT_Num_IONIC_Ring_Layer2 = res_dict['IONIC']
+    obj.WT_Num_VDW_Ring_Layer2 = res_dict['VDW']
+    obj.WT_Num_PICATION_Ring_Layer2 = res_dict['PICATION']
+    obj.WT_Num_PIPISTACK_Ring_Layer2 = res_dict['PIPISTACK']
+
+    res_dict=Devide_Res_of_Ring_by_Layers(obj.WT_Ring_Bond_List,obj.WT_Amino_Acid_List_Layer3)
+    obj.WT_Num_HBOND_Ring_Layer3 = res_dict['HBOND']
+    obj.WT_Num_SSBOND_Ring_Layer3 = res_dict['SSBOND']
+    obj.WT_Num_IONIC_Ring_Layer3 = res_dict['IONIC']
+    obj.WT_Num_VDW_Ring_Layer3 = res_dict['VDW']
+    obj.WT_Num_PICATION_Ring_Layer3 = res_dict['PICATION']
+    obj.WT_Num_PIPISTACK_Ring_Layer3 = res_dict['PIPISTACK']
+
+
+
 
     res_dict = Run_Ring(obj.MUT_Structure.PDB_path, Ring_Path, obj.MUT_Ring_Bond_List,TMP_Path,f'ring3_res_{obj.ID}_MUT')
     if res_dict is False:
@@ -261,6 +293,30 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         obj.MUT_Num_PICATION_Ring = res_dict['PICATION']
         obj.MUT_Num_PIPISTACK_Ring = res_dict['PIPISTACK']
 
+    res_dict = Devide_Res_of_Ring_by_Layers(obj.MUT_Ring_Bond_List, obj.MUT_Amino_Acid_List_Layer1)
+    obj.MUT_Num_HBOND_Ring_Layer1 = res_dict['HBOND']
+    obj.MUT_Num_SSBOND_Ring_Layer1 = res_dict['SSBOND']
+    obj.MUT_Num_IONIC_Ring_Layer1 = res_dict['IONIC']
+    obj.MUT_Num_VDW_Ring_Layer1 = res_dict['VDW']
+    obj.MUT_Num_PICATION_Ring_Layer1 = res_dict['PICATION']
+    obj.MUT_Num_PIPISTACK_Ring_Layer1 = res_dict['PIPISTACK']
+
+    res_dict = Devide_Res_of_Ring_by_Layers(obj.MUT_Ring_Bond_List, obj.MUT_Amino_Acid_List_Layer2)
+    obj.MUT_Num_HBOND_Ring_Layer2 = res_dict['HBOND']
+    obj.MUT_Num_SSBOND_Ring_Layer2 = res_dict['SSBOND']
+    obj.MUT_Num_IONIC_Ring_Layer2 = res_dict['IONIC']
+    obj.MUT_Num_VDW_Ring_Layer2 = res_dict['VDW']
+    obj.MUT_Num_PICATION_Ring_Layer2 = res_dict['PICATION']
+    obj.MUT_Num_PIPISTACK_Ring_Layer2 = res_dict['PIPISTACK']
+
+    res_dict = Devide_Res_of_Ring_by_Layers(obj.MUT_Ring_Bond_List, obj.MUT_Amino_Acid_List_Layer3)
+    obj.MUT_Num_HBOND_Ring_Layer3 = res_dict['HBOND']
+    obj.MUT_Num_SSBOND_Ring_Layer3 = res_dict['SSBOND']
+    obj.MUT_Num_IONIC_Ring_Layer3 = res_dict['IONIC']
+    obj.MUT_Num_VDW_Ring_Layer3 = res_dict['VDW']
+    obj.MUT_Num_PICATION_Ring_Layer3 = res_dict['PICATION']
+    obj.MUT_Num_PIPISTACK_Ring_Layer3 = res_dict['PIPISTACK']
+
 
 
     obj.Diff_Num_HBOND_Ring = obj.MUT_Num_HBOND_Ring - obj.WT_Num_HBOND_Ring
@@ -269,6 +325,27 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Diff_Num_VDW_Ring = obj.MUT_Num_VDW_Ring -obj.WT_Num_VDW_Ring
     obj.Diff_Num_PICATION_Ring = obj.MUT_Num_PICATION_Ring - obj.WT_Num_PICATION_Ring
     obj.Diff_Num_PIPISTACK_Ring = obj.MUT_Num_PIPISTACK_Ring - obj.WT_Num_PIPISTACK_Ring
+
+    obj.Diff_Num_HBOND_Ring_Layer1 = obj.MUT_Num_HBOND_Ring_Layer1 - obj.WT_Num_HBOND_Ring_Layer1
+    obj.Diff_Num_SSBOND_Ring_Layer1 = obj.MUT_Num_SSBOND_Ring_Layer1 - obj.WT_Num_SSBOND_Ring_Layer1
+    obj.Diff_Num_IONIC_Ring_Layer1 = obj.MUT_Num_IONIC_Ring_Layer1 -obj.WT_Num_IONIC_Ring_Layer1
+    obj.Diff_Num_VDW_Ring_Layer1 = obj.MUT_Num_VDW_Ring_Layer1 -obj.WT_Num_VDW_Ring_Layer1
+    obj.Diff_Num_PICATION_Ring_Layer1 = obj.MUT_Num_PICATION_Ring_Layer1 - obj.WT_Num_PICATION_Ring_Layer1
+    obj.Diff_Num_PIPISTACK_Ring_Layer1 = obj.MUT_Num_PIPISTACK_Ring_Layer1 - obj.WT_Num_PIPISTACK_Ring_Layer1
+
+    obj.Diff_Num_HBOND_Ring_Layer2 = obj.MUT_Num_HBOND_Ring_Layer2 - obj.WT_Num_HBOND_Ring_Layer2
+    obj.Diff_Num_SSBOND_Ring_Layer2 = obj.MUT_Num_SSBOND_Ring_Layer2 - obj.WT_Num_SSBOND_Ring_Layer2
+    obj.Diff_Num_IONIC_Ring_Layer2 = obj.MUT_Num_IONIC_Ring_Layer2 -obj.WT_Num_IONIC_Ring_Layer2
+    obj.Diff_Num_VDW_Ring_Layer2 = obj.MUT_Num_VDW_Ring_Layer2 -obj.WT_Num_VDW_Ring_Layer2
+    obj.Diff_Num_PICATION_Ring_Layer2 = obj.MUT_Num_PICATION_Ring_Layer2 - obj.WT_Num_PICATION_Ring_Layer2
+    obj.Diff_Num_PIPISTACK_Ring_Layer2 = obj.MUT_Num_PIPISTACK_Ring_Layer2 - obj.WT_Num_PIPISTACK_Ring_Layer2
+
+    obj.Diff_Num_HBOND_Ring_Layer3 = obj.MUT_Num_HBOND_Ring_Layer3 - obj.WT_Num_HBOND_Ring_Layer3
+    obj.Diff_Num_SSBOND_Ring_Layer3 = obj.MUT_Num_SSBOND_Ring_Layer3 - obj.WT_Num_SSBOND_Ring_Layer3
+    obj.Diff_Num_IONIC_Ring_Layer3 = obj.MUT_Num_IONIC_Ring_Layer3 -obj.WT_Num_IONIC_Ring_Layer3
+    obj.Diff_Num_VDW_Ring_Layer3 = obj.MUT_Num_VDW_Ring_Layer3 -obj.WT_Num_VDW_Ring_Layer3
+    obj.Diff_Num_PICATION_Ring_Layer3 = obj.MUT_Num_PICATION_Ring_Layer3 - obj.WT_Num_PICATION_Ring_Layer3
+    obj.Diff_Num_PIPISTACK_Ring_Layer3 = obj.MUT_Num_PIPISTACK_Ring_Layer3 - obj.WT_Num_PIPISTACK_Ring_Layer3
 
 
     res_dict=Judge_Bond_of_Ring(obj.WT_Ring_Bond_List, obj.WT_Amino_Acid)
@@ -292,11 +369,26 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     #HD_Cluster_List, Num_HD_Cluster_Protlego
     print(f'Task {task_count}, ID {obj.ID}: Features Extraction 4: Running Protlego')
     obj.WT_Num_HD_Cluster_Protlego=Run_Prolego(obj.WT_Structure.PDB_path,obj.WT_HD_Cluster_List,Main_Location)
+    obj.WT_Num_HD_Cluster_Protlego_Layer1=  Devide_Res_of_HD_Cluster_by_Layers(obj.WT_HD_Cluster_List,obj.WT_Amino_Acid_List_Layer1)
+    obj.WT_Num_HD_Cluster_Protlego_Layer2 = Devide_Res_of_HD_Cluster_by_Layers(obj.WT_HD_Cluster_List,obj.WT_Amino_Acid_List_Layer2)
+    obj.WT_Num_HD_Cluster_Protlego_Layer3 = Devide_Res_of_HD_Cluster_by_Layers(obj.WT_HD_Cluster_List,obj.WT_Amino_Acid_List_Layer3)
     obj.WT_Max_HD_Cluster_Area=Get_Max_Area(obj.WT_HD_Cluster_List,obj.WT_Amino_Acid_List)
+
+
     obj.MUT_Num_HD_Cluster_Protlego=Run_Prolego(obj.MUT_Structure.PDB_path,obj.MUT_HD_Cluster_List,Main_Location)
+    obj.MUT_Num_HD_Cluster_Protlego_Layer1=  Devide_Res_of_HD_Cluster_by_Layers(obj.MUT_HD_Cluster_List,obj.MUT_Amino_Acid_List_Layer1)
+    obj.MUT_Num_HD_Cluster_Protlego_Layer2 = Devide_Res_of_HD_Cluster_by_Layers(obj.MUT_HD_Cluster_List,obj.MUT_Amino_Acid_List_Layer2)
+    obj.MUT_Num_HD_Cluster_Protlego_Layer3 = Devide_Res_of_HD_Cluster_by_Layers(obj.MUT_HD_Cluster_List,obj.MUT_Amino_Acid_List_Layer3)
     obj.MUT_Max_HD_Cluster_Area=Get_Max_Area(obj.MUT_HD_Cluster_List,obj.MUT_Amino_Acid_List)
+
+
     obj.Diff_Num_HD_Cluster_Protlego=obj.MUT_Num_HD_Cluster_Protlego-obj.WT_Num_HD_Cluster_Protlego
+    obj.Diff_Num_HD_Cluster_Protlego_Layer1 = obj.MUT_Num_HD_Cluster_Protlego_Layer1-obj.WT_Num_HD_Cluster_Protlego_Layer1
+    obj.Diff_Num_HD_Cluster_Protlego_Layer2 = obj.MUT_Num_HD_Cluster_Protlego_Layer2-obj.WT_Num_HD_Cluster_Protlego_Layer2
+    obj.Diff_Num_HD_Cluster_Protlego_Layer3 = obj.MUT_Num_HD_Cluster_Protlego_Layer3-obj.WT_Num_HD_Cluster_Protlego_Layer3
     obj.Diff_Max_HD_Cluster_Area=obj.MUT_Max_HD_Cluster_Area-obj.WT_Max_HD_Cluster_Area
+
+
 
     res=Judge_If_in_Cluster(obj.WT_Amino_Acid,obj.WT_HD_Cluster_List)
     obj.Is_WT_HD_Cluster=res[0]
@@ -312,9 +404,11 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     # Amino_Acid_Categories
     print(f'Task {task_count}, ID {obj.ID}: Features Extraction 5: Calculating AA categories and Running DSSP to get RSA')
     Compute_AA_Categories(obj.WT_Amino_Acid_List,obj.WT_Pct_Amino_Acid_Categories,obj.WT_Num_Amino_Acid_Categories)
+    Compute_AA_Categories(obj.WT_Amino_Acid_List_Layer1,obj.WT_Pct_Amino_Acid_Categories_Layer1,obj.WT_Num_Amino_Acid_Categories_Layer1)
+    Compute_AA_Categories(obj.WT_Amino_Acid_List_Layer2,obj.WT_Pct_Amino_Acid_Categories_Layer2,obj.WT_Num_Amino_Acid_Categories_Layer2)
+    Compute_AA_Categories(obj.WT_Amino_Acid_List_Layer3,obj.WT_Pct_Amino_Acid_Categories_Layer3,obj.WT_Num_Amino_Acid_Categories_Layer3)
 
-
-    res_list=Run_Dssp(obj.Is_Beta,obj.WT_Structure.PDB_Name, obj.WT_Structure.PDB_path,obj.WT_Seq)
+    res_list=Run_Dssp(obj.Is_Beta,obj.Dssp_List,obj.WT_Structure.PDB_Name, obj.WT_Structure.PDB_path,obj.WT_Seq)
     if res_list is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
@@ -322,6 +416,18 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         obj.WT_Pct_Buried_Residue=res_list[0]
         obj.WT_Pct_Exposed_Residue=res_list[1]
         obj.WT_Pct_Secondary_Structure=res_list[2]
+
+    res_list=Devide_Res_of_DSSP_by_Layers(obj.Dssp_List,obj.WT_Amino_Acid_List_Layer1,obj.WT_Pct_Secondary_Structure_Layer1)
+    obj.WT_Pct_Buried_Residue_Layer1=res_list[0]
+    obj.WT_Pct_Exposed_Residue_Layer1 = res_list[1]
+
+    res_list=Devide_Res_of_DSSP_by_Layers(obj.Dssp_List,obj.WT_Amino_Acid_List_Layer2,obj.WT_Pct_Secondary_Structure_Layer2)
+    obj.WT_Pct_Buried_Residue_Layer2=res_list[0]
+    obj.WT_Pct_Exposed_Residue_Layer2 = res_list[1]
+
+    res_list=Devide_Res_of_DSSP_by_Layers(obj.Dssp_List,obj.WT_Amino_Acid_List_Layer3,obj.WT_Pct_Secondary_Structure_Layer3)
+    obj.WT_Pct_Buried_Residue_Layer3=res_list[0]
+    obj.WT_Pct_Exposed_Residue_Layer3 = res_list[1]
 
 
     res_list=Get_Res_of_DSSP(obj.Is_Beta,obj.WT_Structure.PDB_Name,obj.WT_Structure.PDB_path,obj.WT_Seq,obj.WT_Amino_Acid)
@@ -348,29 +454,10 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Diff_Phi=obj.MUT_Phi-obj.WT_Phi
 
 
-    #Psipred
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 6: Running Psipred to get SS (abandoned)')
-    # obj.WT_Psipred_List=Run_Psipred(obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Structure.PDB_Name,Psipred_Path)
-    # res_list=Get_Res_from_Psipred(obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Amino_Acid,obj.Overall_Pct_Secondary_Structure,obj.WT_Psipred_List)
-    # if res_list is False:
-    #     error_obj.Something_Wrong(Detail_Extraction.__name__)
-    #     exit(1)
-    # obj.WT_Secondary_Structure_Char=res_list[0]
-    # obj.WT_Secondary_Structure=res_list[1]
-    #
-    # obj.MUT_Psipred_List=Run_Psipred(obj.MUT_Seq,obj.Chain_ID_of_Mut,obj.MUT_Structure.PDB_Name,Psipred_Path)
-    # res_list = Get_Res_from_Psipred(obj.MUT_Seq, obj.Chain_ID_of_Mut, obj.MUT_Amino_Acid,{}, obj.MUT_Psipred_List)
-    # if res_list is False:
-    #     error_obj.Something_Wrong(Detail_Extraction.__name__)
-    #     exit(1)
-    # obj.MUT_Secondary_Structure_Char = res_list[0]
-    # obj.MUT_Secondary_Structure = res_list[1]
-
-
 
 
     # Pharmacophore
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 7: Running Rdkit to get Pharmacophore info')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 6: Running Rdkit to get Pharmacophore info')
     is_bonding_WT=Check_Available_PDB_with_Rdkit(obj.WT_Structure.PDB_path)
     is_bonding_MUT = Check_Available_PDB_with_Rdkit(obj.MUT_Structure.PDB_path)
     if is_bonding_WT and is_bonding_MUT:
@@ -424,7 +511,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #B Factor
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 8: Running Prof in container to get B-factor')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 7: Running Prof in container to get B-factor')
     res=Compute_B_Factor(obj.WT_Seq,obj.Chain_ID_of_Mut,TMP_Path,f'prof_res_{obj.ID}_WT',obj.WT_PSI_BLAST_Path,Main_Location,obj.True_Loc_of_Mutation,obj.WT_Amino_Acid_short)
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -443,13 +530,13 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #FoldX
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 9: Running FoldX')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 8: Running FoldX')
     if not Run_FoldX(FoldX_Path,FoldX_Name,obj.WT_Structure.PDB_path,obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,obj.True_Loc_of_Mutation,obj.Chain_ID_of_Mut,obj.WT_FoldX_Energy_Term_Dict,obj.Diff_FoldX_Energy_Term_Dict,TMP_Path,f'foldx_res_{obj.ID}'):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
 
     #NMA
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 10: Running Bio3D to get NMA')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 9: Running Bio3D to get NMA')
     res=Run_NMA(obj.WT_Structure.PDB_path,obj.MUT_Structure.PDB_path,obj.True_Loc_of_Mutation,obj.Chain_ID_of_Mut,obj.WT_Seq,R_NMA_Path,R_NMA_App_Name,TMP_Path,f'nma_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__,'NMA failed, maybe PDB is too big and need more memories')
@@ -461,7 +548,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Diff_NMA_Fluctuation=obj.MUT_NMA_Fluctuation-obj.WT_NMA_Fluctuation
 
     #Length
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 11: Running DisEMBL')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 10: Running DisEMBL')
     res=Run_DisEMBL(obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Structure.PDB_Name,DisEMBL_Path,TMP_Path,f'disembl_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -484,16 +571,8 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
 
-    #co_evo
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 12: Running Caps to get Co-evo info (abandoned)')
-    # res=Compute_Co_Evo(obj.WT_BLASTP_Path,obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Structure.PDB_Name,Global_Value.MSA_DB_Path,Global_Value.MSA_DB_Name,Caps_Path,obj.True_Loc_of_Mutation,300)
-    # obj.Is_Mut_Co_Evo=res[0]
-    # obj.Co_Evo_AA_Type=res[1]
-    # obj.Is_Group_Co_Evo=res[2]
-    # obj.Co_Evo_Group_Num=res[3]
-
     #SIFT
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 13: Running SIFT')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 11: Running SIFT')
     res=Run_Sift(obj.WT_Structure.PDB_Name,obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,obj.True_Loc_of_Mutation,SIFT_Path,WT_MSA_Path,obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_BLASTP_Path,TMP_Path,f'sift_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -503,19 +582,8 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
 
-    #ANGLOR
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 14: Running ANGLOR (abandoned)')
-    # res=Run_ANGLOR(obj.WT_Seq,obj.Chain_ID_of_Mut,ANGLOR_Path,obj.True_Loc_of_Mutation)
-    # obj.WT_Psi_ANGLOR=res[0]
-    # obj.WT_Phi_ANGLOR=res[1]
-    # res = Run_ANGLOR(obj.MUT_Seq, obj.Chain_ID_of_Mut, ANGLOR_Path, obj.True_Loc_of_Mutation)
-    # obj.MUT_Psi_ANGLOR = res[0]
-    # obj.MUT_Phi_ANGLOR = res[1]
-    # obj.Diff_Psi_ANGLOR=obj.MUT_Psi_ANGLOR-obj.WT_Psi_ANGLOR
-    # obj.Diff_Phi_ANGLOR = obj.MUT_Phi_ANGLOR - obj.WT_Phi_ANGLOR
-
     #
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 15: Calculating features on AA site')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 12: Calculating features on AA site')
     res_list=Get_Mutation_Description(obj.WT_Amino_Acid,obj.MUT_Amino_Acid,obj.WT_Secondary_Structure_Char,obj.MUT_Secondary_Structure_Char)
     obj.WT_AA_Type=res_list[0]
     obj.MUT_AA_Type=res_list[1]
@@ -603,12 +671,8 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Diff_PSSM_Score=obj.MUT_PSSM_Score-obj.WT_PSSM_Score
     obj.Diff_PSSM_Score_Aver=obj.MUT_PSSM_Score_Aver-obj.WT_PSSM_Score_Aver
 
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 16: Run Rosetta score function')
-    Run_Score_JD2(Rosetta_Bin_Path,Rosetta_DB_Path,obj.WT_Structure.PDB_path,obj.WT_Rosetta_Energy_Term_Dict,TMP_Path,f'rosetta_res_{obj.ID}_WT')
-    Run_Score_JD2(Rosetta_Bin_Path,Rosetta_DB_Path,obj.MUT_Structure.PDB_path,obj.MUT_Rosetta_Energy_Term_Dict,TMP_Path,f'rosetta_res_{obj.ID}_MUT')
-    Subtract_Dict(obj.WT_Rosetta_Energy_Term_Dict,obj.MUT_Rosetta_Energy_Term_Dict,obj.Diff_Rosetta_Energy_Term_Dict)
 
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 17: Calculating AAindex features')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 13: Calculating AAindex features')
     obj.WT_AAindex1=Get_Mutation_Index_List_from_Index(obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,scripts.AAindex.aaindex1_list,obj.Diff_AAindex1)
     Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}',scripts.AAindex.aaindex2_list,obj.Descri_AAindex2)
     Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}', scripts.AAindex.aaindex3_list,obj.Descri_AAindex3)
@@ -617,25 +681,6 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     print(f'Task {task_count}, ID {obj.ID}: Have finished features extraction, and normally return')
     #return True
     return obj
-
-
-def Separately_Compute_B_factor(obj:Feature_Object):
-    res=Compute_B_Factor(obj.WT_Seq,obj.Chain_ID_of_Mut,TMP_Path,f'prof_res_{obj.ID}_WT',obj.WT_PSI_BLAST_Path,Main_Location,obj.True_Loc_of_Mutation,obj.WT_Amino_Acid_short)
-    if res is False:
-        error_obj.Something_Wrong(Separately_Compute_B_factor.__name__)
-        return False
-    else:
-        obj.WT_B_Factor=res
-
-    res = Compute_B_Factor(obj.MUT_Seq, obj.Chain_ID_of_Mut,TMP_Path,f'prof_res_{obj.ID}_MUT', obj.MUT_PSI_BLAST_Path,
-                           Main_Location, obj.True_Loc_of_Mutation, obj.MUT_Amino_Acid_short)
-    if res is False:
-        error_obj.Something_Wrong(Separately_Compute_B_factor.__name__)
-        return False
-    else:
-        obj.MUT_B_Factor = res
-    obj.Diff_B_Factor=obj.MUT_B_Factor-obj.WT_B_Factor
-    return True
 
 
 

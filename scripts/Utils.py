@@ -601,63 +601,6 @@ def Get_All_Amino_Acid(return_list:list,pdb_name,pdb_path):
     return True
 
 
-# def Run_HBPlus(return_list:list,hbplus_path,pdb_path,):
-#     os.system(hbplus_path + 'hbplus ' + pdb_path)
-#     files = os.listdir('./')
-#     is_line = False
-#     for file in files:
-#         if file.split('.')[len(file.split('.')) - 1] == 'hb2':
-#             with open(file, 'r') as hb2:
-#                 lines = hb2.readlines()
-#                 for line in lines:
-#                     if is_line == True:
-#                         temp_bond = Bond()
-#                         temp_list = line.split()
-#                         pre_temp = temp_list[0].split('-')[0]
-#                         pre_temp = pre_temp.replace(pre_temp[0], '')
-#                         for s in pre_temp:
-#                             if s == '0':
-#                                 pre_temp = pre_temp[1:]
-#                             else:
-#                                 break
-#                         temp_num = int(pre_temp)
-#                         temp_bond.AA_Num_1 = temp_num
-#                         post_temp = temp_list[0].split('-')[1]
-#                         if post_temp not in amino_acid_map.keys():
-#                             error_obj.Something_Wrong(Run_HBPlus.__name__,post_temp)
-#                             continue
-#                         temp_bond.AA_1=amino_acid_map[post_temp]
-#                         temp_bond.Atom_1=temp_list[1]
-#
-#
-#                         pre_temp = temp_list[2].split('-')[0]
-#                         pre_temp = pre_temp.replace(pre_temp[0], '')
-#                         for s in pre_temp:
-#                             if s == '0':
-#                                 pre_temp = pre_temp[1:]
-#                             else:
-#                                 break
-#                         temp_num = int(pre_temp)
-#                         temp_bond.AA_Num_2 = temp_num
-#                         post_temp = temp_list[2].split('-')[1]
-#                         if post_temp not in amino_acid_map.keys():
-#                             error_obj.Something_Wrong(Run_HBPlus.__name__, post_temp)
-#                             continue
-#                         temp_bond.AA_2 = amino_acid_map[post_temp]
-#                         temp_bond.Atom_2=temp_list[3]
-#
-#                         temp_bond.Bond_Type='HB'
-#
-#                         return_list.append(temp_bond)
-#
-#                     if line.find('n') != -1 and line.find('s') != -1 and line.find('type') != -1 and line.find(
-#                             'dist') != -1 and line.find('angle') != -1:
-#                         is_line = True
-#
-#     for file in files:
-#         if file.split('.')[len(file.split('.'))-1]=='hb2' or file=='hbdebug.dat':
-#             os.remove(file)
-#     return True
 
 
 
@@ -764,7 +707,7 @@ def Return_4_type(type1:int,type2:int):
     else:
         return False
 
-def Run_Dssp(is_beta,pdb_name,pdb_path,seq_dict_for_test:dict):
+def Run_Dssp(is_beta,dssp_list:list,pdb_name,pdb_path,seq_dict_for_test:dict):
     '''
     :purpose: By DSSP to get buried/exposed aa info and secondary structure percentage info
     :param pdb_name: Input a name
@@ -804,6 +747,7 @@ def Run_Dssp(is_beta,pdb_name,pdb_path,seq_dict_for_test:dict):
         else:
             buried+=1
         ss_num_dict[dssp[key][2]] += 1
+        dssp_list.append(dssp[key])
     buried_pct=buried/count
     exposed_pct=exposed/count
     pct_dict['H'] = ss_num_dict['H'] / count
@@ -1103,75 +1047,6 @@ def Resave_PDB_One_Chain(in_pdb,outpath,chain_of_mut):
     io.save(outpath)
 
 
-def Run_Psipred(seq_dict:dict,chain_id,name,psipred_path):
-    with open('./temp.fasta','w') as seq:
-        seq.write(f'>{name}_{chain_id}\n')
-        seq.write(f'{seq_dict[chain_id]}')
-    os.system(f'{psipred_path}runpsipred ./temp.fasta')
-    res_l=[]
-    with open('./temp.ss2','r') as res:
-        lines=res.readlines()
-        for line in lines:
-            if line.find('#')==-1 and line!='\n':
-                line=line.replace('\n','')
-                div=line.split()
-                res_l.append([div[0],div[1],div[2]])
-    Clean_Main_Directory()
-    return res_l
-
-def Get_Res_from_Psipred(seq_dict:dict,chain,aa:Researched_Amino_Acid,out_overall_dict:dict,in_list_psipred):
-    count_single_chain=Fetch_Single_Chain_Loc(aa.Num,seq_dict,chain)
-    H_n=0
-    C_n=0
-    E_n=0
-    out_ss_char=''
-    out_ss_num=0
-    for item_list in in_list_psipred:
-        if item_list[2]=='H':
-            H_n+=1
-        elif item_list[2]=='C':
-            C_n+=1
-        elif item_list[2]=='E':
-            E_n+=1
-        if int(item_list[0])==count_single_chain:
-            if item_list[1]!=seq_dict[chain][count_single_chain-1]:
-                error_obj.Something_Wrong(Get_Res_from_Psipred.__name__)
-                return False
-            out_ss_char=item_list[2]
-            out_ss_num=secondary_structure_map[item_list[2]]
-    out_overall_dict['H'] = H_n / len(seq_dict[chain])
-    out_overall_dict['C'] = C_n / len(seq_dict[chain])
-    out_overall_dict['E'] = E_n / len(seq_dict[chain])
-    return [out_ss_char,out_ss_num]
-
-
-
-
-def Run_ANGLOR(seq_dict:dict,chain_id,anglor_path,loc:int):
-    with open(anglor_path+'example/e01/seq.txt','w') as seq:
-        seq.write(seq_dict[chain_id])
-    os.system(f'{anglor_path}ANGLOR/ANGLOR.pl e01')
-    loc_=Fetch_Single_Chain_Loc(loc,seq_dict,chain_id)
-    psi=''
-    phi=''
-    with open(anglor_path+'example/e01/psi.txt','r') as psi:
-        lines=psi.readlines()
-        for line in lines:
-            line=line.replace('\n','')
-            div=line.split()
-            if div[0]==str(loc_):
-                psi=div[1]
-    with open(anglor_path+'example/e01/phi.txt','r') as phi:
-        lines=phi.readlines()
-        for line in lines:
-            line=line.replace('\n','')
-            div=line.split()
-            if div[0]==str(loc_):
-                phi=div[1]
-    temp_files=os.listdir(anglor_path+'example/e01/')
-    for file in temp_files:
-        os.remove(anglor_path+'example/e01/'+file)
-    return [float(psi),float(phi)]
 
 
 def Get_Surrounding_AA(central_aa:Researched_Amino_Acid,all_aa:list[Researched_Amino_Acid],cutoff:float):

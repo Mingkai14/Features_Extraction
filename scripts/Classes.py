@@ -106,15 +106,60 @@ class Feature_Object:
                                                   'negatively_charged_polar': 0, 'nonpolar': 0, 'aromatic': 0,
                                                   'aliphatic': 0, 'heterocyclic': 0, 'sulfur_containing': 0}
 
+        self.WT_Pct_Amino_Acid_Categories_Layer1 = {'uncharged_polar': -99.99, 'positively_charged_polar': -99.99,
+                                                   'negatively_charged_polar': -99.99, 'nonpolar': -99.99,
+                                                   'aromatic': -99.99, 'aliphatic': -99.99, 'heterocyclic': -99.99,
+                                                   'sulfur_containing': -99.99}
+        self.WT_Num_Amino_Acid_Categories_Layer1 = {'uncharged_polar': 0, 'positively_charged_polar': 0,
+                                                   'negatively_charged_polar': 0, 'nonpolar': 0, 'aromatic': 0,
+                                                   'aliphatic': 0, 'heterocyclic': 0, 'sulfur_containing': 0}
+
+        self.WT_Pct_Amino_Acid_Categories_Layer2 = {'uncharged_polar': -99.99, 'positively_charged_polar': -99.99,
+                                                   'negatively_charged_polar': -99.99, 'nonpolar': -99.99,
+                                                   'aromatic': -99.99, 'aliphatic': -99.99, 'heterocyclic': -99.99,
+                                                   'sulfur_containing': -99.99}
+        self.WT_Num_Amino_Acid_Categories_Layer2 = {'uncharged_polar': 0, 'positively_charged_polar': 0,
+                                                    'negatively_charged_polar': 0, 'nonpolar': 0, 'aromatic': 0,
+                                                    'aliphatic': 0, 'heterocyclic': 0, 'sulfur_containing': 0}
+
+        self.WT_Pct_Amino_Acid_Categories_Layer3 = {'uncharged_polar': -99.99, 'positively_charged_polar': -99.99,
+                                                    'negatively_charged_polar': -99.99, 'nonpolar': -99.99,
+                                                    'aromatic': -99.99, 'aliphatic': -99.99, 'heterocyclic': -99.99,
+                                                    'sulfur_containing': -99.99}
+        self.WT_Num_Amino_Acid_Categories_Layer3 = {'uncharged_polar': 0, 'positively_charged_polar': 0,
+                                                    'negatively_charged_polar': 0, 'nonpolar': 0, 'aromatic': 0,
+                                                    'aliphatic': 0, 'heterocyclic': 0, 'sulfur_containing': 0}
+
+
         # Buried_Residue, Exposed_Residue, Secondary_Structure Information, by DSSP
         self.WT_Pct_Buried_Residue = -99.99
         self.WT_Pct_Exposed_Residue = -99.99
+
+        self.WT_Pct_Buried_Residue_Layer1 = -99.99
+        self.WT_Pct_Exposed_Residue_Layer1 = -99.99
+
+        self.WT_Pct_Buried_Residue_Layer2 = -99.99
+        self.WT_Pct_Exposed_Residue_Layer2 = -99.99
+
+        self.WT_Pct_Buried_Residue_Layer3 = -99.99
+        self.WT_Pct_Exposed_Residue_Layer3 = -99.99
+
+
         self.Dssp_List = []
         self.WT_Psipred_List = []
         self.MUT_Psipred_List = []
         # self.Overall_Pct_Secondary_Structure = {'H': -99.99, 'E': -99.99, 'C': -99.99}
 
         self.WT_Pct_Secondary_Structure = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99,
+                                                'T': -99.99, 'S': -99.99, '-': -99.99}
+
+        self.WT_Pct_Secondary_Structure_Layer1 = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99,
+                                                'T': -99.99, 'S': -99.99, '-': -99.99}
+
+        self.WT_Pct_Secondary_Structure_Layer2 = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99,
+                                                'T': -99.99, 'S': -99.99, '-': -99.99}
+
+        self.WT_Pct_Secondary_Structure_Layer3 = {'H': -99.99, 'B': -99.99, 'E': -99.99, 'G': -99.99, 'I': -99.99,
                                                 'T': -99.99, 'S': -99.99, '-': -99.99}
 
         # Coils, Rem465, and Hotloop Information, by disEMBL
@@ -157,43 +202,11 @@ class Feature_Object:
                                             'electrostatic kon': -99.99, 'partial covalent bonds': -99.99,
                                             'energy Ionisation': -99.99, 'Entropy Complex': -99.99}
 
-        #Rosetta energy terms, by Rosetta #Not yet
-        self.WT_Rosetta_Energy_Term_Dict={'total_score':-99.99,'score':-99.99,'dslf_fa13':-99.99,'fa_atr':-99.99,'fa_dun':-99.99,
-                                          'fa_elec':-99.99,'fa_intra_rep':-99.99,'fa_intra_sol_xover4':-99.99,'fa_rep':-99.99,
-                                          'fa_sol':-99.99,'hbond_bb_sc':-99.99,'hbond_lr_bb':-99.99,'hbond_sc':-99.99,'hbond_sr_bb':-99.99,
-                                          'linear_chainbreak':-99.99,'lk_ball_wtd':-99.99,'omega':-99.99,'overlap_chainbreak':-99.99,
-                                          'p_aa_pp':-99.99,'pro_close':-99.99,'rama_prepro':-99.99,'ref':-99.99,'yhh_planarity':-99.99}
 
-        self.MUT_Rosetta_Energy_Term_Dict = {'total_score': -99.99, 'score': -99.99, 'dslf_fa13': -99.99, 'fa_atr': -99.99,
-                                            'fa_dun': -99.99,
-                                            'fa_elec': -99.99, 'fa_intra_rep': -99.99, 'fa_intra_sol_xover4': -99.99,
-                                            'fa_rep': -99.99,
-                                            'fa_sol': -99.99, 'hbond_bb_sc': -99.99, 'hbond_lr_bb': -99.99,
-                                            'hbond_sc': -99.99, 'hbond_sr_bb': -99.99,
-                                            'linear_chainbreak': -99.99, 'lk_ball_wtd': -99.99, 'omega': -99.99,
-                                            'overlap_chainbreak': -99.99,
-                                            'p_aa_pp': -99.99, 'pro_close': -99.99, 'rama_prepro': -99.99, 'ref': -99.99,
-                                            'yhh_planarity': -99.99}
-
-        self.Diff_Rosetta_Energy_Term_Dict = {'total_score': -99.99, 'score': -99.99, 'dslf_fa13': -99.99, 'fa_atr': -99.99,
-                                            'fa_dun': -99.99,
-                                            'fa_elec': -99.99, 'fa_intra_rep': -99.99, 'fa_intra_sol_xover4': -99.99,
-                                            'fa_rep': -99.99,
-                                            'fa_sol': -99.99, 'hbond_bb_sc': -99.99, 'hbond_lr_bb': -99.99,
-                                            'hbond_sc': -99.99, 'hbond_sr_bb': -99.99,
-                                            'linear_chainbreak': -99.99, 'lk_ball_wtd': -99.99, 'omega': -99.99,
-                                            'overlap_chainbreak': -99.99,
-                                            'p_aa_pp': -99.99, 'pro_close': -99.99, 'rama_prepro': -99.99, 'ref': -99.99,
-                                            'yhh_planarity': -99.99}
-
-
-        # Rosetta
-        # RW/RWplus
-        # Dfire/dDfire
-        # DOPE
 
 
         #Bond Infomation, by Ring3
+        #Whole protein
         self.WT_Ring_Bond_List=[]
         self.WT_Num_HBOND_Ring = -99
         self.WT_Num_SSBOND_Ring=-99
@@ -217,19 +230,93 @@ class Feature_Object:
         self.Diff_Num_PICATION_Ring = -99
         self.Diff_Num_PIPISTACK_Ring = -99
 
+        # Layer 1
+        self.WT_Num_HBOND_Ring_Layer1 = -99
+        self.WT_Num_SSBOND_Ring_Layer1 = -99
+        self.WT_Num_IONIC_Ring_Layer1 = -99
+        self.WT_Num_VDW_Ring_Layer1 = -99
+        self.WT_Num_PICATION_Ring_Layer1 = -99
+        self.WT_Num_PIPISTACK_Ring_Layer1 = -99
+
+        self.MUT_Num_HBOND_Ring_Layer1 = -99
+        self.MUT_Num_SSBOND_Ring_Layer1 = -99
+        self.MUT_Num_IONIC_Ring_Layer1 = -99
+        self.MUT_Num_VDW_Ring_Layer1 = -99
+        self.MUT_Num_PICATION_Ring_Layer1 = -99
+        self.MUT_Num_PIPISTACK_Ring_Layer1 = -99
+
+        self.Diff_Num_HBOND_Ring_Layer1 = -99
+        self.Diff_Num_SSBOND_Ring_Layer1 = -99
+        self.Diff_Num_IONIC_Ring_Layer1 = -99
+        self.Diff_Num_VDW_Ring_Layer1 = -99
+        self.Diff_Num_PICATION_Ring_Layer1 = -99
+        self.Diff_Num_PIPISTACK_Ring_Layer1 = -99
+
+        # Layer 2
+        self.WT_Num_HBOND_Ring_Layer2 = -99
+        self.WT_Num_SSBOND_Ring_Layer2 = -99
+        self.WT_Num_IONIC_Ring_Layer2 = -99
+        self.WT_Num_VDW_Ring_Layer2 = -99
+        self.WT_Num_PICATION_Ring_Layer2 = -99
+        self.WT_Num_PIPISTACK_Ring_Layer2 = -99
+
+        self.MUT_Num_HBOND_Ring_Layer2 = -99
+        self.MUT_Num_SSBOND_Ring_Layer2 = -99
+        self.MUT_Num_IONIC_Ring_Layer2 = -99
+        self.MUT_Num_VDW_Ring_Layer2 = -99
+        self.MUT_Num_PICATION_Ring_Layer2 = -99
+        self.MUT_Num_PIPISTACK_Ring_Layer2 = -99
+
+        self.Diff_Num_HBOND_Ring_Layer2 = -99
+        self.Diff_Num_SSBOND_Ring_Layer2 = -99
+        self.Diff_Num_IONIC_Ring_Layer2 = -99
+        self.Diff_Num_VDW_Ring_Layer2 = -99
+        self.Diff_Num_PICATION_Ring_Layer2 = -99
+        self.Diff_Num_PIPISTACK_Ring_Layer2 = -99
+
+        # Layer 3
+        self.WT_Num_HBOND_Ring_Layer3 = -99
+        self.WT_Num_SSBOND_Ring_Layer3 = -99
+        self.WT_Num_IONIC_Ring_Layer3 = -99
+        self.WT_Num_VDW_Ring_Layer3 = -99
+        self.WT_Num_PICATION_Ring_Layer3 = -99
+        self.WT_Num_PIPISTACK_Ring_Layer3 = -99
+
+        self.MUT_Num_HBOND_Ring_Layer3 = -99
+        self.MUT_Num_SSBOND_Ring_Layer3 = -99
+        self.MUT_Num_IONIC_Ring_Layer3 = -99
+        self.MUT_Num_VDW_Ring_Layer3 = -99
+        self.MUT_Num_PICATION_Ring_Layer3 = -99
+        self.MUT_Num_PIPISTACK_Ring_Layer3 = -99
+
+        self.Diff_Num_HBOND_Ring_Layer3 = -99
+        self.Diff_Num_SSBOND_Ring_Layer3 = -99
+        self.Diff_Num_IONIC_Ring_Layer3 = -99
+        self.Diff_Num_VDW_Ring_Layer3 = -99
+        self.Diff_Num_PICATION_Ring_Layer3 = -99
+        self.Diff_Num_PIPISTACK_Ring_Layer3 = -99
 
 
 
         # Hydrophobic cluster, by Protlego
         self.WT_HD_Cluster_List = []
         self.WT_Num_HD_Cluster_Protlego = -99
+        self.WT_Num_HD_Cluster_Protlego_Layer1 = -99
+        self.WT_Num_HD_Cluster_Protlego_Layer2 = -99
+        self.WT_Num_HD_Cluster_Protlego_Layer3 = -99
         self.WT_Max_HD_Cluster_Area=-99.99
 
         self.MUT_HD_Cluster_List = []
         self.MUT_Num_HD_Cluster_Protlego = -99
+        self.MUT_Num_HD_Cluster_Protlego_Layer1 = -99
+        self.MUT_Num_HD_Cluster_Protlego_Layer2 = -99
+        self.MUT_Num_HD_Cluster_Protlego_Layer3 = -99
         self.MUT_Max_HD_Cluster_Area = -99.99
 
         self.Diff_Num_HD_Cluster_Protlego = -99
+        self.Diff_Num_HD_Cluster_Protlego_Layer1 = -99
+        self.Diff_Num_HD_Cluster_Protlego_Layer2 = -99
+        self.Diff_Num_HD_Cluster_Protlego_Layer3 = -99
         self.Diff_Max_HD_Cluster_Area = -99.99
 
 
@@ -314,22 +401,11 @@ class Feature_Object:
         self.MUT_B_Factor=-99.99
         self.Diff_B_Factor=-99.99
 
-        # Co-evolution, by Caps
-        self.Is_Mut_Co_Evo = 0
-        self.Co_Evo_AA_Type = ''
-        self.Is_Group_Co_Evo = 0
-        self.Co_Evo_Group_Num = 0
 
         #If harmful mutation, by SIFT
         self.SIFT_Score=0
 
-        #Backbone_Torsional_Angle, by ANGLOR
-        # self.WT_Psi_ANGLOR = -99.99
-        # self.WT_Phi_ANGLOR = -99.99
-        # self.MUT_Psi_ANGLOR = -99.99
-        # self.MUT_Phi_ANGLOR = -99.99
-        # self.Diff_Psi_ANGLOR = -99.99
-        # self.Diff_Phi_ANGLOR = -99.99
+
 
         # Backbone_Torsional_Angle, by DSSP
         self.WT_Psi = -99.99
