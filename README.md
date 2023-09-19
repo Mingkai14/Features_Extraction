@@ -20,7 +20,7 @@ Do this:
 
 cd Your_Path/
 
-git clone https://github.com/geralt14/Features_Extraction.git
+git clone https://github.com/Mingkai14/Features_Extraction.git
 
 
 ## 2. Download and unzip FoldX Linux version
