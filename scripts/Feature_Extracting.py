@@ -27,37 +27,37 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
             if line!='' and line!='\n':
                 data_list.append(line.replace('\n',''))
 
-    print('Checking if all data ID are unique')
+    print('Checking if all data have different WT and MUT AA')
 
     for i in range(len(data_list)):
         item_list = str(data_list[i]).split(',')
         ID = item_list[0]
         postfix=ID.split('_')[-1]
         if postfix[0]==postfix[-1]:
-            print(f'{ID} has same WT and MUT sign, has been removed')
+            print(f'{ID} has same WT and MUT AA, has been removed')
             data_list[i]='remove'
 
     for i in range(len(data_list) - 1, -1, -1):
         if data_list[i]=='remove':
             data_list.pop(i)
 
-    temp_list=[]
-    for i in range(len(data_list)):
-        item_list=str(data_list[i]).split(',')
-        ID=item_list[0]
-        if ID in temp_list:
-            print(f'{ID} is repeated, has been removed')
-            data_list[i]='remove'
-        else:
-            temp_list.append(ID)
-
-    for i in range(len(data_list) - 1, -1, -1):
-        if data_list[i]=='remove':
-            data_list.pop(i)
-
-    if len(data_list)!=len(temp_list):
-        error_obj.Something_Wrong(Feature_Extraction.__name__)
-        exit(1)
+    # temp_list=[]
+    # for i in range(len(data_list)):
+    #     item_list=str(data_list[i]).split(',')
+    #     ID=item_list[0]
+    #     if ID in temp_list:
+    #         print(f'{ID} is repeated, has been removed')
+    #         data_list[i]='remove'
+    #     else:
+    #         temp_list.append(ID)
+    #
+    # for i in range(len(data_list) - 1, -1, -1):
+    #     if data_list[i]=='remove':
+    #         data_list.pop(i)
+    #
+    # if len(data_list)!=len(temp_list):
+    #     error_obj.Something_Wrong(Feature_Extraction.__name__)
+    #     exit(1)
 
 
     print('Aligning PDB with Pymol')

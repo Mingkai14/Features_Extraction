@@ -1204,14 +1204,14 @@ def Read_XLS(Raw_Dataset_File):
         for j in range(column):
             list_.append(rs.cell_value(i, j))
         Raw_Data_List.append(list_)
-    temp_list=[]
-    for data_list in Raw_Data_List:
-        unique=data_list[0]+'_'+data_list[1]+'_'+str(data_list[2])
-        temp_list.append(unique)
-    temp_set=set(temp_list)
-    if len(temp_list)!=len(temp_set):
-        error_obj.Something_Wrong(Read_XLS.__name__, 'has repeated data')
-        exit(1)
+    # temp_list=[]
+    # for data_list in Raw_Data_List:
+    #     unique=data_list[0]+'_'+data_list[1]+'_'+str(data_list[2])
+    #     temp_list.append(unique)
+    # temp_set=set(temp_list)
+    # if len(temp_list)!=len(temp_set):
+    #     error_obj.Something_Wrong(Read_XLS.__name__, 'has repeated data')
+    #     exit(1)
     return Raw_Data_List
 
 
