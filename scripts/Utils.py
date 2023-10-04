@@ -136,7 +136,8 @@ def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Pat
 
 def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,pH,temperature,ddg,raw_pdb_path,w_pdb_path,m_pdb_path,raw_fasta_path,m_fasta_path,wt_pssm_data_path,mut_pssm_data_path,wt_psi_blast_data_path,mut_psi_blast_data_path):
     try:
-        id=raw_pdb_num+'_'+chain_id+'_'+mut_info
+        pH_T = str(pH).replace('.', '') + str(temperature).replace('.', '')
+        id=raw_pdb_num+'_'+chain_id+'_'+mut_info+'_'+pH_T
         wt_aa_short=mut_info[0]
         mut_aa_short=mut_info[len(mut_info)-1]
         foo=str(mut_info).replace(wt_aa_short,'').replace(mut_aa_short,'')
@@ -242,7 +243,8 @@ def Prepare(table_path,clean_path,res_table_name,raw_pdb_num,mut_info,chain_id,p
 
 def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_info,chain_id,pH,temperature,w_pdb_path,m_pdb_path,raw_fasta_path,m_fasta_path,wt_pssm_data_path,mut_pssm_data_path,wt_psi_blast_data_path,mut_psi_blast_data_path):
     try:
-        id = pdb_name + '_' + chain_id + '_' + mut_info
+        pH_T = str(pH).replace('.', '') + str(temperature).replace('.', '')
+        id = pdb_name + '_' + chain_id + '_' + mut_info+'_'+pH_T
         wt_aa_short=mut_info[0]
         mut_aa_short=mut_info[-1]
         foo=str(mut_info).replace(wt_aa_short,'').replace(mut_aa_short,'')
@@ -368,7 +370,8 @@ def Add_Reverse_Data(table_path,table_name):
             if line.find('\n')==-1:
                 line=line+'\n'
             backup_lines.append(line)
-            new_id=id.split('_')[0]+'_'+id.split('_')[1]+'_'+mut_aa_short+loc+wt_aa_short
+            pH_T = str(pH).replace('.', '') + str(temperature).replace('.', '')
+            new_id=id.split('_')[0]+'_'+id.split('_')[1]+'_'+mut_aa_short+loc+wt_aa_short+'_'+pH_T
             l=f'{new_id},{mut_aa_short},{wt_aa_short},{loc},{t_loc},{mut_pdb_name},{mut_pdb_path},{wt_pdb_name},{wt_pdb_path},{mut_fasta_path},{wt_fasta_path},{mut_pssm_path},{wt_pssm_path},{mut_psi_blast_path},{wt_psi_blast_path},{mut_blastp_path},{wt_blastp_path},{pH},{temperature},{str(-float(ddg))},{is_beta}\n'
             backup_lines.append(l)
     with open(table_path+table_name,'w') as w_table:
@@ -1204,14 +1207,14 @@ def Read_XLS(Raw_Dataset_File):
         for j in range(column):
             list_.append(rs.cell_value(i, j))
         Raw_Data_List.append(list_)
-    # temp_list=[]
-    # for data_list in Raw_Data_List:
-    #     unique=data_list[0]+'_'+data_list[1]+'_'+str(data_list[2])
-    #     temp_list.append(unique)
-    # temp_set=set(temp_list)
-    # if len(temp_list)!=len(temp_set):
-    #     error_obj.Something_Wrong(Read_XLS.__name__, 'has repeated data')
-    #     exit(1)
+    temp_list=[]
+    for data_list in Raw_Data_List:
+        unique=data_list[0]+'_'+data_list[1]+'_'+str(data_list[2])+'_'+str(data_list[4]).replace('.','')+str(data_list[5]).replace('.','')
+        temp_list.append(unique)
+    temp_set=set(temp_list)
+    if len(temp_list)!=len(temp_set):
+        error_obj.Something_Wrong(Read_XLS.__name__, 'has repeated data')
+        exit(1)
     return Raw_Data_List
 
 
