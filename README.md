@@ -113,7 +113,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
    
    R 
    
-   >install.package("bio3d")
+   >install.packages("bio3d")
 
 ## 9. Make sure all file have run permission
   Do this:
