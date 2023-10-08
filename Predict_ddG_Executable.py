@@ -25,10 +25,16 @@ if __name__ == '__main__':
     parser.add_argument('--T', type=float, default=0.0)
     parser.add_argument('--db_folder_path', type=str, default='')
     parser.add_argument('--db_name', type=str, default='')
-    parser.add_argument('--psiblast_threads_num', type=int, default=4)
+    parser.add_argument('--blast_process_num', type=int, default=1)
     parser.add_argument('--container_type', type=str, default='D')
     parser.add_argument('--mode', type=str, default='whole')
     parser.add_argument('--process_num', type=int, default=1)
+
+    current_directory = os.getcwd()
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    if current_directory!=script_directory:
+        error_obj.Something_Wrong(__name__,"Please cd to top folder of program!!!")
+        exit(1)
 
     print('Processing input arguments')
 
@@ -41,12 +47,12 @@ if __name__ == '__main__':
     T=args.T
     db_fold_path=args.db_folder_path
     db_name=args.db_name
-    psi_threads_num=args.psiblast_threads_num
+    blast_process_num=args.blast_process_num
     container_type=args.container_type
     mode=args.mode
     process_num=args.process_num
 
-    if pdb_name=='' or pdb_path=='' or vari_info=='' or chain=='' or pH==0.0 or T==0.0 or db_fold_path=='' or db_name=='' or psi_threads_num<1 or psi_threads_num>40 or container_type not in ['D','S'] or args.process_num>40 or args.process_num<1:
+    if pdb_name=='' or pdb_path=='' or vari_info=='' or chain=='' or pH==0.0 or T==0.0 or db_fold_path=='' or db_name=='' or blast_process_num<1 or blast_process_num>200 or container_type not in ['D','S'] or args.process_num>200 or args.process_num<1:
         error_obj.Something_Wrong(__name__, 'Incomplete agruments')
         exit(1)
 
@@ -88,14 +94,14 @@ if __name__ == '__main__':
 
     scripts.Global_Value.MSA_DB_Path = db_fold_path
     scripts.Global_Value.MSA_DB_Name = db_name
-    scripts.Global_Value.Psi_Threads_Num = psi_threads_num
+    scripts.Global_Value.BLAST_Process_Num = blast_process_num
     scripts.Global_Value.D_or_S = container_type
     scripts.Global_Value.Mode = mode
     scripts.Global_Value.Process_Num = process_num
     scripts.Global_Value.Is_Pred=1
 
 
-    print(f'Your input arguments:\n--pdb_path:{pdb_path}\n--variation:{vari_info}\n--chain:{chain}\n--pH:{pH}\n--T:{T}\n--db_folder_path:{scripts.Global_Value.MSA_DB_Path}\n--db_name:{scripts.Global_Value.MSA_DB_Name}\n--psiblast_threads_num:{scripts.Global_Value.Psi_Threads_Num}\n--container_type:{scripts.Global_Value.D_or_S}\n--mode:{scripts.Global_Value.Mode}\n--process_num:{scripts.Global_Value.Process_Num}\n')
+    print(f'Your input arguments:\n--pdb_path:{pdb_path}\n--variation:{vari_info}\n--chain:{chain}\n--pH:{pH}\n--T:{T}\n--db_folder_path:{scripts.Global_Value.MSA_DB_Path}\n--db_name:{scripts.Global_Value.MSA_DB_Name}\n--blast_process_num:{scripts.Global_Value.BLAST_Process_Num}\n--container_type:{scripts.Global_Value.D_or_S}\n--mode:{scripts.Global_Value.Mode}\n--process_num:{scripts.Global_Value.Process_Num}\n')
 
     print('Generate_Raw_Dataset of your input')
     if not Generate_Raw_Dataset_for_Pred(pdb_name,vari_info,chain,pH,T,pdb_path,Pred_Raw_Dataset_Path,Pred_Raw_Dataset_Name):

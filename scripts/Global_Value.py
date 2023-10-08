@@ -2,7 +2,7 @@ import os
 
 Is_Use_Reverse_Data=True
 
-Psi_Threads_Num=4
+BLAST_Process_Num=4
 
 Process_Num=1
 

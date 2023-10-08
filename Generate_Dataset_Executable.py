@@ -18,14 +18,20 @@ if __name__ == '__main__':
     parser.add_argument('--db_folder_path', type=str, default='')
     parser.add_argument('--db_name', type=str, default='')
     parser.add_argument('--if_reversed_data', type=int, default=1)
-    parser.add_argument('--psiblast_threads_num', type=int, default=4)
+    parser.add_argument('--blast_process_num', type=int, default=1)
     parser.add_argument('--container_type', type=str, default='D')
     parser.add_argument('--mode',type=str,default='whole')
     parser.add_argument('--process_num', type=int, default=1)
 
+    current_directory = os.getcwd()
+    script_directory = os.path.dirname(os.path.abspath(__file__))
+    if current_directory!=script_directory:
+        error_obj.Something_Wrong(__name__,"Please cd to top folder of program!!!")
+        exit(1)
+
     print('Processing input arguments')
     args = parser.parse_args()
-    if args.raw_dataset_path=='' or args.db_folder_path=='' or args.db_name=='' or args.if_reversed_data not in [0,1] or args.psiblast_threads_num<1 or args.psiblast_threads_num>40 or args.process_num>40 or args.process_num<1:
+    if args.raw_dataset_path=='' or args.db_folder_path=='' or args.db_name=='' or args.if_reversed_data not in [0,1] or args.blast_process_num<1 or args.blast_process_num>200 or args.process_num>200 or args.process_num<1:
         error_obj.Something_Wrong(__name__)
         exit(1)
     if str(args.raw_dataset_path).split('.')[len(str(args.raw_dataset_path).split('.'))-1]!='xls':
@@ -48,12 +54,12 @@ if __name__ == '__main__':
     scripts.Global_Value.MSA_DB_Path=args.db_folder_path
     scripts.Global_Value.MSA_DB_Name=args.db_name
     scripts.Global_Value.Is_Use_Reverse_Data=args.if_reversed_data
-    scripts.Global_Value.Psi_Threads_Num=args.psiblast_threads_num
+    scripts.Global_Value.BLAST_Process_Num=args.blast_process_num
     scripts.Global_Value.D_or_S = args.container_type
     scripts.Global_Value.Mode = args.mode
     scripts.Global_Value.Process_Num = args.process_num
 
-    print(f'Your input arguments:\n--raw_dataset_path:{scripts.Global_Value.Raw_Dataset_file}\n--db_folder_path:{scripts.Global_Value.MSA_DB_Path}\n--db_name:{scripts.Global_Value.MSA_DB_Name}\n--if_reversed_data:{scripts.Global_Value.Is_Use_Reverse_Data}\n--psiblast_threads_num:{scripts.Global_Value.Psi_Threads_Num}\n--container_type:{scripts.Global_Value.D_or_S}\n--mode:{scripts.Global_Value.Mode}\n--process_num:{scripts.Global_Value.Process_Num}\n')
+    print(f'Your input arguments:\n--raw_dataset_path:{scripts.Global_Value.Raw_Dataset_file}\n--db_folder_path:{scripts.Global_Value.MSA_DB_Path}\n--db_name:{scripts.Global_Value.MSA_DB_Name}\n--if_reversed_data:{scripts.Global_Value.Is_Use_Reverse_Data}\n--blast_process_num:{scripts.Global_Value.BLAST_Process_Num}\n--container_type:{scripts.Global_Value.D_or_S}\n--mode:{scripts.Global_Value.Mode}\n--process_num:{scripts.Global_Value.Process_Num}\n')
 
     if scripts.Global_Value.D_or_S=='D':
         print('Initing Docker')
