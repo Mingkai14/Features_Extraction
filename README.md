@@ -96,6 +96,8 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   DSSP was used to calculate RSA and secondary stuctures. Due to version issues, you must do operations below to make DSSP can be used.
   
   Do this: 
+
+  conda activate Features_Extraction
   
   whereis mkdssp
   
