@@ -68,7 +68,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
 
   You need to prepare your own Blast database. 
 
-  You need to download fasta database file first. We used uniref50.fasta file.
+  You need to download fasta database file first. We used uniref50.fasta file (https://ftp.uniprot.org/pub/databases/uniprot/uniref/).
 
   We recommend you use blast+ 2.13.0 version.And there is a existing blast+ program folder in our program. Recommend you direct use this. 
 
