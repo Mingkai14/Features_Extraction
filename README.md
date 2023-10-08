@@ -76,7 +76,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   
   conda activate Features_Extraction
 
-  要求conda大于23
+  要求conda大于23, gcc版本大于10.3
 
 ## 6. Configure Modeller
   Modeller was used to generate mutation structures, it was already installed by conda. But it also need a license.
