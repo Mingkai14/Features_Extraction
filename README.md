@@ -1,5 +1,4 @@
 
-This software has three parts: 1. Extract features from raw data of ddG 2. Train models and evaluate 3. predict ddG. 
 
 # Function:
 
