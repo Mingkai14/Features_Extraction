@@ -70,11 +70,13 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   
   Do this: 
   
-  (Do not forget change prefix in requirements.yml)
+  (Do not forget change prefix in environment.yml)
   
-  conda env create -f requirements.yml python=3.10
+  conda env create -f environment.yml
   
   conda activate Features_Extraction
+
+  要求conda大于23
 
 ## 6. Configure Modeller
   Modeller was used to generate mutation structures, it was already installed by conda. But it also need a license.
