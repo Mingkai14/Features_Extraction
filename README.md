@@ -88,7 +88,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
    
    > install.packages("bio3d")
 
-### (7). Make sure all file have run permission
+### (7). Make sure all files have run permission
   Do this:
   
   cd Your_Path/Features_Extraction
@@ -127,13 +127,22 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
 #### c. Arguments:
   --pred_dataset_path  
   Provide a xls file path, the file include data you want to predict.  
-  File must be xls format and it has several attributes:   
-    Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)  
-    PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)  
-    Variation (Specify the mutated amino acid, the mutation site number consistent with the PDB file, and the desired mutated amino acid. like: A100S)  
-    Chain (Specify the chain number mutated amino acid located, consistent with the PDB file)  
-    pH (Specify pH)  
-    T (Specify temperature)  
+  
+  File must be xls format and it has several attributes:
+  | Name | PDB_File_Path | Variation | Chain | pH | T |
+  | ------- | ------- | ------- |
+
+    <small>Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</small>  
+    
+    <small>PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)</small>  
+    
+    <small>Variation (Specify the mutated amino acid, the mutation site number consistent with the PDB file, and the desired mutated amino acid. like: A100S)</small>  
+    
+    <small>Chain (Specify the chain number mutated amino acid located, consistent with the PDB file)</small>  
+    
+    <small>pH (Specify pH)</small>  
+    
+    <small>T (Specify temperature)</small>  
 
   There is a sample file in Your_Path/Features_Extraction/src/sample_pred.xls  
   
@@ -160,31 +169,6 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
 ### c. Output:
 There will be a output xls file in Your_Path/Features_Extraction/Pred_Res/, recording prediction results. 
 
-## 2. Train_and_Evaluate_Models_Executable.py
-
-### a. Description
-  This python program aims to train and evaluate models from dataset after feature extraction. Program will read features_table.csv from Features_Table/    folder, so you must run Generate_Dataset_Executable.py first and don't move its output file.
-
-  You can run program Like:
-  (I assume you already run Generate_Dataset_Executable.py first, and features_table.csv is generated)
-  
-  conda activate Features_Extraction
-
-  cd Your_Path/Features_Extraction/
-
-  python Train_and_Evaluate_Models_Executable.py 
-  --model_type XGB
-  --model_saving_path ./models/
-
-### b. Arguments:
-
-  --model_type represents which model you want to train, which must be in these options: "XGB", "SVR", "RF", "LR", "DTR", "ABR".
-
-  --model_saving_path represents you want to save model file to which folder
-
-### c. Output:
-  Program will generate a model file and a StandardScaler file corresponding to your chosen model_type to your chosen folder. It also will print
-  evaluation infomaton to console.
 
 
 
