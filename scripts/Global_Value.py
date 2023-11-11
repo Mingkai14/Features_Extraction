@@ -41,8 +41,6 @@ Pred_Res_Path='./src/Pred_Res/'
 
 Is_Pred=0
 
-Pred_Raw_Dataset_Path='./src/Pred_Raw_Dataset/'
-Pred_Raw_Dataset_Name='pred_raw.xls'
 
 
 Ring_Path='./bin/ring-3.0.0/ring/bin/'

@@ -76,7 +76,7 @@ def Get_Mutation_Description(wt_aa:Researched_Amino_Acid,mut_aa:Researched_Amino
     mutation_des_by_ss=secondary_structure_encode[temp]
     return [wt_encode,mut_encode,mutation_des,mutation_des_by_ss]
 
-def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path,Pred_PDB_Path=''):
+def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Path,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
     count=0
     wrong_count=0
     right_count=0
@@ -107,26 +107,27 @@ def Prepare_Table(Raw_Data_List,Table_Path,Res_Table_Name,Clean_Path,Raw_PDB_Pat
                 continue
             right_count+=1
         else:
-            Raw_PDB_Name=Raw_Data[0]
-            Mut_Info=Raw_Data[1]
-            if isinstance(Raw_Data[2], str):
-                Chain_ID = Raw_Data[2]
+            PDB_Name=Raw_Data[0]
+            PDB_Path=Raw_Data[1]
+            Mut_Info=Raw_Data[2]
+            if isinstance(Raw_Data[3], str):
+                Chain_ID = Raw_Data[3]
             else:
                 try:
-                    Chain_ID = str(int(Raw_Data[2]))
+                    Chain_ID = str(int(Raw_Data[3]))
                 except:
-                    error_obj.Something_Wrong(Prepare, f'Check xls file {Raw_PDB_Num}')
+                    error_obj.Something_Wrong(Prepare, f'Check xls file {PDB_Name}')
                     wrong_count += 1
                     continue
-            pH=Raw_Data[3]
-            T=Raw_Data[4]
-            if str(Raw_PDB_Name).find('_')!=-1:
-                error_obj.Something_Wrong(Prepare,f'Check xls file {Raw_PDB_Name}')
+            pH=Raw_Data[4]
+            T=Raw_Data[5]
+            if str(PDB_Name).find('_')!=-1:
+                error_obj.Something_Wrong(Prepare,f'Check xls file {PDB_Name}')
                 wrong_count += 1
                 continue
             from scripts.Global_Value import Pred_Table_Path,Pred_Table_Name
-            if not Prepare_for_Pred(Pred_Table_Path,Clean_Path,Pred_Table_Name,Raw_PDB_Name,Pred_PDB_Path,Mut_Info,Chain_ID,pH,T,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
-                error_obj.Something_Wrong(__name__, Raw_Data[0] + '_' + Raw_Data[1])
+            if not Prepare_for_Pred(Pred_Table_Path,Clean_Path,Pred_Table_Name,PDB_Name,PDB_Path,Mut_Info,Chain_ID,pH,T,WT_PDB_Path,MUT_PDB_Path,WT_Fasta_Path,MUT_Fasta_Path,WT_PSSM_Data_Path,MUT_PSSM_Data_Path,WT_PSI_BLAST_Data_Path,MUT_PSI_BLAST_Data_Path):
+                error_obj.Something_Wrong(__name__, Raw_Data[0] + '_' + Raw_Data[2])
                 wrong_count += 1
                 continue
             right_count += 1
@@ -935,6 +936,9 @@ def Fetch_Chain_ID_from_Seq(loc:int,seq_dict:dict,wt_aa_for_test):
                     return key
 
 def Clean_Main_Directory():
+    if os.getcwd()+'/scripts/Utils.py' != os.path.abspath(__file__):
+        error_obj.Something_Wrong(Clean_Main_Directory.__name__)
+        exit(1)
     files=os.listdir('./')
     for file in files:
         if os.path.isdir(file):
@@ -1217,6 +1221,56 @@ def Read_XLS(Raw_Dataset_File):
         exit(1)
     return Raw_Data_List
 
+def Read_Pred_XLS(Raw_Dataset_File):
+    rb = xlrd.open_workbook(Raw_Dataset_File)
+    rs = rb.sheet_by_index(0)
+    rows = rs.nrows
+    column = rs.ncols
+    header=[]
+    for i in range(column):
+        header.append(rs.cell_value(0,i))
+    if header!=['Name','PDB_File_Path','Variation','Chain','pH','T']:
+        error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+        exit(1)
+    Raw_Data_List = []
+    for i in range(1, rows):
+        list_ = []
+        for j in range(column):
+            list_.append(rs.cell_value(i, j))
+        Raw_Data_List.append(list_)
+    for row in Raw_Data_List:
+        if len(row)!=6:
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            exit(1)
+        for item in row:
+            if item=='':
+                error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+                exit(1)
+        if str(row[1]).split('.')[-1]!='pdb':
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            exit(1)
+        if not os.path.exists(row[1]):
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            exit(1)
+        if not os.path.isabs(row[1]):
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'path of your pred_dataset must be abs path')
+            exit(1)
+        if len(row[0])>8:
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            exit(1)
+        if str(row[0]).find('_')!=-1:
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            exit(1)
+    temp_list=[]
+    for data_list in Raw_Data_List:
+        unique=data_list[0]+'_'+data_list[2]+'_'+str(data_list[3])+'_'+str(data_list[4]).replace('.','')+str(data_list[5]).replace('.','')
+        temp_list.append(unique)
+    temp_set=set(temp_list)
+    if len(temp_list)!=len(temp_set):
+        error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'has repeated data')
+        exit(1)
+    return Raw_Data_List
+
 
 
 
@@ -1287,7 +1341,7 @@ def Clean_All_Res_Folder(Table_Path,Features_Table_Path,Raw_PDB_Path,WT_PDB_Path
 def Clean_with_Error(docker_container_name):
     Clean_Main_Directory()
     Remove_FoldX_Resource()
-    if scripts.Global_Value.D_or_S=='D':
+    if scripts.Global_Value.D_or_S=='D'and scripts.Global_Value.Is_Pred==0:
         Docker_Remove_Container(docker_container_name)
 
 
