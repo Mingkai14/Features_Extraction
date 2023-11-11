@@ -1,6 +1,6 @@
+DDGWizard
 
-
-# Function:
+  DDGWizard is a pipeline for prediction of the changes in protein thermostability upon point mutation, based on broader feature space and data science process. 
 
   1. Pipeline of ddG features generating. Accept a raw data set, continuously call a series of software and scripts 
   to generate features data in a large scale. At present, there is no available specific software pipeline for 
