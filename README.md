@@ -7,43 +7,19 @@ DDGWizard has two parts: A. Prediction part for calculating ddG. B. Characteriza
 They have different useages: 
 
 
-# Environment preparation steps:
-## 1. Git clone this repository
+# A. Prediction Part
+
+## 1. Environment preparation steps
+
+### (1). Git clone this repository
 Do this:
 
 cd Your_Path/
 
 git clone https://github.com/Mingkai14/Features_Extraction.git
 
-## 2. Configure container evironment
 
-  In order to fix problems that some software can only run on specific system, we use container to run these software. Our script will automatically call commands to run container. 
-  Docker and Singularity are supported. You only need to configure one of both, program will call it.
-
-  ### a. use docker
-[Install Docker Engine | Docker Documentation](https://docs.docker.com/engine/install/)
-  Follow docker official instructions to install docker. 
-  
-  You must add your user to docker super privilege user group, which should have set when docker  
-  was installed. 
-  
-  Do this: 
-  
-  sudo usermod -aG docker Your_User_Name
-  
-  And restart your linux system.
-  
-  Then load docker image from software folder.
-  
-  Do this: 
-  
-  docker load -i Your_Path/Features_Extraction/src/Prof_Source/myprof.tar
-
-  ### b. use singularity 
-[Quick Start — Singularity User Guide 3.7 documentation (sylabs.io)](https://docs.sylabs.io/guides/3.7/user-guide/quick_start.html#quick-installation-steps)
-   Follow singularity official instructions to install singularity 
-
-## 3. Create conda virtual environment and install conda dependencies
+### (2). Create conda virtual environment and install conda dependencies
   Conda yml file in Your_Path/Features_Extraction/src/environment.yml.
 
   Your gcc version must be greater than 4.8.5 and conda version must be greater than 23.0.
@@ -58,13 +34,13 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   
   conda activate Features_Extraction
 
-## 4. Create your Blast database 
+### (3). Create your Blast database 
 
   You need to prepare your own Blast database. 
 
   You need to download fasta database file first. We used uniref50.fasta file (https://ftp.uniprot.org/pub/databases/uniprot/uniref/).
 
-  We recommend you use blast+ 2.13.0 version.And there is a existing blast+ program folder in our program. Recommend you direct use this. 
+  We recommend you use blast+ 2.13.0 version.And there is a existing blast+ program folder in our program. Recommend you directly use this. 
 
   Do this:
 
@@ -74,15 +50,19 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
 
   ./makeblastdb -in Your_Path/uniref50.fasta -dbtype prot -out Your_Path/Your_DB_Name -parse_seqids
 
-## 5. Download and unzip FoldX Linux version
+### (4). Download and unzip FoldX Linux version
+
+If you use DDGWizard before 31/12/2023, please skip this step.
+
+ There is already a FoldX bin program in Your_Path/Features_Extraction/bin/FoldX_5.0/, but it will be expired on 31/12/2023. If it is expired, you should 
+ delete all files in there and unzip your FoldX 5.0 to this folder.
+
 [Homepage | FoldX (crg.eu)](https://foldxsuite.crg.eu/)
  Register and download FoldX Linux version from official website.
 
- There is already a FoldX bin program in Your_Path/Features_Extraction/bin/FoldX_5.0/, but it may expire. You should 
- delete all files in there and unzip your FoldX 5.0 to this folder.
 
 
-## 6. Configure Modeller
+### (5). Configure Modeller
   Modeller was used to generate mutation structures, it was already installed by conda. But it also need a license.
   
 [Registration (salilab.org)](https://salilab.org/modeller/registration.html)
@@ -96,7 +76,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
 
   Then Modeller can be used. 
 
-## 7. Configure DSSP
+### (6). Configure DSSP
   DSSP was used to calculate RSA and secondary stuctures. Due to version issues, you must do operations below to make DSSP can be used.
   
   Do this: 
@@ -109,7 +89,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   
   cp mkdssp dssp
 
-## 8. Configure R
+### (7). Configure R
    You also need to configure R and install R package "Bio3D"
    (I assume you have already installed R)
    
@@ -119,7 +99,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
    
    > install.packages("bio3d")
 
-## 9. Make sure all file have run permission
+### (8). Make sure all file have run permission
   Do this:
   
   cd Your_Path/Features_Extraction
@@ -127,14 +107,18 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   chmod -R +x .
   
 
-# Usage: 
-  You must cd to the top folder to run and make sure you are in Features_Extraction virtual environment and finish environment preparation. 
+## Usage:
 
-## 1. Generate_Dataset_Executable.py
+### (1). Tips
+  You must cd to the top folder to run and make sure you are in Features_Extraction virtual environment and finish environment preparation.
 
-### a. Description
-  This python program aims to extract features from raw data. You need to provide a raw dataset, blast database for multiple sequence alignment and some 
-  addional arguments.
+  DDGWizard itself supports multiprocessing. We recommend utilizing our built-in multiprocessing fuction. Avoid running DDGWizard multiple times in the same folder, as conflicts may arise when the program matches files. If you genuinely need to implement multiprocessing or multithreading for running DDGWizard by your self, please make copies of the DDGWizard folder. Ensure that each instance of the DDGWizard program running in different processes/threads resides in a separate folder.
+
+### (2). Predict_ddG_Executable.py
+
+#### a. Description
+  This python program aims to predict ddG.
+#### b. Example
 
   You can run program Like:
   
@@ -142,42 +126,42 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   
   cd Your_Path/Features_Extraction/
   
-  python Generate_Dataset_Executable.py 
-  --raw_dataset_path Your_Raw_Dataset/dataset.xls 
+  python Predict_ddG_Executable.py
+  --pred_dataset_path your_dataset.xls 
   --db_folder_path Your_Path/blast_db_folder/ 
   --db_name db_name 
   --if_reversed_data 1 
-  --psiblast_threads_num 8 
-  --container_type D 
+  --blast_process_num 4  
   --mode whole 
-  --process_num 8
+  --process_num 4
 
-### b. Arguments:
-  --raw_dataset_path represent your raw data path.
-  
-  It must save as xls format. 
-  
-  The first row must have these attributes: 
-  
-  PDB, Variation, Chain, ddG, pH, T 
-  
-  A sample file is in Your_Path/Features_Extraction/src/sample.xls.
-  
-  --db_folder_path represent folder path of your blast database.
-  
-  --db_name represent your blast database name.
-  
-  --if_reversed_data represent if reverse data. Since 2018, many ddg predictors start to use inverse data to train based 
-  on a theory that forward mutation ddG equal with the negative number of reverse mutation ddG. 
-  
-  Refer to this paper:
-  [On the critical review of five machine learning-based algorithms for predicting protein stability changes upon mutation | Briefings in Bioinformatics | Oxford Academic (oup.com).](https://academic.oup.com/bib/article/22/1/601/5688895?searchresult=1)
+#### c. Arguments:
+  --pred_dataset_path 
+  Provide a xls file path, the file including data you want to predict
+  File must be xls format and it has several attributes: 
+    Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)
+    PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)
+    Variation (Specify the mutated amino acid, the mutation site number consistent with the PDB file, and the desired mutated amino acid. like: A100S)
+    Chain (Specify the chain number mutated amino acid located, consistent with the PDB file)
+    pH (Specify pH)
+    T (Specify temperature)
 
-  --psiblast_threads_num represent threads number to run PSI-Blast, which is limited from 1-40.
+  There is a sample file under ...
+  
+  --db_folder_path 
+  Provide folder path of your blast database.
+  
+  --db_name 
+  Provide your blast database name.
+  
+  --if_reversed_data 
+  Provide 0 or 1, indicate if you also want to predict reverse mutations.  
 
-  --container_type "D" represent use docker, "S" represent use singularity
+  --blast_process_num 4
+  Provide a number less than 200 and greater than 0. DDGWizard will run blast in multi-process.
 
-  --mode "model_only" mean only generate mutation models, "blast_only" mean only generate blast output files, "whole" mean completely process.
+  --mode 
+  Default is "whole". DDGWizard will run complete processes. "model_only" mean only generate mutation structures. "blast_only" mean only generate 
   
   You can generate features by separate sections. "model_only" and "blast_only" will gernerate and save files required by "whole". When run "whole",
   if it find you already have required files, it won't run "model_only" and "blast_only" again. So you can continuously run "model_only", "blast_only",   
@@ -268,6 +252,42 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
 
 ### c. Output:
   It will print predicted ddG value.
+
+
+
+
+
+
+
+
+
+  ### 2. Configure container evironment
+
+  In order to fix problems that some software can only run on specific system, we use container to run these software. Our script will automatically call commands to run container. 
+  Docker and Singularity are supported. You only need to configure one of both, program will call it.
+
+  ### a. use docker
+[Install Docker Engine | Docker Documentation](https://docs.docker.com/engine/install/)
+  Follow docker official instructions to install docker. 
+  
+  You must add your user to docker super privilege user group, which should have set when docker  
+  was installed. 
+  
+  Do this: 
+  
+  sudo usermod -aG docker Your_User_Name
+  
+  And restart your linux system.
+  
+  Then load docker image from software folder.
+  
+  Do this: 
+  
+  docker load -i Your_Path/Features_Extraction/src/Prof_Source/myprof.tar
+
+  ### b. use singularity 
+[Quick Start — Singularity User Guide 3.7 documentation (sylabs.io)](https://docs.sylabs.io/guides/3.7/user-guide/quick_start.html#quick-installation-steps)
+   Follow singularity official instructions to install singularity 
   
 
 
