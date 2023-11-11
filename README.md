@@ -126,14 +126,14 @@ If you use DDGWizard before 31/12/2023, please skip this step.
   
   cd Your_Path/Features_Extraction/
   
-  python Predict_ddG_Executable.py
-  --pred_dataset_path your_dataset.xls 
-  --db_folder_path Your_Path/blast_db_folder/ 
-  --db_name db_name 
-  --if_reversed_data 1 
-  --blast_process_num 4  
-  --mode whole 
-  --process_num 4
+  python Predict_ddG_Executable.py  
+  --pred_dataset_path your_dataset.xls   
+  --db_folder_path Your_Path/blast_db_folder/   
+  --db_name db_name   
+  --if_reversed_data 1   
+  --blast_process_num 4    
+  --mode whole   
+  --process_num 4  
 
 #### c. Arguments:
   --pred_dataset_path 
@@ -161,20 +161,15 @@ If you use DDGWizard before 31/12/2023, please skip this step.
   Provide a number less than 200 and greater than 0. DDGWizard will run blast in multi-process.
 
   --mode 
-  Default is "whole". DDGWizard will run complete processes. "model_only" mean only generate mutation structures. "blast_only" mean only generate 
-  
-  You can generate features by separate sections. "model_only" and "blast_only" will gernerate and save files required by "whole". When run "whole",
-  if it find you already have required files, it won't run "model_only" and "blast_only" again. So you can continuously run "model_only", "blast_only",   
-  "whole". This mechanism is to prevent the program from running too long. 
+  Default is "whole". DDGWizard will run complete processes. "model_only" mean only generate mutation structures. "blast_only" mean only run blast. When there is a large amount of data to be processed, this mechanism allows the task to be completed in segments.
 
-  --process_num Multiple process number, which is limited from 1-40
+  --process_num 
+  Provide a number less than 200 and greater than 0. DDGWizard will calculate data in multi-process.
 
   
 
 ### c. Output:
-  After running, it will generate a csv file name features_table.csv in: 
-  
-  Your_Path/Features_Extraction/src/Features_Table/
+There will be a xls file under ...
 
 ## 2. Train_and_Evaluate_Models_Executable.py
 
@@ -214,17 +209,17 @@ If you use DDGWizard before 31/12/2023, please skip this step.
    cd Your_Path/Features_Extraction/
 
    python Predict_ddG_Executable.py
-   --pdb_name Your_PDB_Name
-   --pdb_path Your_PDB_File_Path/example.pdb
-   --variation A100S
-   --chain A
-   --pH 7
-   --T 25
-   --db_folder_path Your_Path/blast_db_folder/ 
-   --db_name db_name 
-   --psiblast_threads_num 8
-   --container_type D
-   --mode whole
+   --pdb_name Your_PDB_Name  
+   --pdb_path Your_PDB_File_Path/example.pdb  
+   --variation A100S  
+   --chain A  
+   --pH 7  
+   --T 25  
+   --db_folder_path Your_Path/blast_db_folder/   
+   --db_name db_name   
+   --psiblast_threads_num 8  
+   --container_type D  
+   --mode whole  
 
 ### b. Arguments:
   --pdb_name represents your PDB name, it will be as ID of this task
