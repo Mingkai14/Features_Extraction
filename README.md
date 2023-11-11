@@ -101,7 +101,7 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
 ### (1). Tips
   You must cd to the top folder of DDGWizard to run and make sure you are in Features_Extraction virtual environment and finish environment preparation.
 
-  DDGWizard itself supports multiprocessing. We recommend utilizing our built-in multiprocessing fuction. Avoid running DDGWizard multiple times in the same folder, as conflicts may arise when the program matches files. If you genuinely need to implement multiprocessing or multithreading for running DDGWizard by your self, please make copies of the DDGWizard folder. Ensure that each instance of the DDGWizard program running in different processes/threads resides in a separate folder.
+  DDGWizard itself supports multiprocessing. We recommend utilizing our built-in multiprocessing fuction. Avoid running multiple DDGWizard in the same time and in the same folder, as conflicts may arise when the program matches files. If you genuinely need to implement multiprocessing or multithreading for running DDGWizard by yourself, please make copies of the DDGWizard folder. Ensure that each instance of the DDGWizard program running in different processes/threads resides in a separate folder.
 
 ### (2). Predict_ddG_Executable.py
 
@@ -209,7 +209,8 @@ There will be a output xls file in Your_Path/Features_Extraction/Pred_Res/, reco
 ### (1). Tips
   You must cd to the top folder of DDGWizard to run and make sure you are in Features_Extraction virtual environment and finish environment preparation.
 
-  DDGWizard itself supports multiprocessing. We recommend utilizing our built-in multiprocessing fuction. Avoid running DDGWizard multiple times in the same folder, as conflicts may arise when the program matches files. 
+  DDGWizard itself supports multiprocessing. We recommend utilizing our built-in multiprocessing fuction. Avoid running multiple DDGWizard in the same time and in the same folder, as conflicts may arise when the program matches files.  
+
 
 ### (2). Generate_Dataset_Executable.py
 
