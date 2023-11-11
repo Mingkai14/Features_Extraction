@@ -1,16 +1,9 @@
 DDGWizard
 
-  DDGWizard is a pipeline for prediction of the changes in protein thermostability upon point mutation, based on broader feature space and data science process. 
+  DDGWizard is a pipeline for prediction of the changes in protein thermostability (ΔΔG/ddG) upon point mutation, based on broader feature space and data science process. DDGWizard continuously calls a series of software to extract features, then carries out RFE (Recursive Feature Elimination) feature selection and XGBoost machine learning. DDWizard generates HRMs (Hypothetical Reverse Mutations) involved in training to increase prediction ability of forward and reverse mutations, and according to benchmarking, it has achieved superior or comparable predictive performance to state-of-the-art algorithms. DDGWizard supports multi-process handling to meet the needs of large-scale computations, and its generation of 1547 relevant features makes it an equally effective tool for protein thermodynamic characterization.
 
-  1. Pipeline of ddG features generating. Accept a raw data set, continuously call a series of software and scripts 
-  to generate features data in a large scale. At present, there is no available specific software pipeline for 
-  generating feature data of ddG prediction. This pipeline collects and compares the most of software used in 
-  other ddg predictors, and meanwhile, adds some new software to extract features. The generated features can not only
-  be used to predict ddG, but also have described protein stability and can be used to predict other indicators
-  of protein stability (e.g. dTm).
-
-  2. Prediction of ddG. According to features we generated, we have trained models (AdaBoost Regressor, Decision Tree Regression, SVM Regression, Linear 
-  Regression, Random Forest Regression, XG Boost Regression) and implemented predicting function.
+DDGWizard has two parts: A. Prediction part for calculating ddG. B. Characterization part for generating feature set to describe protein thermodynamics. 
+They have different useages: 
 
 
 # Environment preparation steps:
