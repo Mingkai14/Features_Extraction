@@ -1,8 +1,8 @@
 # DDGWizard
 
-  DDGWizard is a software pipeline for prediction of the changes in protein thermostability (ΔΔG/ddG) upon point mutation, based on broader feature space and data science process. DDGWizard continuously calls a series of software to extract features, then carries out RFE (Recursive Feature Elimination) feature selection and XGBoost machine learning. DDWizard generates HRMs (Hypothetical Reverse Mutations) involved in training to increase prediction ability of forward and reverse mutations, and according to benchmarking, it has achieved superior or comparable predictive performance to state-of-the-art algorithms. DDGWizard supports multi-process handling to meet the needs of large-scale computations, and its generation of 1547 relevant features makes it an equally effective tool for protein thermodynamic characterization.  
+  DDGWizard is a software pipeline for prediction of the changes in protein thermostability (ΔΔG/ddG) upon point mutation, based on broader feature space and data science process. DDGWizard continuously calls a series of software to extract features, then carries out RFE (Recursive Feature Elimination) feature selection and XGBoost machine learning. DDWizard generates HRMs (Hypothetical Reverse Mutations) involving in training to enhance prediction ability of forward and reverse mutations, and according to benchmarking, it has achieved superior or comparable predictive performance to state-of-the-art algorithms. DDGWizard supports multi-process handling to meet the needs of large-scale computations, and its generation of 1547 relevant features makes it an equally effective tool for protein thermodynamic characterization.  
 
-DDGWizard has two parts: A. Prediction part for calculating ddG. B. Characterization part for generating feature set to describe protein thermodynamics.   
+DDGWizard has two parts: A. Prediction part, for calculating ddG. B. Characterization part, for generating feature set to describe protein thermodynamics.   
 
 They have different useages:   
 
@@ -178,9 +178,9 @@ There will be a output xls file in Your_Path/Features_Extraction/Pred_Res/, reco
 # B. Characterization Part
 ## 1. Environment preparation steps
 ### (1)(2)(3)(4)(5)(6)(7)
-  Complete same steps with Prediction part first.
+  Complete same steps as prediction part first.
 ### (8) Configure container evironment
-  Characterization part also run some software in specific linux system. To solve platform compatibility, we use container to run these software. Our script will automatically call commands to run container. Docker and Singularity are supported. You only need to configure one of both.
+  Characterization part also runs some software in specific linux system. To solve platform compatibility, we use container to run these software. Our script will automatically call commands to run container. Docker and Singularity are supported. You only need to configure one of both.
 
   #### a. use docker
 [Install Docker Engine | Docker Documentation](https://docs.docker.com/engine/install/)
@@ -203,10 +203,73 @@ There will be a output xls file in Your_Path/Features_Extraction/Pred_Res/, reco
 
   #### b. use singularity 
 [Quick Start — Singularity User Guide 3.7 documentation (sylabs.io)](https://docs.sylabs.io/guides/3.7/user-guide/quick_start.html#quick-installation-steps)
-   Follow singularity official instructions to install singularity. You don't need to additional configure using singularity.
+   Follow singularity official instructions to install singularity. You don't need to additionally configure using singularity.
 
 ## 2.Usage:
+### (1). Tips
+  You must cd to the top folder to run and make sure you are in Features_Extraction virtual environment and finish environment preparation.
 
+  DDGWizard itself supports multiprocessing. We recommend utilizing our built-in multiprocessing fuction. Avoid running DDGWizard multiple times in the same folder, as conflicts may arise when the program matches files. 
+
+### (2). Generate_Dataset_Executable.py
+
+#### a. Description
+  This python program aims to extract features from raw data. Its generation of 1547 features can assist protein thermodynamic characterization and prediction related with protein thermodynamics.   
+#### b. Example
+  You can run program Like:  
+  
+  conda activate Features_Extraction  
+  
+  cd Your_Path/Features_Extraction/  
+  
+  python Generate_Dataset_Executable.py  
+  --raw_dataset_path Your_Raw_Dataset/dataset.xls  
+  --db_folder_path Your_Path/blast_db_folder/  
+  --db_name db_name  
+  --if_reversed_data 1  
+  --blast_process_num 4  
+  --container_type D  
+  --mode whole  
+  --process_num 4  
+
+### b. Arguments:
+  --raw_dataset_path  
+  Provide your raw data path. It must save as xls format. The first row must have these attributes:  
+  
+    PDB, Variation, Chain, ddG, pH, T  
+  
+  A sample file is in Your_Path/Features_Extraction/src/sample.xls.  
+  
+  --db_folder_path  
+  Provide folder path of your blast database.  
+  
+  --db_name  
+  Provide your blast database name.  
+  
+  --if_reversed_data    
+  Provide 0 or 1, indicate if you want to generate features of reverse mutations.   
+
+  --blast_process_num 4  
+  Provide a number less than 200 and greater than 0. DDGWizard will run blast in multi-process.  
+
+  --container_type  
+  "D" means use docker, "S" means use singularity  
+
+  --mode "model_only" mean only generate mutation models, "blast_only" mean only generate blast output files, "whole" mean completely process.
+  
+  You can generate features by separate sections. "model_only" and "blast_only" will gernerate and save files required by "whole". When run "whole",
+  if DDGWizard find you already have required files, it won't run "model_only" and "blast_only" again. So you can continuously run "model_only", "blast_only",   
+  "whole". 
+
+  --process_num 4  
+  Provide a number less than 200 and greater than 0. DDGWizard will calculate data in multi-process. 
+
+  
+
+### c. Output:
+  After running, it will generate a csv file name features_table.csv in: 
+  
+  Your_Path/Features_Extraction/src/Features_Table/
 
 
 
