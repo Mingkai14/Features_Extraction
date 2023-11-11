@@ -128,9 +128,14 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   --pred_dataset_path  
   Provide a xls file path, the file include data you want to predict.  
   
-  File must be xls format and it has several attributes:
+  File must be xls format and it has several attributes:  
   | Name | PDB_File_Path | Variation | Chain | pH | T |
-  | ------- | ------- | ------- |
+  | ------- | ------- | ------- |  
+  
+| 列1标题 | 列2标题 | 列3标题 |
+| ------- | ------- | ------- |
+| 行1单元 | 行1单元 | 行1单元 |
+| 行2单元 | 行2单元 | 行2单元 |
 
     <small>Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</small>  
     
