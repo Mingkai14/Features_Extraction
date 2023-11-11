@@ -135,17 +135,17 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   | 1SHG | /.../.../1SHG.pdb | Y57H |  A | 7 | 24.8 |
   | 1SHG | /.../.../1SHG.pdb | A56E |  A | 3.2 | 54 |
   
-    <sup>Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</sup>  
+     Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)  
     
-    <span style="font-size:small">PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)</span>  
+     PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)  
     
-    <span style="font-size:small">Variation (Specify the mutated amino acid, the mutation site number consistent with the PDB file, and the desired mutated amino acid. like: Y57H)</span>  
+     Variation (Specify the mutated amino acid, the mutation site number consistent with the PDB file, and the desired mutated amino acid. like: Y57H)  
     
-    <span style="font-size:small">Chain (Specify the chain number mutated amino acid located, consistent with the PDB file)</span>  
+     Chain (Specify the chain number mutated amino acid located, consistent with the PDB file)  
     
-    <span style="font-size:small">pH (Specify pH)</span>  
+     pH (Specify pH)   
     
-    <span style="font-size:small">T (Specify temperature)</span>  
+     T (Specify temperature)  
 
   There is a sample file in Your_Path/Features_Extraction/src/sample_pred.xls  
   
