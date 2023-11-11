@@ -130,7 +130,8 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   
   File must be xls format and it has several attributes:  
   
-  | Name | PDB_File_Path | Variation | Chain | pH | T |  
+  | Name | PDB_File_Path | Variation | Chain | pH | T |
+  | ------- | ------- | ------- | ------ | ------ | ------ |
   | 1SHG | /.../.../1SHG.pdb | Y57H |  A | 7 | 25 |
   
     <span style="font-size:small">Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</span>  
