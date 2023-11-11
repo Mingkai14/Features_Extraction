@@ -132,9 +132,10 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   
   | Name | PDB_File_Path | Variation | Chain | pH | T |
   | ------- | ------- | ------- | ------ | ------ | ------ |
-  | 1SHG | /.../.../1SHG.pdb | Y57H |  A | 7 | 25 |
+  | 1SHG | /.../.../1SHG.pdb | Y57H |  A | 7 | 24.8 |
+  | 1SHG | /.../.../1SHG.pdb | A56E |  A | 3.2 | 54 |
   
-    <span style="font-size:small">Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</span>  
+    <sup>Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</sup>  
     
     <span style="font-size:small">PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)</span>  
     
