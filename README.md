@@ -129,25 +129,21 @@ git clone https://github.com/Mingkai14/Features_Extraction.git
   Provide a xls file path, the file include data you want to predict.  
   
   File must be xls format and it has several attributes:  
-  | Name | PDB_File_Path | Variation | Chain | pH | T |
-  | ------- | ------- | ------- |  
   
-| 列1标题 | 列2标题 | 列3标题 |
-| ------- | ------- | ------- |
-| 行1单元 | 行1单元 | 行1单元 |
-| 行2单元 | 行2单元 | 行2单元 |
-
-    <small>Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</small>  
+  | Name | PDB_File_Path | Variation | Chain | pH | T |
+  | 1SHG | /.../.../1SHG.pdb | Y57H |  A | 7 | 25 |
+  
+    <span style="font-size:small">Name (Identify this protein with a name consisting of fewer than 8 characters, and duplication is allowed)</span>  
     
-    <small>PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)</small>  
+    <span style="font-size:small">PDB_File_Path (The file path of the PDB protein that you need to predict. This must be an absolute path.)</span>  
     
-    <small>Variation (Specify the mutated amino acid, the mutation site number consistent with the PDB file, and the desired mutated amino acid. like: A100S)</small>  
+    <span style="font-size:small">Variation (Specify the mutated amino acid, the mutation site number consistent with the PDB file, and the desired mutated amino acid. like: Y57H)</span>  
     
-    <small>Chain (Specify the chain number mutated amino acid located, consistent with the PDB file)</small>  
+    <span style="font-size:small">Chain (Specify the chain number mutated amino acid located, consistent with the PDB file)</span>  
     
-    <small>pH (Specify pH)</small>  
+    <span style="font-size:small">pH (Specify pH)</span>  
     
-    <small>T (Specify temperature)</small>  
+    <span style="font-size:small">T (Specify temperature)</span>  
 
   There is a sample file in Your_Path/Features_Extraction/src/sample_pred.xls  
   
