@@ -264,15 +264,8 @@ def Prepare_for_Pred(table_path,clean_path,res_table_name,pdb_name,pdb_path,mut_
         is_beta='0'
 
     if Is_Beta:
-        res = Check_PDB_chain_order(pdb_path, chain_id, loc, wt_aa_short)
-        if res is False:
-            error_obj.Something_Wrong(Prepare.__name__)
-            return False
-        else:
-            if res[0] == False:
-                pass
-            else:
-                chain_id = res[1]
+        error_obj.Something_Wrong(Prepare_for_Pred.__name__,f'In this {id} pdb, chain number has problem')
+        return False
 
     true_loc = Get_True_Loc(loc, wt_aa_short, pdb_path,chain_id)
     if true_loc is False:
@@ -878,7 +871,8 @@ def Run_FoldX(foldx_path,foldx_name,pdb_path,wt_aa,mut_aa,loc,chain_id,raw_dict:
         with open(f'{outpath}/temp.pdb','w') as new_pdb:
             new_pdb.write(pdb.read())
 
-    os.system(f'{foldx_path}{foldx_name} --command=BuildModel --pdb=temp.pdb --pdb-dir {outpath} --mutant-file={outpath}individual_list.txt --output-dir={outpath}')
+    shutil.copy(f'{foldx_path}rotabase.txt', f'{outpath}rotabase.txt')
+    os.system(f'{foldx_path}{foldx_name} --command=BuildModel --pdb=temp.pdb --pdb-dir {outpath} --mutant-file={outpath}individual_list.txt --output-dir={outpath} --rotabaseLocation={outpath}rotabase.txt')
 
     files=os.listdir(outpath)
 
@@ -1230,7 +1224,7 @@ def Read_Pred_XLS(Raw_Dataset_File):
     for i in range(column):
         header.append(rs.cell_value(0,i))
     if header!=['Name','PDB_File_Path','Variation','Chain','pH','T']:
-        error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+        error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check pred_dataset, lack header')
         exit(1)
     Raw_Data_List = []
     for i in range(1, rows):
@@ -1238,29 +1232,36 @@ def Read_Pred_XLS(Raw_Dataset_File):
         for j in range(column):
             list_.append(rs.cell_value(i, j))
         Raw_Data_List.append(list_)
+    check_dict={}
     for row in Raw_Data_List:
         if len(row)!=6:
-            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check pred_dataset, lack column')
             exit(1)
         for item in row:
             if item=='':
-                error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+                error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check pred_dataset, empty value')
                 exit(1)
         if str(row[1]).split('.')[-1]!='pdb':
-            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check pred_dataset, wrong file format of pdb')
             exit(1)
         if not os.path.exists(row[1]):
-            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check pred_dataset, pdb file is not existed')
             exit(1)
         if not os.path.isabs(row[1]):
-            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'path of your pred_dataset must be abs path')
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'path of pdb must be abs path')
             exit(1)
         if len(row[0])>8:
-            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'name of protein is too long, should be less than 8')
             exit(1)
         if str(row[0]).find('_')!=-1:
-            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'check format of your pred_dataset')
+            error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'wrong characters in your protein name')
             exit(1)
+        if row[0] not in check_dict.keys():
+            check_dict[row[0]]=row[1]
+        else:
+            if row[1]!=check_dict[row[0]]:
+                error_obj.Something_Wrong(Read_Pred_XLS.__name__, 'protein name correspond to more than one pdb path')
+                exit(1)
     temp_list=[]
     for data_list in Raw_Data_List:
         unique=data_list[0]+'_'+data_list[2]+'_'+str(data_list[3])+'_'+str(data_list[4]).replace('.','')+str(data_list[5]).replace('.','')

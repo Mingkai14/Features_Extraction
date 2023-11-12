@@ -68,7 +68,6 @@ MSA_DB_Name=''
 
 
 
-Prof_Temp_Path='./src/Prof/'
 
 Main_Location=os.path.abspath('./')+'/'
 Home_Location=os.path.expandvars('$HOME')
