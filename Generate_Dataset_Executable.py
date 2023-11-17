@@ -1,3 +1,5 @@
+import os
+
 from scripts.Feature_Extracting import *
 from scripts.Run_Modeller import *
 from scripts.MSA import *
@@ -113,6 +115,12 @@ if __name__ == '__main__':
 
     Remove_FoldX_Resource()
     Clean_Main_Directory()
+
+
+    print('Cleaning temporary folder in ./src/TMP/')
+    import shutil
+    shutil.rmtree(TMP_Path)
+    os.mkdir(TMP_Path)
 
     print('Have finished')
     exit(0)

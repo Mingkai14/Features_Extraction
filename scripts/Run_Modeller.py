@@ -1,9 +1,16 @@
+import shutil
+
 from modeller import *
 from modeller.automodel import *
 import os
 from Bio import SeqIO
 from scripts.Error import error_obj
 import multiprocessing
+import signal
+
+def Signal_Handler(sig, frame):
+    print("Received signal to terminate.")
+    os.kill(os.getpid(), signal.SIGTERM)
 
 
 data_list=[]
@@ -21,45 +28,72 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path,process_num:int):
         for line in lines[1:]:
             data_list.append(line.replace('\n',''))
     line_num=1
-    pool = multiprocessing.Pool(process_num)
-    process_res_list = []
-    for data in data_list:
-        item_list=str(data).split(',')
-        if len(item_list)!=21:
-            error_obj.Something_Wrong(Prepare_MUT_Models.__name__)
-            exit(1)
-        fasta_path=item_list[10]
-        template_pdb_path=item_list[6]
-        pdb_name=item_list[7]
 
-        files = os.listdir(mut_pdb_path)
-        pdbs_names = []
-        for file in files:
-            pdbs_names.append(file.split('.')[0])
-        if pdb_name in pdbs_names:
-            item_list[8]=mut_pdb_path+pdb_name+'.pdb'
-            if line_num!=len(backup_lines)-1:
-                new_line=','.join(item_list)+'\n'
+
+    original_directory = os.getcwd() + '/'
+    if os.path.exists('./modeller_temp/'):
+        shutil.rmtree('./modeller_temp/')
+    os.mkdir('./modeller_temp/')
+    os.chdir('./modeller_temp/')
+
+    mut_pdb_path=os.path.join(original_directory,mut_pdb_path)
+
+
+    try:
+        pool = multiprocessing.Pool(process_num)
+        process_res_list = []
+
+        signal.signal(signal.SIGINT, Signal_Handler)
+
+        for data in data_list:
+            item_list=str(data).split(',')
+            if len(item_list)!=21:
+                error_obj.Something_Wrong(Prepare_MUT_Models.__name__)
+                exit(1)
+            fasta_path=item_list[10]
+            fasta_path=os.path.join(original_directory,fasta_path)
+            template_pdb_path=item_list[6]
+            template_pdb_path=os.path.join(original_directory,template_pdb_path)
+            pdb_name=item_list[7]
+
+            files = os.listdir(mut_pdb_path)
+            pdbs_names = []
+            for file in files:
+                pdbs_names.append(file.split('.')[0])
+            if pdb_name in pdbs_names:
+                item_list[8]=mut_pdb_path+pdb_name+'.pdb'
+                if line_num!=len(backup_lines)-1:
+                    new_line=','.join(item_list)+'\n'
+                else:
+                    new_line = ','.join(item_list)
+                backup_lines[line_num]=new_line
+                line_num+=1
+                continue
             else:
-                new_line = ','.join(item_list)
-            backup_lines[line_num]=new_line
-            line_num+=1
-            continue
-        else:
-            arg = (fasta_path, template_pdb_path, pdb_name, mut_pdb_path)
-            res = pool.apply_async(model_with_modeller, arg)
-            process_res_list.append(res)
+                arg = (fasta_path, template_pdb_path, pdb_name, mut_pdb_path)
+                res = pool.apply_async(model_with_modeller, arg)
+                process_res_list.append(res)
 
-            item_list[8] = mut_pdb_path + pdb_name + '.pdb'
-            if line_num!=len(backup_lines)-1:
-                new_line=','.join(item_list)+'\n'
-            else:
-                new_line = ','.join(item_list)
-            backup_lines[line_num]=new_line
-            line_num+=1
+                item_list[8] = mut_pdb_path + pdb_name + '.pdb'
+                if line_num!=len(backup_lines)-1:
+                    new_line=','.join(item_list)+'\n'
+                else:
+                    new_line = ','.join(item_list)
+                backup_lines[line_num]=new_line
+                line_num+=1
 
-    pool.close()
-    pool.join()
+        pool.close()
+        pool.join()
+    except Exception as e:
+        print(e)
+        os.chdir(original_directory)
+        shutil.rmtree('./modeller_temp/')
+        error_obj.Something_Wrong(Prepare_MUT_Models.__name__)
+        exit(1)
+
+    os.chdir(original_directory)
+    shutil.rmtree('./modeller_temp/')
+
 
     res_count = 0
     for process_res in process_res_list:
@@ -68,15 +102,13 @@ def Prepare_MUT_Models(table_path,table_name,mut_pdb_path,process_num:int):
         res_count += 1
         if not process_res.successful():
             error_obj.Modelling_Fail(Prepare_MUT_Models.__name__, name)
-            return False
         if process_res.get() is False:
             error_obj.Modelling_Fail(Prepare_MUT_Models.__name__, name)
-            return False
 
     with open(table_path + table_name, 'w') as table:
         for line in backup_lines:
             table.write(line)
-    return True
+
 
 
 

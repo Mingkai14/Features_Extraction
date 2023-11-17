@@ -71,7 +71,6 @@ if __name__ == '__main__':
 
     print(f'Your input arguments:\n--pred_dataset_path:{pred_dataset_path}\n--db_folder_path:{scripts.Global_Value.MSA_DB_Path}\n--db_name:{scripts.Global_Value.MSA_DB_Name}\n--if_reversed_data:{scripts.Global_Value.Is_Use_Reverse_Data}\n--blast_process_num:{scripts.Global_Value.BLAST_Process_Num}\n--mode:{scripts.Global_Value.Mode}\n--process_num:{scripts.Global_Value.Process_Num}\n')
 
-
     try:
         print('Initing configuration')
         Init()
@@ -128,6 +127,12 @@ if __name__ == '__main__':
 
     Remove_FoldX_Resource()
     Clean_Main_Directory()
+
+
+    print('Cleaning temporary folder in ./src/TMP/')
+    import shutil
+    shutil.rmtree(TMP_Path)
+    os.mkdir(TMP_Path)
 
     print('Have finished')
     exit(0)

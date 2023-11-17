@@ -12,7 +12,11 @@ from scripts.MSA import find_pssm_score
 import scripts.AAindex
 from scripts.AAindex import Get_Mutation_Index_List_from_Matrix,Get_Mutation_Index_List_from_Index
 import multiprocessing
+import signal
 
+def Signal_Handler(sig, frame):
+    print("Received signal to terminate.")
+    os.kill(os.getpid(), signal.SIGTERM)
 
 
 data_list=[]
@@ -80,6 +84,7 @@ def Feature_Extraction(table_path, table_name, features_obj_list:list, process_n
     task_count=0
     pool = multiprocessing.Pool(process_num)
     process_res_list = []
+    signal.signal(signal.SIGINT, Signal_Handler)
     for data in data_list:
         item_list=str(data).split(',')
         if len(item_list)!=21:

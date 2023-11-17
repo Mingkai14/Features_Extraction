@@ -6,6 +6,11 @@ from scripts.Global_Value import *
 import scripts.Global_Value
 import multiprocessing
 import shutil
+import signal
+
+def Signal_Handler(sig, frame):
+    print("Received signal to terminate.")
+    os.kill(os.getpid(), signal.SIGTERM)
 
 
 
@@ -44,6 +49,7 @@ def Prepare_Blast_Files(table_path,table_name,wt_pssm_path,mut_pssm_path,wt_psi_
     count_list=[]
     line_num = 1
     pool = multiprocessing.Pool(scripts.Global_Value.BLAST_Process_Num)
+    signal.signal(signal.SIGINT, Signal_Handler)
     for data in data_list:
         item_list=str(data).split(',')
         if len(item_list)!=21:
@@ -88,6 +94,7 @@ def Prepare_Blast_Files(table_path,table_name,wt_pssm_path,mut_pssm_path,wt_psi_
         data_list.append(line.replace('\n', ''))
     line_num = 1
     pool = multiprocessing.Pool(scripts.Global_Value.BLAST_Process_Num)
+    signal.signal(signal.SIGINT, Signal_Handler)
     for data in data_list:
         item_list=str(data).split(',')
         if len(item_list)!=21:
@@ -130,6 +137,7 @@ def Prepare_Blast_Files(table_path,table_name,wt_pssm_path,mut_pssm_path,wt_psi_
         data_list.append(line.replace('\n', ''))
     line_num = 1
     pool = multiprocessing.Pool(scripts.Global_Value.BLAST_Process_Num)
+    signal.signal(signal.SIGINT, Signal_Handler)
     for data in data_list:
         item_list = str(data).split(',')
         if len(item_list) != 21:
@@ -170,6 +178,7 @@ def Prepare_Blast_Files(table_path,table_name,wt_pssm_path,mut_pssm_path,wt_psi_
         data_list.append(line.replace('\n', ''))
     line_num = 1
     pool = multiprocessing.Pool(scripts.Global_Value.BLAST_Process_Num)
+    signal.signal(signal.SIGINT, Signal_Handler)
     for data in data_list:
         item_list = str(data).split(',')
         if len(item_list) != 21:
