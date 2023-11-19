@@ -519,20 +519,9 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
         error_obj.Something_Wrong(Detail_Extraction.__name__)
         return False
 
-    #NMA
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 8: Running Bio3D to get NMA')
-    res=Run_NMA(obj.WT_Structure.PDB_path,obj.MUT_Structure.PDB_path,obj.True_Loc_of_Mutation,obj.Chain_ID_of_Mut,obj.WT_Seq,R_NMA_Path,R_NMA_App_Name,TMP_Path,f'nma_res_{obj.ID}')
-    if res is False:
-        error_obj.Something_Wrong(Detail_Extraction.__name__,'NMA failed, maybe PDB is too big and need more memories')
-        return False
-    else:
-        obj.WT_NMA_Fluctuation=res['wt_fluctuation_loc']
-        obj.MUT_NMA_Fluctuation=res['mut_fluctuation_loc']
-        obj.Overall_Rmsip=res['rmsip']
-    obj.Diff_NMA_Fluctuation=obj.MUT_NMA_Fluctuation-obj.WT_NMA_Fluctuation
 
     #Length
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 9: Running DisEMBL')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 8: Running DisEMBL')
     res=Run_DisEMBL(obj.WT_Seq,obj.Chain_ID_of_Mut,obj.WT_Structure.PDB_Name,DisEMBL_Path,TMP_Path,f'disembl_res_{obj.ID}')
     if res is False:
         error_obj.Something_Wrong(Detail_Extraction.__name__)
@@ -558,7 +547,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
 
 
     #
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 10: Calculating features on AA site')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 9: Calculating features on AA site')
     res_list=Get_Mutation_Description(obj.WT_Amino_Acid,obj.MUT_Amino_Acid,obj.WT_Secondary_Structure_Char,obj.MUT_Secondary_Structure_Char)
     obj.WT_AA_Type=res_list[0]
     obj.MUT_AA_Type=res_list[1]
@@ -647,7 +636,7 @@ def Detail_Extraction(obj:Feature_Object,basic_list:list,task_count:int):
     obj.Diff_PSSM_Score_Aver=obj.MUT_PSSM_Score_Aver-obj.WT_PSSM_Score_Aver
 
 
-    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 11: Calculating AAindex features')
+    print(f'Task {task_count}, ID {obj.ID}: Features Extraction 10: Calculating AAindex features')
     obj.WT_AAindex1=Get_Mutation_Index_List_from_Index(obj.WT_Amino_Acid_short,obj.MUT_Amino_Acid_short,scripts.AAindex.aaindex1_list,obj.Diff_AAindex1)
     Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}',scripts.AAindex.aaindex2_list,obj.Descri_AAindex2)
     Get_Mutation_Index_List_from_Matrix(f'{obj.WT_Amino_Acid_short}{obj.MUT_Amino_Acid_short}', scripts.AAindex.aaindex3_list,obj.Descri_AAindex3)

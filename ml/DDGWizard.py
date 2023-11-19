@@ -46,11 +46,33 @@ def XGBoostRegression_Predict(csv_path,model_path,output_path):
             count+=1
         wb.save(f'{output_path}Pred_ddG.xls')
     else:
+        assert len(y_pred) == len(ids)
+        is_pass_rev=False
         for i in range(len(y_pred)):
             if i%2==0:
-                res_dict[ids[i]] = ['forward',y_pred[i]]
+                if i+1 < len(y_pred):
+                    for_id=str(ids[i])
+                    for_mut=for_id.split('_')[2]
+                    rev_id=str(ids[i+1])
+                    rev_mut=rev_id.split('_')[2]
+                    for_mut_changed=list(for_mut)
+                    prefix=for_mut_changed.pop(0)
+                    postfix=for_mut_changed.pop(-1)
+                    mid=''.join(for_mut_changed)
+                    for_mut_changed_str=postfix+mid+prefix
+                    if for_id.split('_')[0]==rev_id.split('_')[0] and for_id.split('_')[1]==rev_id.split('_')[1] and for_id.split('_')[3]==rev_id.split('_')[3] and rev_mut==for_mut_changed_str:
+                        res_dict[ids[i]] = ['forward',y_pred[i]]
+                    else:
+                        res_dict[ids[i]] = ['unknown', y_pred[i]]
+                        is_pass_rev=True
+                else:
+                    res_dict[ids[i]] = ['unknown', y_pred[i]]
+                    is_pass_rev=True
             else:
-                res_dict[ids[i]] = ['reverse', y_pred[i]]
+                if is_pass_rev:
+                    is_pass_rev=False
+                else:
+                    res_dict[ids[i]] = ['reverse', y_pred[i]]
 
         print(res_dict)
         print(f'result saving in {output_path}')
